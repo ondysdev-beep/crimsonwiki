@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cinzel:wght@400;500;600;700&display=swap');
+
+@layer base {
+  body {
+    @apply bg-dark-950 text-dark-100 antialiased;
+  }
+
+  ::selection {
+    @apply bg-crimson-600/40 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dark-600 rounded-full hover:bg-dark-500;
+  }
+}
+
+@layer components {
+  .wiki-content h1 {
+    @apply text-3xl font-bold text-dark-50 mt-8 mb-4 pb-2 border-b border-dark-700;
+  }
+
+  .wiki-content h2 {
+    @apply text-2xl font-bold text-dark-50 mt-6 mb-3 pb-2 border-b border-dark-700/50;
+  }
+
+  .wiki-content h3 {
+    @apply text-xl font-semibold text-dark-50 mt-5 mb-2;
+  }
+
+  .wiki-content p {
+    @apply mb-4 leading-relaxed text-dark-200;
+  }
+
+  .wiki-content a {
+    @apply text-crimson-400 hover:text-crimson-300 underline underline-offset-2;
+  }
+
+  .wiki-content ul {
+    @apply list-disc list-inside mb-4 space-y-1 text-dark-200;
+  }
+
+  .wiki-content ol {
+    @apply list-decimal list-inside mb-4 space-y-1 text-dark-200;
+  }
+
+  .wiki-content blockquote {
+    @apply border-l-4 border-crimson-600 pl-4 py-2 my-4 bg-dark-800/50 rounded-r-lg italic text-dark-300;
+  }
+
+  .wiki-content code {
+    @apply bg-dark-800 text-crimson-300 px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .wiki-content pre {
+    @apply bg-dark-800 p-4 rounded-lg overflow-x-auto mb-4;
+  }
+
+  .wiki-content pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .wiki-content img {
+    @apply rounded-lg my-4 max-w-full;
+  }
+
+  .wiki-content table {
+    @apply w-full border-collapse mb-4;
+  }
+
+  .wiki-content th {
+    @apply bg-dark-800 text-dark-50 font-semibold text-left p-3 border border-dark-700;
+  }
+
+  .wiki-content td {
+    @apply p-3 border border-dark-700 text-dark-200;
+  }
+
+  .wiki-content tr:hover td {
+    @apply bg-dark-800/30;
+  }
+}
+
+/* Tiptap editor styles */
+.tiptap {
+  @apply outline-none min-h-[400px] p-4;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  @apply text-dark-500 float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
+
+.tiptap .is-empty::before {
+  @apply text-dark-500 float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
