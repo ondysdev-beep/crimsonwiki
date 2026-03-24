@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Send, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatDateRelative } from '@/lib/utils';
 import type { Comment, Profile } from '@/lib/types/database';
@@ -79,87 +79,82 @@ export function CommentSection({ articleId }: { articleId: string }) {
   };
 
   return (
-    <section className="mt-12 border-t border-dark-700 pt-8">
-      <h2 className="text-xl font-bold text-dark-50 mb-6">
-        Comments ({comments.length})
-      </h2>
+    <section className="comments-section">
+      <div className="comments-header">
+        <div className="comments-title">Discussion ({comments.length})</div>
+      </div>
 
       {userId ? (
-        <form onSubmit={handleSubmit} className="mb-8">
-          <div className="flex gap-3">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              rows={3}
-              className="flex-1 bg-dark-800 border border-dark-600 rounded-lg px-4 py-3 text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50 focus:border-crimson-500 resize-none"
-            />
-          </div>
-          <div className="flex justify-end mt-2">
+        <form onSubmit={handleSubmit} className="comment-form">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Share your thoughts..."
+            rows={3}
+            className="comment-textarea"
+          />
+          <div className="comment-form-actions">
             <button
               type="submit"
               disabled={loading || !newComment.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-crimson-600 hover:bg-crimson-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+              className="comment-submit-btn"
             >
-              <Send className="w-4 h-4" />
-              Post Comment
+              {loading ? 'Posting...' : 'Post Comment'}
             </button>
           </div>
         </form>
       ) : (
-        <p className="text-sm text-dark-400 mb-8">
-          Sign in to leave a comment.
-        </p>
+        <div className="comment-login-prompt">
+          <Link href="/auth/login" className="btn-login">Login with Discord</Link>
+          <span>to join the discussion</span>
+        </div>
       )}
 
-      <div className="space-y-4">
+      <div className="comments-list">
         {comments.map((comment) => (
-          <div
-            key={comment.id}
-            className="bg-dark-800/50 border border-dark-700 rounded-lg p-4"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
+          <div key={comment.id} className="comment-item">
+            <div className="comment-item-header">
+              <div className="comment-author">
                 {comment.profiles?.avatar_url ? (
                   <Image
                     src={comment.profiles.avatar_url}
                     alt={comment.profiles.username}
-                    width={24}
-                    height={24}
-                    className="rounded-full"
+                    width={28}
+                    height={28}
+                    className="comment-avatar"
                   />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-dark-600 flex items-center justify-center text-xs text-dark-300">
+                  <span className="comment-avatar-fallback">
                     {comment.profiles?.username?.charAt(0).toUpperCase() || '?'}
-                  </div>
+                  </span>
                 )}
-                <span className="text-sm font-medium text-dark-200">
+                <span className="comment-author-name">
                   {comment.profiles?.username || 'Unknown'}
                 </span>
-                <span className="text-xs text-dark-500">
+                <span className="comment-date">
                   {formatDateRelative(comment.created_at)}
                 </span>
               </div>
               {canDelete(comment) && (
                 <button
                   onClick={() => handleDelete(comment.id)}
-                  className="p-1 text-dark-500 hover:text-crimson-400 transition-colors"
+                  className="comment-delete-btn"
                   aria-label="Delete comment"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  ✕
                 </button>
               )}
             </div>
-            <p className="text-sm text-dark-300 whitespace-pre-wrap">
+            <div className="comment-body">
               {comment.content}
-            </p>
+            </div>
           </div>
         ))}
 
         {comments.length === 0 && (
-          <p className="text-center text-sm text-dark-500 py-8">
+          <div className="comments-empty">
             No comments yet. Be the first to share your thoughts!
-          </p>
+          </div>
         )}
       </div>
     </section>

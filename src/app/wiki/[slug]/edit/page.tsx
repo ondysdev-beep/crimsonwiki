@@ -22,6 +22,15 @@ export default function EditArticlePage() {
   const [editSummary, setEditSummary] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -85,11 +94,20 @@ export default function EditArticlePage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-dark-800 rounded w-1/3" />
-          <div className="h-96 bg-dark-800 rounded" />
+      <div className="settings-page">
+        <div className="settings-loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="settings-page page-enter" style={{ textAlign: 'center', paddingTop: 80 }}>
+        <div className="section-title" style={{ marginBottom: 16 }}>Sign In Required</div>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.7 }}>
+          You need to be signed in to edit articles on CrimsonWiki.
         </div>
+        <a href="/auth/login" className="btn-login">Login with Discord</a>
       </div>
     );
   }
