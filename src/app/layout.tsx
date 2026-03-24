@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/utils';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import './globals.css';
 
@@ -82,22 +81,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#0a0f1a" />
-        <meta name="geo.region" content="US" />
-        <meta name="geo.placename" content="Global" />
+        <meta name="theme-color" content="#08070a" />
       </head>
-      <body className="min-h-screen flex flex-col">
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar />
-          <main className="flex-1 min-w-0">
-            {children}
-          </main>
-        </div>
+      <body>
+        <Navbar />
+        <main>{children}</main>
         <Footer />
       </body>
     </html>

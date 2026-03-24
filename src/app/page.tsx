@@ -1,12 +1,30 @@
 import Link from 'next/link';
-import { BookOpen, TrendingUp, Clock, Users } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { ArticleCard } from '@/components/articles/ArticleCard';
-import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/utils';
+import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
+
+const CATEGORY_COLORS: Record<string, { color: string; glow: string }> = {
+  quests: { color: '#c9a227', glow: 'rgba(201,162,39,0.12)' },
+  bosses: { color: '#cc3333', glow: 'rgba(204,51,51,0.12)' },
+  items: { color: '#4a9eff', glow: 'rgba(74,158,255,0.12)' },
+  locations: { color: '#33cc77', glow: 'rgba(51,204,119,0.12)' },
+  classes: { color: '#9b59b6', glow: 'rgba(155,89,182,0.12)' },
+  crafting: { color: '#e67e22', glow: 'rgba(230,126,34,0.12)' },
+  tips: { color: '#1abc9c', glow: 'rgba(26,188,156,0.12)' },
+  lore: { color: '#95a5a6', glow: 'rgba(149,165,166,0.12)' },
+};
+
+function getBadgeClass(slug: string): string {
+  const map: Record<string, string> = {
+    quests: 'badge-quest', bosses: 'badge-boss', items: 'badge-item',
+    locations: 'badge-location', classes: 'badge-class', crafting: 'badge-crafting',
+    tips: 'badge-tip', lore: 'badge-lore',
+  };
+  return map[slug] || 'badge-quest';
+}
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -15,17 +33,9 @@ export default async function HomePage() {
     .from('articles')
     .select('*, categories(*), profiles!articles_created_by_fkey(*)')
     .eq('is_published', true)
-    .order('created_at', { ascending: false })
+    .order('updated_at', { ascending: false })
     .limit(8);
   const recentArticles = (recentData ?? []) as unknown as ArticleWithCategory[];
-
-  const { data: popularData } = await supabase
-    .from('articles')
-    .select('*, categories(*), profiles!articles_created_by_fkey(*)')
-    .eq('is_published', true)
-    .order('view_count', { ascending: false })
-    .limit(4);
-  const popularArticles = (popularData ?? []) as unknown as ArticleWithCategory[];
 
   const { data: catData } = await supabase
     .from('categories')
@@ -38,111 +48,151 @@ export default async function HomePage() {
     .select('*', { count: 'exact', head: true })
     .eq('is_published', true);
 
+  const { count: profileCount } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-      {/* Hero */}
-      <section className="text-center py-12 md:py-20">
-        <h1 className="font-display text-4xl md:text-6xl font-bold text-dark-50 mb-4">
-          Welcome to <span className="text-crimson-500">{SITE_NAME}</span>
-        </h1>
-        <p className="text-lg text-dark-300 max-w-2xl mx-auto mb-8">
-          {SITE_DESCRIPTION}
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/search"
-            className="px-6 py-3 bg-crimson-600 hover:bg-crimson-700 text-white font-medium rounded-lg transition-colors"
-          >
-            Explore the Wiki
-          </Link>
-          <Link
-            href="/wiki/new"
-            className="px-6 py-3 bg-dark-800 hover:bg-dark-700 text-dark-100 font-medium rounded-lg border border-dark-600 transition-colors"
-          >
-            Create an Article
-          </Link>
+    <div className="page-enter">
+      {/* ───── HERO ───── */}
+      <div className="hero">
+        <div className="hero-bg" />
+        <div className="hero-rune" style={{ top: '15%', left: '8%', fontSize: 80 }}>ᚱ</div>
+        <div className="hero-rune" style={{ top: '60%', right: '10%', fontSize: 56 }}>ᚷ</div>
+        <div className="hero-rune" style={{ bottom: '20%', left: '20%', fontSize: 40 }}>ᛟ</div>
+        <div className="hero-ornament top" />
+        <div className="hero-ornament bottom" />
+        <div className="hero-content">
+          <div className="hero-eyebrow">Community Knowledge Base</div>
+          <h1 className="hero-title">CrimsonWiki</h1>
+          <div className="hero-subtitle">The World of Crimson Desert</div>
+          <div className="hero-desc">
+            A community-driven archive of quests, items, secrets, and lore — built by explorers, for explorers.
+          </div>
+          <form action="/search" method="GET" className="hero-search">
+            <input name="q" placeholder="Search quests, bosses, items, locations..." />
+            <button type="submit" className="hero-search-btn">Search</button>
+          </form>
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <span className="hero-stat-num">{articleCount?.toLocaleString() || '0'}</span>
+              <div className="hero-stat-label">Articles</div>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-num">{profileCount?.toLocaleString() || '0'}</span>
+              <div className="hero-stat-label">Contributors</div>
+            </div>
+            <div className="hero-stat">
+              <span className="hero-stat-num">{categories.length}</span>
+              <div className="hero-stat-label">Categories</div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Stats */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <BookOpen className="w-6 h-6 text-crimson-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-dark-50">{articleCount || 0}</p>
-          <p className="text-xs text-dark-400">Articles</p>
+      {/* ───── CATEGORIES ───── */}
+      <div className="section">
+        <div className="section-header">
+          <div className="section-title">Browse by Category</div>
+          <Link href="/search" className="section-link">View All →</Link>
         </div>
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <Users className="w-6 h-6 text-crimson-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-dark-50">{categories?.length || 0}</p>
-          <p className="text-xs text-dark-400">Categories</p>
+        <div className="categories-grid">
+          {categories.map((cat) => {
+            const colors = CATEGORY_COLORS[cat.slug] || { color: '#9b2020', glow: 'rgba(155,32,32,0.12)' };
+            return (
+              <Link
+                key={cat.id}
+                href={`/category/${cat.slug}`}
+                className="cat-card"
+                style={{ '--cat-color': colors.color, '--cat-glow': colors.glow } as React.CSSProperties}
+              >
+                <span className="cat-icon">{cat.icon || '📄'}</span>
+                <div className="cat-name">{cat.name}</div>
+                <div className="cat-desc">{cat.description || ''}</div>
+              </Link>
+            );
+          })}
         </div>
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <TrendingUp className="w-6 h-6 text-crimson-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-dark-50">Community</p>
-          <p className="text-xs text-dark-400">Driven</p>
-        </div>
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <Clock className="w-6 h-6 text-crimson-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-dark-50">24/7</p>
-          <p className="text-xs text-dark-400">Updated</p>
-        </div>
-      </section>
+      </div>
 
-      {/* Categories */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-dark-50 mb-6">Browse by Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/category/${cat.slug}`}
-              className="flex items-center gap-3 p-4 bg-dark-800/50 border border-dark-700 rounded-xl hover:border-dark-600 hover:bg-dark-800 transition-all group"
-            >
-              <span className="text-2xl">{cat.icon}</span>
-              <div>
-                <p className="font-medium text-dark-100 group-hover:text-white transition-colors">
-                  {cat.name}
-                </p>
-                <p className="text-xs text-dark-500 line-clamp-1">{cat.description}</p>
+      {/* ───── ORNAMENT ───── */}
+      <div className="ornament-divider" style={{ maxWidth: 1400, margin: '0 auto 0', padding: '0 32px' }}>
+        <span>✦</span>
+      </div>
+
+      {/* ───── RECENT ARTICLES + SIDEBAR ───── */}
+      <div className="section" style={{ paddingTop: 40 }}>
+        <div className="articles-grid">
+          {/* Recent Articles List */}
+          <div>
+            <div className="section-header">
+              <div className="section-title">Recently Edited</div>
+              <Link href="/search" className="section-link">All Changes →</Link>
+            </div>
+            <div className="article-list">
+              {recentArticles.map((article) => {
+                const catSlug = (article.categories as unknown as Category)?.slug || '';
+                const catName = (article.categories as unknown as Category)?.name || '';
+                const catIcon = (article.categories as unknown as Category)?.icon || '📄';
+                const catColor = CATEGORY_COLORS[catSlug]?.color || '#9b2020';
+                const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
+                return (
+                  <Link
+                    key={article.id}
+                    href={`/wiki/${article.slug}`}
+                    className="article-item"
+                    style={{ '--cat-color': catColor } as React.CSSProperties}
+                  >
+                    <div className="article-item-cat" />
+                    <div className="article-item-icon">{catIcon}</div>
+                    <div className="article-item-body">
+                      <div className="article-item-title">{article.title}</div>
+                      <div className="article-item-meta">
+                        by <span>{authorName}</span> · {formatDateRelative(article.updated_at)} · <span>{(article.view_count || 0).toLocaleString()} views</span>
+                      </div>
+                    </div>
+                    <span className={`badge ${getBadgeClass(catSlug)}`}>{catName}</span>
+                  </Link>
+                );
+              })}
+              {recentArticles.length === 0 && (
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                  No articles yet. Be the first to{' '}
+                  <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)' }}>create one</Link>!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div>
+            <div className="sidebar-card">
+              <div className="sidebar-title">Quick Links</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <Link href="/wiki/new" className="footer-link" style={{ fontSize: 13 }}>📝 Create New Article</Link>
+                <Link href="/search" className="footer-link" style={{ fontSize: 13 }}>🔍 Search the Wiki</Link>
+                <Link href="/category/quests" className="footer-link" style={{ fontSize: 13 }}>📜 Browse Quests</Link>
+                <Link href="/category/bosses" className="footer-link" style={{ fontSize: 13 }}>⚔️ Browse Bosses</Link>
               </div>
-            </Link>
-          ))}
+            </div>
+
+            <div className="sidebar-card" style={{ fontFamily: "'Crimson Pro', serif", fontSize: 15, color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: 1.7 }}>
+              <div className="sidebar-title">Did You Know?</div>
+              &ldquo;The secret vault beneath Thornwood Village contains a one-time loot chest that respawns only on new moon cycles.&rdquo;
+            </div>
+
+            <div className="sidebar-card" style={{ border: '1px solid rgba(155,32,32,0.3)', background: 'rgba(155,32,32,0.05)' }}>
+              <div className="sidebar-title" style={{ color: 'var(--crimson-bright)' }}>Contribute</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 12 }}>
+                Help build the most complete Crimson Desert resource. Every edit counts.
+              </div>
+              <Link href="/auth/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }}>
+                Join &amp; Start Editing
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
-
-      {/* Popular Articles */}
-      {popularArticles.length > 0 && (
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-dark-50">Popular Articles</h2>
-            <Link href="/search" className="text-sm text-crimson-400 hover:text-crimson-300 transition-colors">
-              View all
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {popularArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Recent Articles */}
-      {recentArticles.length > 0 && (
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-dark-50">Recent Articles</h2>
-            <Link href="/search" className="text-sm text-crimson-400 hover:text-crimson-300 transition-colors">
-              View all
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {recentArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
-          </div>
-        </section>
-      )}
+      </div>
     </div>
   );
 }
