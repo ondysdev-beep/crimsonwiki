@@ -111,16 +111,16 @@ export function Navbar() {
                     <div className="user-dropdown-name">{user.username}</div>
                     <div className="user-dropdown-role">{user.role}</div>
                   </div>
-                  <Link href="/settings" className="user-dropdown-item" onClick={() => setMenuOpen(false)}>
+                  <a href="/settings" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/settings'); }}>
                     ⚙️ Settings
-                  </Link>
-                  <Link href="/wiki/new" className="user-dropdown-item" onClick={() => setMenuOpen(false)}>
+                  </a>
+                  <a href="/wiki/new" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/wiki/new'); }}>
                     📝 New Article
-                  </Link>
+                  </a>
                   {(user.role === 'admin' || user.role === 'moderator') && (
-                    <Link href="/admin" className="user-dropdown-item" onClick={() => setMenuOpen(false)}>
+                    <a href="/admin" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/admin'); }}>
                       🛡️ Admin Panel
-                    </Link>
+                    </a>
                   )}
                   <div className="user-dropdown-divider" />
                   <button className="user-dropdown-item user-dropdown-signout" onClick={handleSignOut}>
