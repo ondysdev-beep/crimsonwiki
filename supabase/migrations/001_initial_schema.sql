@@ -213,25 +213,37 @@ create trigger on_comment_updated
 -- Auto-create profile on new user signup
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  _username text;
 begin
+  -- Build username with safe fallbacks
+  _username := coalesce(
+    new.raw_user_meta_data->'custom_claims'->>'global_name',
+    new.raw_user_meta_data->>'user_name',
+    new.raw_user_meta_data->>'name',
+    new.raw_user_meta_data->>'full_name',
+    split_part(new.email, '@', 1),
+    'user_' || substr(new.id::text, 1, 8)
+  );
+
+  -- Ensure username uniqueness
+  if exists (select 1 from public.profiles where username = _username) then
+    _username := _username || '_' || substr(md5(random()::text), 1, 4);
+  end if;
+
   insert into public.profiles (id, username, avatar_url, discord_id)
   values (
     new.id,
-    coalesce(
-      new.raw_user_meta_data->>'custom_claims'->>'global_name',
-      new.raw_user_meta_data->>'user_name',
-      new.raw_user_meta_data->>'name',
-      split_part(new.email, '@', 1)
-    ),
-    coalesce(
-      new.raw_user_meta_data->>'avatar_url',
-      null
-    ),
+    _username,
+    new.raw_user_meta_data->>'avatar_url',
     new.raw_user_meta_data->>'provider_id'
   );
   return new;
+exception when others then
+  raise warning 'handle_new_user failed for %: %', new.id, sqlerrm;
+  return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create trigger on_auth_user_created
   after insert on auth.users
