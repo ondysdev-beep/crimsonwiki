@@ -1,52 +1,64 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 export default function AuthCallbackPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const [status, setStatus] = useState('Signing you in...');
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
-    const errorParam = searchParams.get('error_description') || searchParams.get('error');
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error_description') || params.get('error');
+    const code = params.get('code');
+
     if (errorParam) {
-      router.replace(`/auth/login?error=${encodeURIComponent(errorParam)}`);
+      window.location.href = `/auth/login?error=${encodeURIComponent(errorParam)}`;
       return;
     }
 
-    const code = searchParams.get('code');
     if (!code) {
-      router.replace('/auth/login?error=missing_code');
+      window.location.href = '/auth/login?error=missing_code';
       return;
     }
 
+    const supabase = createClient();
     let cancelled = false;
+
+    setStatus('Exchanging authorization code...');
 
     supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
       if (cancelled) return;
       if (exchangeError) {
+        console.error('exchangeCodeForSession error:', exchangeError);
         setError(exchangeError.message);
+        setStatus('Login failed');
         setTimeout(() => {
-          router.replace(`/auth/login?error=${encodeURIComponent(exchangeError.message)}`);
+          window.location.href = `/auth/login?error=${encodeURIComponent(exchangeError.message)}`;
         }, 2000);
       } else {
-        router.replace('/');
+        setStatus('Success! Redirecting...');
+        // Hard redirect to ensure fresh page load with new cookies
+        window.location.href = '/';
       }
+    }).catch((err) => {
+      if (cancelled) return;
+      console.error('exchangeCodeForSession exception:', err);
+      setError(String(err));
+      setStatus('Login failed');
     });
 
     // Timeout fallback
     const timeout = setTimeout(() => {
-      if (!cancelled) {
-        // Check if we actually have a session despite no callback
+      if (!cancelled && !error) {
         supabase.auth.getSession().then(({ data: { session } }) => {
+          if (cancelled) return;
           if (session) {
-            router.replace('/');
+            window.location.href = '/';
           } else {
             setError('Login timed out. Please try again.');
-            setTimeout(() => router.replace('/auth/login?error=timeout'), 2000);
+            setStatus('Timed out');
+            setTimeout(() => { window.location.href = '/auth/login?error=timeout'; }, 2000);
           }
         });
       }
@@ -70,14 +82,14 @@ export default function AuthCallbackPage() {
     }}>
       {error ? (
         <>
-          <div style={{ color: '#e05555', fontSize: 16, fontWeight: 600 }}>Login Failed</div>
+          <div style={{ color: '#e05555', fontSize: 16, fontWeight: 600 }}>{status}</div>
           <div style={{ fontSize: 14 }}>{error}</div>
           <div style={{ fontSize: 12 }}>Redirecting to login page...</div>
         </>
       ) : (
         <>
           <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
-            Signing you in...
+            {status}
           </div>
           <div style={{ fontSize: 13 }}>Please wait while we complete authentication.</div>
         </>
