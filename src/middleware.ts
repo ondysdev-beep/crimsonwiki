@@ -2,6 +2,17 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  const { searchParams, pathname } = request.nextUrl;
+
+  // Catch OAuth errors that Supabase redirects to the homepage
+  const oauthError = searchParams.get('error_description') || searchParams.get('error');
+  if (oauthError && (pathname === '/' || pathname === '')) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/auth/login';
+    loginUrl.search = `?error=${encodeURIComponent(oauthError)}`;
+    return NextResponse.redirect(loginUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
