@@ -16,6 +16,16 @@ select * from (values
 ) as v(name, slug, icon, description, color)
 where not exists (select 1 from public.categories where slug = v.slug);
 
+-- 1b. Fix existing category icons (replace emojis with letters)
+UPDATE public.categories SET icon = 'Q' WHERE slug = 'quests' AND (icon IS NULL OR icon != 'Q');
+UPDATE public.categories SET icon = 'B' WHERE slug = 'bosses' AND (icon IS NULL OR icon != 'B');
+UPDATE public.categories SET icon = 'I' WHERE slug = 'items' AND (icon IS NULL OR icon != 'I');
+UPDATE public.categories SET icon = 'L' WHERE slug = 'locations' AND (icon IS NULL OR icon != 'L');
+UPDATE public.categories SET icon = 'C' WHERE slug = 'classes' AND (icon IS NULL OR icon != 'C');
+UPDATE public.categories SET icon = 'R' WHERE slug = 'crafting' AND (icon IS NULL OR icon != 'R');
+UPDATE public.categories SET icon = 'T' WHERE slug = 'tips' AND (icon IS NULL OR icon != 'T');
+UPDATE public.categories SET icon = 'H' WHERE slug = 'lore' AND (icon IS NULL OR icon != 'H');
+
 -- 2. Add new profile fields for settings page
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS website_url text;

@@ -112,7 +112,7 @@ export default async function HomePage() {
                   className="cat-card"
                   style={{ '--cat-color': colors.color, '--cat-glow': colors.glow } as React.CSSProperties}
                 >
-                  <span className="cat-icon">{cat.icon || ''}</span>
+                  <span className="cat-icon">{cat.name.charAt(0)}</span>
                   <div className="cat-name">{cat.name}</div>
                   <div className="cat-desc">{cat.description || ''}</div>
                 </Link>

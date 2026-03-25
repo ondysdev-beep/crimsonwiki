@@ -83,7 +83,7 @@ export function Navbar() {
         <div className="nav-links">
           <Link href="/" className={`nav-link${isActive('/') ? ' active' : ''}`}>Home</Link>
           <Link href="/search" className={`nav-link${isActive('/search') ? ' active' : ''}`}>Categories</Link>
-          <Link href="/wiki/new" className={`nav-link${isActive('/wiki/new') ? ' active' : ''}`}>Contribute</Link>
+          <Link href="/contribute" className={`nav-link${isActive('/contribute') ? ' active' : ''}`}>Contribute</Link>
         </div>
 
         <div className="nav-right">
