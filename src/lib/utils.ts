@@ -55,4 +55,4 @@ export function truncate(str: string, length: number): string {
 
 export const SITE_NAME = 'CrimsonWiki';
 export const SITE_DESCRIPTION = 'The community-driven wiki for Crimson Desert. Guides, lore, bosses, quests, items, classes, crafting, and more.';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://crimsonwiki.gg';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://crimsonwiki.org';

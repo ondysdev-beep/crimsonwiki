@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { SITE_URL } from '@/lib/utils';
 
-export default function LoginPage() {
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const errorFromCallback = searchParams.get('error');
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
@@ -29,6 +32,21 @@ export default function LoginPage() {
           padding: '40px 32px',
           textAlign: 'center',
         }}>
+          {errorFromCallback && (
+            <div style={{
+              background: 'rgba(155,32,32,0.15)',
+              border: '1px solid rgba(155,32,32,0.3)',
+              borderRadius: 8,
+              padding: '12px 16px',
+              marginBottom: 20,
+              fontSize: 13,
+              color: '#e05555',
+              lineHeight: 1.5,
+            }}>
+              Prihlaseni selhalo: {decodeURIComponent(errorFromCallback)}
+            </div>
+          )}
+
           <div style={{
             fontFamily: "'Cinzel', serif",
             fontSize: 22,
@@ -86,5 +104,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+        Loading...
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
