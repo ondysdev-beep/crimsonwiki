@@ -51,6 +51,25 @@ export async function GET(request: Request) {
     );
   }
 
+  if (data?.user) {
+    const meta = data.user.user_metadata ?? {};
+    const rawUsername =
+      meta?.custom_claims?.global_name ??
+      meta?.user_name ??
+      meta?.name ??
+      meta?.full_name ??
+      data.user.email?.split('@')[0] ??
+      'user_' + data.user.id.substring(0, 8);
+    const username = (rawUsername ?? '').trim() || 'user_' + data.user.id.substring(0, 8);
+    const { error: upsertError } = await supabase
+      .from('profiles')
+      .upsert(
+        { id: data.user.id, username, avatar_url: meta?.avatar_url ?? null, discord_id: meta?.provider_id ?? null },
+        { onConflict: 'id', ignoreDuplicates: true }
+      );
+    console.log('[auth/callback] profile upsert:', upsertError?.message ?? 'ok');
+  }
+
   const forwardedHost = request.headers.get('x-forwarded-host');
   const redirectTo = forwardedHost ? `https://${forwardedHost}/` : `${origin}/`;
 
