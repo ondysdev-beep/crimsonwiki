@@ -1349,6 +1349,11 @@ body::before {
   cursor: not-allowed;
 }
 
+select option {
+  background: var(--bg-surface, #110e1a);
+  color: var(--text-primary, #e0dbd2);
+}
+
 .settings-hint {
   font-size: 11px;
   color: var(--text-dim);

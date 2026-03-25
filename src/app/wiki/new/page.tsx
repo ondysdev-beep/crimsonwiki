@@ -133,16 +133,21 @@ export default function NewArticlePage() {
         setErrors({ form: 'Failed to create article: ' + error.message });
       }
     } else if (data) {
-      await supabase.from('article_revisions').insert({
-        article_id: data.id,
-        content: content as unknown as Json,
-        content_text: plainText,
-        edited_by: session.user.id,
-        edit_summary: editSummary.trim() || 'Initial version',
-      });
+      try {
+        await supabase.from('article_revisions').insert({
+          article_id: data.id,
+          content: content as unknown as Json,
+          content_text: plainText,
+          edited_by: session.user.id,
+          edit_summary: editSummary.trim() || 'Initial version',
+        });
+      } catch { /* revision insert failed, article still created */ }
 
       try { localStorage.removeItem('autosave-new-article'); } catch { /* ignore */ }
+      setSaving(false);
+      setSavingDraft(false);
       router.push(`/wiki/${data.slug}`);
+      return;
     }
     setSaving(false);
     setSavingDraft(false);
