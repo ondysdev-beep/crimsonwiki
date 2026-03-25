@@ -17,7 +17,7 @@ function LoginContent() {
     await supabase.auth.signInWithOAuth({
       provider: 'discord',
       options: {
-        redirectTo: `${SITE_URL}/auth/callback`,
+        redirectTo: `${SITE_URL}/api/auth/callback`,
       },
     });
   };
