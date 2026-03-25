@@ -168,132 +168,146 @@ export default function NewArticlePage() {
     );
   }
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 14px',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 8,
+    color: 'var(--text-primary)',
+    fontSize: 14,
+    fontFamily: 'inherit',
+    outline: 'none',
+  };
+  const inputErrorStyle: React.CSSProperties = { ...inputStyle, borderColor: '#e05555' };
+  const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
+  const errorTextStyle: React.CSSProperties = { fontSize: 12, color: '#e05555', marginTop: 4 };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <h1 className="text-2xl font-bold text-dark-50 mb-6">Create New Article</h1>
+    <div className="page-enter" style={{ maxWidth: 800, margin: '0 auto', padding: '32px 16px' }}>
+      <div className="section-title" style={{ marginBottom: 24 }}>Create New Article</div>
 
       {errors.form && (
-        <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
+        <div style={{
+          background: 'rgba(155,32,32,0.15)',
+          border: '1px solid rgba(155,32,32,0.3)',
+          borderRadius: 8,
+          padding: '12px 16px',
+          marginBottom: 20,
+          fontSize: 13,
+          color: '#e05555',
+        }}>
           {errors.form}
         </div>
       )}
 
-      <div className="space-y-5 mb-8">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">Title *</label>
+          <label style={labelStyle}>Title *</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Stoneback Crab Boss Guide"
-            className={`w-full px-4 py-2.5 bg-dark-800 border rounded-lg text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50 focus:border-crimson-500 ${errors.title ? 'border-red-500' : 'border-dark-600'}`}
+            style={errors.title ? inputErrorStyle : inputStyle}
           />
-          {errors.title && <p className="mt-1 text-xs text-red-400">{errors.title}</p>}
+          {errors.title && <div style={errorTextStyle}>{errors.title}</div>}
         </div>
 
         {/* Slug */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">
-            URL Slug
+          <label style={labelStyle}>
+            URL Slug{' '}
             <button
               type="button"
               onClick={() => setAutoSlug(!autoSlug)}
-              className="ml-2 text-xs text-crimson-400 hover:text-crimson-300"
+              style={{ fontSize: 11, color: 'var(--crimson-bright)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {autoSlug ? '(auto - click to edit)' : '(manual - click for auto)'}
             </button>
           </label>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-dark-500">/wiki/</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>/wiki/</span>
             <input
               type="text"
               value={slug}
-              onChange={(e) => {
-                setAutoSlug(false);
-                setSlug(e.target.value);
-              }}
+              onChange={(e) => { setAutoSlug(false); setSlug(e.target.value); }}
               disabled={autoSlug}
-              className={`flex-1 px-4 py-2.5 bg-dark-800 border rounded-lg text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50 disabled:opacity-60 ${errors.slug ? 'border-red-500' : 'border-dark-600'}`}
+              style={{ ...inputStyle, flex: 1, opacity: autoSlug ? 0.5 : 1, ...(errors.slug ? { borderColor: '#e05555' } : {}) }}
             />
           </div>
-          {errors.slug && <p className="mt-1 text-xs text-red-400">{errors.slug}</p>}
+          {errors.slug && <div style={errorTextStyle}>{errors.slug}</div>}
         </div>
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">Category *</label>
+          <label style={labelStyle}>Category *</label>
           <select
             value={categoryId ?? ''}
             onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
-            className={`w-full px-4 py-2.5 bg-dark-800 border rounded-lg text-dark-100 focus:outline-none focus:ring-2 focus:ring-crimson-500/50 focus:border-crimson-500 ${errors.category ? 'border-red-500' : 'border-dark-600'}`}
+            style={{ ...inputStyle, ...(errors.category ? { borderColor: '#e05555' } : {}) }}
           >
             <option value="">Select a category...</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.icon} {cat.name}
-              </option>
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
-          {errors.category && <p className="mt-1 text-xs text-red-400">{errors.category}</p>}
+          {errors.category && <div style={errorTextStyle}>{errors.category}</div>}
         </div>
 
         {/* Excerpt */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">Excerpt (short description)</label>
+          <label style={labelStyle}>Excerpt (short description)</label>
           <textarea
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value.slice(0, 300))}
             placeholder="A brief summary of the article (max 300 characters)"
             rows={3}
             maxLength={300}
-            className="w-full px-4 py-2.5 bg-dark-800 border border-dark-600 rounded-lg text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50 resize-none"
+            style={{ ...inputStyle, resize: 'none' as const }}
           />
-          <div className="mt-1 text-xs text-dark-500 text-right">{excerpt.length}/300</div>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'right', marginTop: 4 }}>{excerpt.length}/300</div>
         </div>
 
         {/* Cover Image */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">Cover Image (optional)</label>
-          <div className="flex items-center gap-3">
+          <label style={labelStyle}>Cover Image (optional)</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
               type="button"
               onClick={() => coverInputRef.current?.click()}
               disabled={coverUploading}
-              className="flex items-center gap-2 px-4 py-2 bg-dark-800 border border-dark-600 rounded-lg text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-700 transition-colors"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 14px', background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: 8, fontSize: 13, color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'inherit',
+              }}
             >
               <Upload className="w-4 h-4" />
               {coverUploading ? 'Uploading...' : 'Upload image'}
             </button>
-            <span className="text-dark-500 text-xs">or</span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>or</span>
             <input
               type="text"
               value={coverImageUrl}
               onChange={(e) => setCoverImageUrl(e.target.value)}
               placeholder="Paste image URL..."
-              className="flex-1 px-4 py-2 bg-dark-800 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+              style={{ ...inputStyle, flex: 1 }}
             />
           </div>
-          <input
-            ref={coverInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleCoverUpload}
-            className="hidden"
-          />
+          <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverUpload} style={{ display: 'none' }} />
           {coverImageUrl && (
-            <div className="mt-3 relative inline-block">
-              <Image
-                src={coverImageUrl}
-                alt="Cover preview"
-                width={320}
-                height={180}
-                className="rounded-lg border border-dark-600 object-cover"
-              />
+            <div style={{ marginTop: 12, position: 'relative', display: 'inline-block' }}>
+              <Image src={coverImageUrl} alt="Cover preview" width={320} height={180} style={{ borderRadius: 8, border: '1px solid var(--border)', objectFit: 'cover' }} />
               <button
                 type="button"
                 onClick={() => setCoverImageUrl('')}
-                className="absolute top-1 right-1 p-1 bg-dark-900/80 rounded-full text-dark-300 hover:text-white"
+                style={{
+                  position: 'absolute', top: 4, right: 4, padding: 4,
+                  background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%',
+                  color: '#ccc', cursor: 'pointer', lineHeight: 0,
+                }}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -303,13 +317,13 @@ export default function NewArticlePage() {
 
         {/* Edit Summary */}
         <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1.5">Edit Summary</label>
+          <label style={labelStyle}>Edit Summary</label>
           <input
             type="text"
             value={editSummary}
             onChange={(e) => setEditSummary(e.target.value)}
             placeholder="What did you write? (e.g. Initial article about boss mechanics)"
-            className="w-full px-4 py-2.5 bg-dark-800 border border-dark-600 rounded-lg text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+            style={inputStyle}
           />
         </div>
       </div>
@@ -324,12 +338,19 @@ export default function NewArticlePage() {
         onImageUpload={uploadImage}
       />
 
-      <div className="flex items-center justify-end gap-3 mt-6">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
         <button
           type="button"
           onClick={() => handleSave(false)}
           disabled={savingDraft || saving || !title.trim()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-dark-800 hover:bg-dark-700 border border-dark-600 disabled:opacity-50 disabled:cursor-not-allowed text-dark-200 font-medium rounded-lg transition-colors"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '10px 20px', background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-muted)',
+            cursor: (savingDraft || saving || !title.trim()) ? 'not-allowed' : 'pointer',
+            opacity: (savingDraft || saving || !title.trim()) ? 0.5 : 1,
+            fontFamily: 'inherit', transition: 'background 0.2s',
+          }}
         >
           <FileText className="w-4 h-4" />
           {savingDraft ? 'Saving...' : 'Save Draft'}
@@ -338,7 +359,14 @@ export default function NewArticlePage() {
           type="button"
           onClick={() => handleSave(true)}
           disabled={saving || savingDraft || !title.trim()}
-          className="flex items-center gap-2 px-6 py-2.5 bg-crimson-600 hover:bg-crimson-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '10px 24px', background: 'var(--crimson)', border: 'none',
+            borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#fff',
+            cursor: (saving || savingDraft || !title.trim()) ? 'not-allowed' : 'pointer',
+            opacity: (saving || savingDraft || !title.trim()) ? 0.5 : 1,
+            fontFamily: 'inherit', transition: 'background 0.2s',
+          }}
         >
           <Save className="w-4 h-4" />
           {saving ? 'Publishing...' : 'Publish Article'}
