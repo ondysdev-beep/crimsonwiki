@@ -33,17 +33,31 @@ export default function NewArticlePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
-      } catch (err) {
-        console.error('Auth check failed:', err);
-        setIsAuthenticated(false);
-      }
+    let resolved = false;
+    const done = (session: boolean) => {
+      if (resolved) return;
+      resolved = true;
+      setIsAuthenticated(session);
       setAuthChecked(true);
     };
-    checkAuth();
+
+    // Primary: listen for auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => done(!!session)
+    );
+
+    // Fallback: direct check
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => done(!!session))
+      .catch(() => done(false));
+
+    // Timeout fallback
+    const timeout = setTimeout(() => done(false), 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   useEffect(() => {
