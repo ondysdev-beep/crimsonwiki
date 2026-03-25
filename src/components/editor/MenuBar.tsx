@@ -58,10 +58,20 @@ function MenuButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`p-2 rounded transition-colors ${active
-        ? 'bg-crimson-600/20 text-crimson-400'
-        : 'text-dark-300 hover:text-dark-100 hover:bg-dark-700'
-        } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+      style={{
+        padding: 8,
+        borderRadius: 4,
+        border: 'none',
+        background: active ? 'rgba(155,32,32,0.2)' : 'transparent',
+        color: active ? 'var(--crimson-bright, #c42c2c)' : 'var(--text-muted, #7a7088)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.3 : 1,
+        transition: 'background 0.15s, color 0.15s',
+        lineHeight: 0,
+        fontFamily: 'inherit',
+      }}
+      onMouseEnter={(e) => { if (!active && !disabled) { (e.currentTarget).style.background = 'var(--card-hover, #1a1724)'; (e.currentTarget).style.color = 'var(--text-primary, #e2d9c8)'; } }}
+      onMouseLeave={(e) => { if (!active) { (e.currentTarget).style.background = 'transparent'; (e.currentTarget).style.color = 'var(--text-muted, #7a7088)'; } }}
     >
       {children}
     </button>
@@ -69,7 +79,7 @@ function MenuButton({
 }
 
 function Divider() {
-  return <div className="w-px h-6 bg-dark-600 mx-1" />;
+  return <div style={{ width: 1, height: 24, background: 'var(--border, #2a2035)', margin: '0 4px' }} />;
 }
 
 function DropdownMenu({
@@ -93,19 +103,32 @@ function DropdownMenu({
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div style={{ position: 'relative' }} ref={ref}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         title={title}
-        className="flex items-center gap-1 px-2 py-1.5 rounded text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-700 transition-colors"
+        style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          padding: '6px 8px', borderRadius: 4, fontSize: 13,
+          color: 'var(--text-muted, #7a7088)', background: 'transparent',
+          border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          transition: 'background 0.15s, color 0.15s',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hover, #1a1724)'; e.currentTarget.style.color = 'var(--text-primary, #e2d9c8)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted, #7a7088)'; }}
       >
         {trigger}
         <ChevronDown size={12} />
       </button>
       {open && (
         <div
-          className="absolute top-full left-0 mt-1 z-50 bg-dark-800 border border-dark-600 rounded-lg shadow-xl py-1 min-w-[140px]"
+          style={{
+            position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50,
+            background: 'var(--surface, #0f0d13)', border: '1px solid var(--border, #2a2035)',
+            borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.5)', padding: '4px 0',
+            minWidth: 140,
+          }}
           onClick={() => setOpen(false)}
         >
           {children}
@@ -174,7 +197,7 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
   const iconSize = 16;
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-dark-700 bg-dark-800">
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, padding: 8, borderBottom: '1px solid var(--border, #2a2035)', background: 'var(--surface, #0f0d13)' }}>
       {/* Group 1 - History */}
       <MenuButton
         onClick={() => editor.chain().focus().undo().run()}
@@ -232,7 +255,7 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
       <Divider />
 
       {/* Group 3 - Font Size */}
-      <DropdownMenu trigger={<span className="text-xs">Size</span>} title="Font Size">
+      <DropdownMenu trigger={<span style={{ fontSize: 12 }}>Size</span>} title="Font Size">
         {FONT_SIZES.map((fs) => (
           <button
             key={fs.value}
@@ -244,7 +267,9 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
                 editor.chain().focus().setMark('textStyle', { fontSize: fs.value }).run();
               }
             }}
-            className="block w-full text-left px-3 py-1.5 text-sm text-dark-200 hover:bg-dark-700 transition-colors"
+            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 12px', fontSize: 13, color: 'var(--text-primary, #e2d9c8)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hover, #1a1724)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
           >
             {fs.label}
           </button>
@@ -255,42 +280,46 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
 
       {/* Group 4 - Color */}
       <DropdownMenu
-        trigger={<Palette size={iconSize} className="text-dark-300" />}
+        trigger={<Palette size={iconSize} style={{ color: 'var(--text-muted, #7a7088)' }} />}
         title="Text Color"
       >
-        <div className="grid grid-cols-5 gap-1 p-2">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, padding: 8 }}>
           {TEXT_COLORS.map((color) => (
             <button
               key={color}
               type="button"
               onClick={() => editor.chain().focus().setColor(color).run()}
-              className="w-6 h-6 rounded border border-dark-600 hover:scale-110 transition-transform"
-              style={{ backgroundColor: color }}
+              style={{ width: 24, height: 24, borderRadius: 4, border: '1px solid var(--border, #2a2035)', backgroundColor: color, cursor: 'pointer', transition: 'transform 0.1s' }}
               title={color}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.15)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             />
           ))}
         </div>
         <button
           type="button"
           onClick={() => editor.chain().focus().unsetColor().run()}
-          className="block w-full text-left px-3 py-1.5 text-xs text-dark-400 hover:bg-dark-700 transition-colors border-t border-dark-700"
+          style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 12px', fontSize: 11, color: 'var(--text-dim, #4a4258)', background: 'transparent', border: 'none', borderTop: '1px solid var(--border, #2a2035)', cursor: 'pointer', fontFamily: 'inherit' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hover, #1a1724)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
         >
           Reset color
         </button>
       </DropdownMenu>
       <DropdownMenu
-        trigger={<Highlighter size={iconSize} className="text-dark-300" />}
+        trigger={<Highlighter size={iconSize} style={{ color: 'var(--text-muted, #7a7088)' }} />}
         title="Highlight Color"
       >
-        <div className="grid grid-cols-3 gap-1 p-2">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, padding: 8 }}>
           {HIGHLIGHT_COLORS.map((hl) => (
             <button
               key={hl.value}
               type="button"
               onClick={() => editor.chain().focus().toggleHighlight({ color: hl.value }).run()}
-              className="px-2 py-1 rounded text-xs text-dark-900 hover:scale-105 transition-transform"
-              style={{ backgroundColor: hl.value }}
+              style={{ padding: '4px 8px', borderRadius: 4, fontSize: 11, color: '#111', backgroundColor: hl.value, border: 'none', cursor: 'pointer', transition: 'transform 0.1s', fontFamily: 'inherit' }}
               title={hl.label}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
               {hl.label}
             </button>
@@ -299,7 +328,9 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         <button
           type="button"
           onClick={() => editor.chain().focus().unsetHighlight().run()}
-          className="block w-full text-left px-3 py-1.5 text-xs text-dark-400 hover:bg-dark-700 transition-colors border-t border-dark-700"
+          style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 12px', fontSize: 11, color: 'var(--text-dim, #4a4258)', background: 'transparent', border: 'none', borderTop: '1px solid var(--border, #2a2035)', cursor: 'pointer', fontFamily: 'inherit' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hover, #1a1724)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
         >
           Remove highlight
         </button>
@@ -444,7 +475,7 @@ export function MenuBar({ editor, onImageUpload }: MenuBarProps) {
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
-        className="hidden"
+        style={{ display: 'none' }}
       />
     </div>
   );

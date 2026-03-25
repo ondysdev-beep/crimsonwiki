@@ -102,7 +102,8 @@ export function TiptapEditor({
     },
     editorProps: {
       attributes: {
-        class: 'wiki-content focus:outline-none min-h-[400px]',
+        class: 'wiki-content',
+        style: 'outline: none; min-height: 400px;',
       },
     },
   });
@@ -151,18 +152,18 @@ export function TiptapEditor({
   const wordCount = editor.storage.characterCount?.words() ?? 0;
 
   return (
-    <div className="border border-dark-700 rounded-xl overflow-hidden bg-dark-800/50">
+    <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--surface)' }}>
       {editable && (
         <MenuBar
           editor={editor}
           onImageUpload={onImageUpload ? handleImageUpload : undefined}
         />
       )}
-      <div className="p-6">
+      <div style={{ padding: 24 }}>
         <EditorContent editor={editor} />
       </div>
       {editable && (
-        <div className="flex items-center justify-between px-4 py-2 border-t border-dark-700 text-xs text-dark-500">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-dim)' }}>
           <span>{charCount.toLocaleString()} characters / {wordCount.toLocaleString()} words</span>
           {autosaveKey && <span>Autosave every 30s</span>}
         </div>
