@@ -80,8 +80,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
         <Link
           href={query ? `/search?q=${encodeURIComponent(query)}` : '/search'}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${!categoryFilter
-              ? 'bg-crimson-600/20 border-crimson-600/40 text-crimson-400'
-              : 'bg-dark-800 border-dark-600 text-dark-400 hover:text-dark-200'
+            ? 'bg-crimson-600/20 border-crimson-600/40 text-crimson-400'
+            : 'bg-dark-800 border-dark-600 text-dark-400 hover:text-dark-200'
             }`}
         >
           All
@@ -91,11 +91,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
             key={cat.id}
             href={query ? `/search?q=${encodeURIComponent(query)}&category=${cat.slug}` : `/search?category=${cat.slug}`}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${categoryFilter === cat.slug
-                ? 'bg-crimson-600/20 border-crimson-600/40 text-crimson-400'
-                : 'bg-dark-800 border-dark-600 text-dark-400 hover:text-dark-200'
+              ? 'bg-crimson-600/20 border-crimson-600/40 text-crimson-400'
+              : 'bg-dark-800 border-dark-600 text-dark-400 hover:text-dark-200'
               }`}
           >
-            {cat.icon} {cat.name}
+            {cat.name}
           </Link>
         ))}
       </div>
@@ -153,10 +153,35 @@ export default async function SearchPage({ searchParams }: PageProps) {
       )}
 
       {!query && (
-        <div className="text-center py-16">
-          <p className="text-dark-500">
-            Type a search query to find articles in the wiki.
-          </p>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
+            Browse by Category
+          </div>
+          {categories.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/category/${cat.slug}`}
+                  className="block bg-dark-800/50 border border-dark-700 rounded-lg p-4 hover:border-dark-600 hover:bg-dark-800 transition-all"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 600, color: cat.color || 'var(--text-primary)', marginBottom: 4 }}>
+                    {cat.name}
+                  </div>
+                  {cat.description && (
+                    <div style={{ fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                      {cat.description}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-dim)' }}>
+              No categories found. Type a search query above to find articles.
+            </div>
+          )}
         </div>
       )}
     </div>

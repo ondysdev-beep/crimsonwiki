@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/auth/callback', '/wiki/new', '/wiki/*/edit'],
+        disallow: ['/api/', '/auth/', '/wiki/new', '/wiki/*/edit', '/settings', '/admin'],
       },
       {
         userAgent: 'Googlebot',

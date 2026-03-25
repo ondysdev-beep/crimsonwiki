@@ -15,22 +15,21 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-4xl font-bold text-crimson-500 mb-4">Something went wrong</h1>
-      <p className="text-dark-400 mb-8 max-w-md">
+    <div style={{
+      minHeight: '60vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', padding: '0 16px', textAlign: 'center',
+    }}>
+      <h1 style={{ fontSize: 32, fontWeight: 700, color: 'var(--crimson-bright)', marginBottom: 12 }}>
+        Something went wrong
+      </h1>
+      <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 32, maxWidth: 420 }}>
         An unexpected error occurred. Please try again or go back to the homepage.
       </p>
-      <div className="flex gap-4">
-        <button
-          onClick={reset}
-          className="px-6 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white font-medium rounded-lg transition-colors"
-        >
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={reset} className="btn-login">
           Try Again
         </button>
-        <Link
-          href="/"
-          className="px-6 py-2.5 bg-dark-800 hover:bg-dark-700 text-dark-100 font-medium rounded-lg border border-dark-600 transition-colors"
-        >
+        <Link href="/" className="btn-login" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
           Go Home
         </Link>
       </div>

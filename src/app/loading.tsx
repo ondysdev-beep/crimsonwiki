@@ -1,8 +1,15 @@
 export default function Loading() {
   return (
-    <div className="flex flex-col items-center justify-center py-20">
-      <div className="w-8 h-8 border-2 border-dark-600 border-t-crimson-500 rounded-full animate-spin mb-4" />
-      <p className="text-sm text-dark-400">Loading...</p>
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', padding: '80px 16px',
+    }}>
+      <div style={{
+        width: 32, height: 32, border: '2px solid var(--border)',
+        borderTopColor: 'var(--crimson-bright)', borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite', marginBottom: 16,
+      }} />
+      <p style={{ fontSize: 13, color: 'var(--text-dim)' }}>Loading...</p>
     </div>
   );
 }

@@ -81,7 +81,7 @@ export function Navbar() {
 
         <div className="nav-right">
           <Link href="/search" className="search-pill">
-            <span>🔍</span> Search the wiki...
+            Search the wiki...
           </Link>
 
           {user ? (

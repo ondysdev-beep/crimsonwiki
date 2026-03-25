@@ -2,10 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { Clock, FileText, MessageSquare, Edit, ExternalLink, Twitter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, formatDateRelative, SITE_NAME, SITE_URL } from '@/lib/utils';
-import type { Profile, ArticleWithCategory } from '@/lib/types/database';
+import type { ArticleWithCategory, Category } from '@/lib/types/database';
 
 interface PageProps {
   params: { username: string };
@@ -16,19 +15,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = await createClient();
   const { data } = await supabase
     .from('profiles')
-    .select('username, bio')
+    .select('username')
     .eq('username', params.username)
     .single();
-  const profile = data as { username: string; bio: string | null } | null;
 
-  if (!profile) return { title: 'User Not Found' };
+  if (!data) return { title: 'User Not Found' };
 
   return {
-    title: `${profile.username} - Profile`,
-    description: profile.bio || `${profile.username}'s profile on ${SITE_NAME}`,
+    title: `${data.username} - Profile`,
+    description: `${data.username}'s profile on ${SITE_NAME}`,
     openGraph: {
-      title: `${profile.username} | ${SITE_NAME}`,
-      url: `${SITE_URL}/profile/${profile.username}`,
+      title: `${data.username} | ${SITE_NAME}`,
+      url: `${SITE_URL}/profile/${data.username}`,
     },
   };
 }
@@ -39,12 +37,20 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
 
   const { data: profileData } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, username, avatar_url, role, is_founder, created_at, discord_id')
     .eq('username', params.username)
     .single();
 
   if (!profileData) notFound();
-  const profile = profileData as Profile;
+  const profile = profileData as {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+    role: string;
+    is_founder: boolean;
+    created_at: string;
+    discord_id: string | null;
+  };
 
   const { data: articlesData } = await supabase
     .from('articles')
@@ -77,89 +83,67 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
     articles: { slug: string; title: string } | null;
   }[];
 
+  const joinDate = formatDate(profile.created_at);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="section page-enter" style={{ maxWidth: 860 }}>
       {/* Profile Header */}
-      <div className="flex items-start gap-5 mb-8">
-        <div className="shrink-0">
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 32 }}>
+        <div style={{ flexShrink: 0 }}>
           {profile.avatar_url ? (
             <Image
               src={profile.avatar_url}
               alt={profile.username}
               width={80}
               height={80}
-              className="rounded-full border-2 border-dark-600"
+              style={{ borderRadius: '50%', border: '2px solid var(--border)' }}
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-crimson-600 flex items-center justify-center text-white text-2xl font-bold border-2 border-dark-600">
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'var(--crimson)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontSize: 28, fontWeight: 700,
+              border: '2px solid var(--border)',
+            }}>
               {profile.username.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-dark-50">{profile.username}</h1>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              {profile.username}
+            </h1>
             {profile.is_founder && (
-              <span className="text-xs font-semibold px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded-full">
-                Founder
-              </span>
+              <span className="founder-badge">Founder</span>
             )}
-            <span className="text-xs font-medium px-2 py-0.5 bg-dark-700 text-dark-300 rounded-full capitalize">
-              {profile.role}
-            </span>
+            <span className="badge" style={{ textTransform: 'capitalize' }}>{profile.role}</span>
           </div>
-          {profile.bio && (
-            <p className="text-sm text-dark-400 mb-2 max-w-xl">{profile.bio}</p>
-          )}
-          <div className="flex items-center gap-4 text-xs text-dark-500">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Joined {formatDate(profile.created_at)}
-            </span>
-            {profile.website_url && (
-              <a
-                href={profile.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-crimson-400 hover:text-crimson-300"
-              >
-                <ExternalLink className="w-3 h-3" />
-                Website
-              </a>
-            )}
-            {profile.twitter_handle && (
-              <a
-                href={`https://x.com/${profile.twitter_handle.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-crimson-400 hover:text-crimson-300"
-              >
-                <Twitter className="w-3 h-3" />
-                {profile.twitter_handle}
-              </a>
-            )}
+          <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>
+            Joined {joinDate}
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-dark-50">{articles.length}</p>
-          <p className="text-xs text-dark-400">Articles Created</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
+        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{articles.length}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Articles Created</div>
         </div>
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-dark-50">{editCount ?? 0}</p>
-          <p className="text-xs text-dark-400">Total Edits</p>
+        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{editCount ?? 0}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Total Edits</div>
         </div>
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-dark-50">{commentCount ?? 0}</p>
-          <p className="text-xs text-dark-400">Comments</p>
+        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{commentCount ?? 0}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Comments</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-dark-700">
+      <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
         {[
           { key: 'overview', label: 'Overview' },
           { key: 'articles', label: 'Articles' },
@@ -168,11 +152,12 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
           <Link
             key={t.key}
             href={`/profile/${profile.username}${t.key === 'overview' ? '' : `?tab=${t.key}`}`}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.key
-                ? 'border-crimson-500 text-crimson-400'
-                : 'border-transparent text-dark-400 hover:text-dark-200'
-            }`}
+            style={{
+              padding: '10px 16px', fontSize: 13, fontWeight: 500,
+              borderBottom: tab === t.key ? '2px solid var(--crimson-bright)' : '2px solid transparent',
+              color: tab === t.key ? 'var(--crimson-bright)' : 'var(--text-muted)',
+              textDecoration: 'none', transition: 'color 0.15s',
+            }}
           >
             {t.label}
           </Link>
@@ -182,84 +167,77 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
       {/* Tab Content */}
       {(tab === 'overview' || tab === 'articles') && (
         <div>
-          <h2 className="text-lg font-semibold text-dark-100 mb-4">
+          <div className="section-title" style={{ fontSize: 16, marginBottom: 16 }}>
             {tab === 'overview' ? 'Recent Articles' : 'All Articles'}
-          </h2>
+          </div>
           {articles.length > 0 ? (
-            <div className="space-y-3">
-              {(tab === 'overview' ? articles.slice(0, 5) : articles).map((article) => (
-                <Link
-                  key={article.id}
-                  href={`/wiki/${article.slug}`}
-                  className="flex items-center gap-4 bg-dark-800/50 border border-dark-700 rounded-lg p-4 hover:border-dark-600 hover:bg-dark-800 transition-all"
-                >
-                  <FileText className="w-5 h-5 text-dark-500 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-dark-100 font-medium truncate">{article.title}</p>
-                    <p className="text-xs text-dark-500">
-                      {article.categories?.name && (
-                        <span style={{ color: article.categories.color || '#dc2626' }}>
-                          {article.categories.name}
-                        </span>
-                      )}
-                      {' -- '}
-                      {formatDateRelative(article.updated_at)}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+            <div className="article-list">
+              {(tab === 'overview' ? articles.slice(0, 5) : articles).map((article) => {
+                const cat = article.categories as unknown as Category | null;
+                return (
+                  <Link
+                    key={article.id}
+                    href={`/wiki/${article.slug}`}
+                    className="article-item"
+                    style={{ '--cat-color': cat?.color || '#9b2020' } as React.CSSProperties}
+                  >
+                    <div className="article-item-cat" />
+                    <div className="article-item-body">
+                      <div className="article-item-title">{article.title}</div>
+                      <div className="article-item-meta">
+                        {cat?.name && <span style={{ color: cat.color || '#dc2626' }}>{cat.name}</span>}
+                        {' -- '}
+                        {formatDateRelative(article.updated_at)}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
-            <p className="text-dark-500 text-center py-12">No articles yet.</p>
+            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
+              No articles yet.
+            </div>
           )}
         </div>
       )}
 
       {tab === 'contributions' && (
         <div>
-          <h2 className="text-lg font-semibold text-dark-100 mb-4">Recent Contributions</h2>
+          <div className="section-title" style={{ fontSize: 16, marginBottom: 16 }}>
+            Recent Contributions
+          </div>
           {recentEdits.length > 0 ? (
-            <div className="space-y-3">
+            <div className="article-list">
               {recentEdits.map((edit) => (
-                <div
-                  key={edit.id}
-                  className="flex items-center gap-4 bg-dark-800/50 border border-dark-700 rounded-lg p-4"
-                >
-                  <Edit className="w-5 h-5 text-dark-500 shrink-0" />
-                  <div className="flex-1 min-w-0">
+                <div key={edit.id} className="article-item" style={{ cursor: 'default' }}>
+                  <div className="article-item-body">
                     {edit.articles ? (
                       <Link
                         href={`/wiki/${edit.articles.slug}`}
-                        className="text-dark-100 font-medium hover:text-crimson-400 transition-colors"
+                        className="article-item-title"
+                        style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
                       >
                         {edit.articles.title}
                       </Link>
                     ) : (
-                      <span className="text-dark-400">Deleted article</span>
+                      <span style={{ color: 'var(--text-dim)' }}>Deleted article</span>
                     )}
                     {edit.edit_summary && (
-                      <p className="text-xs text-dark-500 italic">{edit.edit_summary}</p>
+                      <div className="article-item-meta" style={{ fontStyle: 'italic' }}>{edit.edit_summary}</div>
                     )}
                   </div>
-                  <span className="text-xs text-dark-500 shrink-0">
+                  <span style={{ fontSize: 12, color: 'var(--text-dim)', flexShrink: 0 }}>
                     {formatDateRelative(edit.created_at)}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-dark-500 text-center py-12">No contributions yet.</p>
+            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
+              No contributions yet.
+            </div>
           )}
-        </div>
-      )}
-
-      {tab === 'comments' && (
-        <div>
-          <h2 className="text-lg font-semibold text-dark-100 mb-4">Recent Comments</h2>
-          <p className="text-dark-500 text-center py-12">
-            <MessageSquare className="w-6 h-6 mx-auto mb-2 text-dark-600" />
-            {commentCount ?? 0} comments posted
-          </p>
         </div>
       )}
     </div>

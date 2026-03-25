@@ -2,23 +2,24 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 text-center">
-      <h1 className="font-display text-6xl font-bold text-crimson-500 mb-4">404</h1>
-      <h2 className="text-2xl font-bold text-dark-50 mb-2">Page Not Found</h2>
-      <p className="text-dark-400 mb-8 max-w-md">
-        The page you are looking for does not exist. It may have been moved or deleted.
+    <div style={{
+      minHeight: '60vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', padding: '0 16px', textAlign: 'center',
+    }}>
+      <h1 style={{ fontFamily: "'Cinzel Decorative', 'Cinzel', serif", fontSize: 64, fontWeight: 700, color: 'var(--crimson-bright)', marginBottom: 8 }}>
+        404
+      </h1>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+        Page Not Found
+      </h2>
+      <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 32, maxWidth: 420 }}>
+        This page doesn&apos;t exist in the archives. It may have been moved or deleted.
       </p>
-      <div className="flex gap-4">
-        <Link
-          href="/"
-          className="px-6 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white font-medium rounded-lg transition-colors"
-        >
-          Go Home
+      <div style={{ display: 'flex', gap: 12 }}>
+        <Link href="/" className="btn-login">
+          Return to Homepage
         </Link>
-        <Link
-          href="/search"
-          className="px-6 py-2.5 bg-dark-800 hover:bg-dark-700 text-dark-100 font-medium rounded-lg border border-dark-600 transition-colors"
-        >
+        <Link href="/search" className="btn-login" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
           Search Wiki
         </Link>
       </div>

@@ -52,14 +52,15 @@ export default async function HomePage() {
     .from('profiles')
     .select('*', { count: 'exact', head: true });
 
+  const { count: editCount } = await supabase
+    .from('article_revisions')
+    .select('*', { count: 'exact', head: true });
+
   return (
     <div className="page-enter">
-      {/* ───── HERO ───── */}
+      {/* HERO */}
       <div className="hero">
         <div className="hero-bg" />
-        <div className="hero-rune" style={{ top: '15%', left: '8%', fontSize: 80 }}>ᚱ</div>
-        <div className="hero-rune" style={{ top: '60%', right: '10%', fontSize: 56 }}>ᚷ</div>
-        <div className="hero-rune" style={{ bottom: '20%', left: '20%', fontSize: 40 }}>ᛟ</div>
         <div className="hero-ornament top" />
         <div className="hero-ornament bottom" />
         <div className="hero-content">
@@ -67,7 +68,7 @@ export default async function HomePage() {
           <h1 className="hero-title">CrimsonWiki</h1>
           <div className="hero-subtitle">The World of Crimson Desert</div>
           <div className="hero-desc">
-            A community-driven archive of quests, items, secrets, and lore — built by explorers, for explorers.
+            A community-driven archive of quests, items, secrets, and lore -- built by explorers, for explorers.
           </div>
           <form action="/search" method="GET" className="hero-search">
             <input name="q" placeholder="Search quests, bosses, items, locations..." />
@@ -86,110 +87,116 @@ export default async function HomePage() {
               <span className="hero-stat-num">{categories.length}</span>
               <div className="hero-stat-label">Categories</div>
             </div>
+            <div className="hero-stat">
+              <span className="hero-stat-num">{editCount?.toLocaleString() || '0'}</span>
+              <div className="hero-stat-label">Edits</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ───── CATEGORIES ───── */}
+      {/* CATEGORIES */}
       <div className="section">
         <div className="section-header">
           <div className="section-title">Browse by Category</div>
-          <Link href="/search" className="section-link">View All →</Link>
+          <Link href="/search" className="section-link">View All</Link>
         </div>
-        <div className="categories-grid">
-          {categories.map((cat) => {
-            const colors = CATEGORY_COLORS[cat.slug] || { color: '#9b2020', glow: 'rgba(155,32,32,0.12)' };
+        {categories.length > 0 ? (
+          <div className="categories-grid">
+            {categories.map((cat) => {
+              const colors = CATEGORY_COLORS[cat.slug] || { color: '#9b2020', glow: 'rgba(155,32,32,0.12)' };
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/category/${cat.slug}`}
+                  className="cat-card"
+                  style={{ '--cat-color': colors.color, '--cat-glow': colors.glow } as React.CSSProperties}
+                >
+                  <span className="cat-icon">{cat.icon || ''}</span>
+                  <div className="cat-name">{cat.name}</div>
+                  <div className="cat-desc">{cat.description || ''}</div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
+            No categories yet. Be the first to{' '}
+            <Link href="/contribute" style={{ color: 'var(--crimson-bright)' }}>contribute</Link>!
+          </div>
+        )}
+      </div>
+
+      {/* ORNAMENT */}
+      <div className="ornament-divider" style={{ maxWidth: 1400, margin: '0 auto 0', padding: '0 32px' }}>
+        <span></span>
+      </div>
+
+      {/* RECENT ARTICLES */}
+      <div className="section" style={{ paddingTop: 40 }}>
+        <div className="section-header">
+          <div className="section-title">Recently Edited</div>
+          <Link href="/search" className="section-link">All Changes</Link>
+        </div>
+        <div className="article-list">
+          {recentArticles.map((article) => {
+            const catSlug = (article.categories as unknown as Category)?.slug || '';
+            const catName = (article.categories as unknown as Category)?.name || '';
+            const catColor = CATEGORY_COLORS[catSlug]?.color || '#9b2020';
+            const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
             return (
               <Link
-                key={cat.id}
-                href={`/category/${cat.slug}`}
-                className="cat-card"
-                style={{ '--cat-color': colors.color, '--cat-glow': colors.glow } as React.CSSProperties}
+                key={article.id}
+                href={`/wiki/${article.slug}`}
+                className="article-item"
+                style={{ '--cat-color': catColor } as React.CSSProperties}
               >
-                <span className="cat-icon">{cat.icon || '📄'}</span>
-                <div className="cat-name">{cat.name}</div>
-                <div className="cat-desc">{cat.description || ''}</div>
+                <div className="article-item-cat" />
+                <div className="article-item-body">
+                  <div className="article-item-title">{article.title}</div>
+                  <div className="article-item-meta">
+                    by <span>{authorName}</span> · {formatDateRelative(article.updated_at)} · <span>{(article.view_count || 0).toLocaleString()} views</span>
+                  </div>
+                </div>
+                <span className={`badge ${getBadgeClass(catSlug)}`}>{catName}</span>
               </Link>
             );
           })}
+          {recentArticles.length === 0 && (
+            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
+              No articles yet. Be the first to{' '}
+              <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)' }}>create one</Link>!
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ───── ORNAMENT ───── */}
-      <div className="ornament-divider" style={{ maxWidth: 1400, margin: '0 auto 0', padding: '0 32px' }}>
-        <span>✦</span>
-      </div>
-
-      {/* ───── RECENT ARTICLES + SIDEBAR ───── */}
-      <div className="section" style={{ paddingTop: 40 }}>
-        <div className="articles-grid">
-          {/* Recent Articles List */}
-          <div>
-            <div className="section-header">
-              <div className="section-title">Recently Edited</div>
-              <Link href="/search" className="section-link">All Changes →</Link>
-            </div>
-            <div className="article-list">
-              {recentArticles.map((article) => {
-                const catSlug = (article.categories as unknown as Category)?.slug || '';
-                const catName = (article.categories as unknown as Category)?.name || '';
-                const catIcon = (article.categories as unknown as Category)?.icon || '📄';
-                const catColor = CATEGORY_COLORS[catSlug]?.color || '#9b2020';
-                const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
-                return (
-                  <Link
-                    key={article.id}
-                    href={`/wiki/${article.slug}`}
-                    className="article-item"
-                    style={{ '--cat-color': catColor } as React.CSSProperties}
-                  >
-                    <div className="article-item-cat" />
-                    <div className="article-item-icon">{catIcon}</div>
-                    <div className="article-item-body">
-                      <div className="article-item-title">{article.title}</div>
-                      <div className="article-item-meta">
-                        by <span>{authorName}</span> · {formatDateRelative(article.updated_at)} · <span>{(article.view_count || 0).toLocaleString()} views</span>
-                      </div>
-                    </div>
-                    <span className={`badge ${getBadgeClass(catSlug)}`}>{catName}</span>
-                  </Link>
-                );
-              })}
-              {recentArticles.length === 0 && (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
-                  No articles yet. Be the first to{' '}
-                  <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)' }}>create one</Link>!
-                </div>
-              )}
+      {/* BOTTOM CARDS: Quick Links + Did You Know + Contribute */}
+      <div className="section" style={{ paddingTop: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+          <div className="sidebar-card" style={{ margin: 0 }}>
+            <div className="sidebar-title">Quick Links</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <Link href="/wiki/new" className="footer-link" style={{ fontSize: 13 }}>Create New Article</Link>
+              <Link href="/search" className="footer-link" style={{ fontSize: 13 }}>Search the Wiki</Link>
+              <Link href="/category/quests" className="footer-link" style={{ fontSize: 13 }}>Browse Quests</Link>
+              <Link href="/category/bosses" className="footer-link" style={{ fontSize: 13 }}>Browse Bosses</Link>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div>
-            <div className="sidebar-card">
-              <div className="sidebar-title">Quick Links</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <Link href="/wiki/new" className="footer-link" style={{ fontSize: 13 }}>📝 Create New Article</Link>
-                <Link href="/search" className="footer-link" style={{ fontSize: 13 }}>🔍 Search the Wiki</Link>
-                <Link href="/category/quests" className="footer-link" style={{ fontSize: 13 }}>📜 Browse Quests</Link>
-                <Link href="/category/bosses" className="footer-link" style={{ fontSize: 13 }}>⚔️ Browse Bosses</Link>
-              </div>
-            </div>
+          <div className="sidebar-card" style={{ margin: 0, fontFamily: "'Crimson Pro', serif", fontSize: 15, color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: 1.7 }}>
+            <div className="sidebar-title" style={{ fontStyle: 'normal' }}>Did You Know?</div>
+            &ldquo;The secret vault beneath Thornwood Village contains a one-time loot chest that respawns only on new moon cycles.&rdquo;
+          </div>
 
-            <div className="sidebar-card" style={{ fontFamily: "'Crimson Pro', serif", fontSize: 15, color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: 1.7 }}>
-              <div className="sidebar-title">Did You Know?</div>
-              &ldquo;The secret vault beneath Thornwood Village contains a one-time loot chest that respawns only on new moon cycles.&rdquo;
+          <div className="sidebar-card" style={{ margin: 0, border: '1px solid rgba(155,32,32,0.3)', background: 'rgba(155,32,32,0.05)' }}>
+            <div className="sidebar-title" style={{ color: 'var(--crimson-bright)' }}>Contribute</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 12 }}>
+              Help build the most complete Crimson Desert resource. Every edit counts.
             </div>
-
-            <div className="sidebar-card" style={{ border: '1px solid rgba(155,32,32,0.3)', background: 'rgba(155,32,32,0.05)' }}>
-              <div className="sidebar-title" style={{ color: 'var(--crimson-bright)' }}>Contribute</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 12 }}>
-                Help build the most complete Crimson Desert resource. Every edit counts.
-              </div>
-              <Link href="/auth/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }}>
-                Join &amp; Start Editing
-              </Link>
-            </div>
+            <Link href="/contribute" className="btn-login" style={{ width: '100%', textAlign: 'center' }}>
+              Join and Start Editing
+            </Link>
           </div>
         </div>
       </div>
