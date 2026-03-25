@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Save, FileText, Upload, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { TiptapEditor } from '@/components/editor/TiptapEditor';
@@ -318,7 +317,8 @@ export default function NewArticlePage() {
           <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverUpload} style={{ display: 'none' }} />
           {coverImageUrl && (
             <div style={{ marginTop: 12, position: 'relative', display: 'inline-block' }}>
-              <Image src={coverImageUrl} alt="Cover preview" width={320} height={180} style={{ borderRadius: 8, border: '1px solid var(--border)', objectFit: 'cover' }} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={coverImageUrl} alt="Cover preview" width={320} height={180} style={{ borderRadius: 8, border: '1px solid var(--border)', objectFit: 'cover', display: 'block' }} />
               <button
                 type="button"
                 onClick={() => setCoverImageUrl('')}
