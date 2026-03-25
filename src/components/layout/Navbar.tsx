@@ -17,15 +17,27 @@ export function Navbar() {
   const supabase = createClient();
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
+    const loadProfile = async (userId: string) => {
+      try {
         const { data } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('id', userId)
           .single();
         if (data) setUser(data as Profile);
+      } catch (err) {
+        console.error('Navbar: profile fetch failed', err);
+      }
+    };
+
+    const load = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await loadProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error('Navbar: session fetch failed', err);
       }
     };
     load();
@@ -33,12 +45,7 @@ export function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event: AuthChangeEvent, session: Session | null) => {
         if (session?.user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          if (data) setUser(data as Profile);
+          await loadProfile(session.user.id);
         } else {
           setUser(null);
         }

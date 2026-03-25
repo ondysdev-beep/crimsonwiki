@@ -31,34 +31,46 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        router.push('/auth/login');
-        return;
-      }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          router.push('/auth/login');
+          return;
+        }
 
-      setEmail(session.user.email || '');
+        setEmail(session.user.email || '');
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-      if (data) {
-        const p = data as Profile;
-        setProfile(p);
-        setUsername(p.username);
-        setBio(p.bio || '');
-        setWebsiteUrl(p.website_url || '');
-        setTwitterHandle(p.twitter_handle || '');
-        setDiscordUsername(p.discord_username || '');
-        setEmailNotifications(p.email_notifications ?? true);
-        setThemePreference(p.theme_preference || 'dark');
-        setLanguagePreference(p.language_preference || 'en');
-        setJoinDate(new Date(p.created_at).toLocaleDateString('en-US', {
-          year: 'numeric', month: 'long', day: 'numeric',
-        }));
+        if (error) {
+          console.error('Settings: profile fetch error', error.message);
+          setMessage({ type: 'error', text: 'Failed to load profile: ' + error.message });
+          setLoading(false);
+          return;
+        }
+
+        if (data) {
+          const p = data as Profile;
+          setProfile(p);
+          setUsername(p.username || '');
+          setBio((p as Record<string, unknown>).bio as string || '');
+          setWebsiteUrl((p as Record<string, unknown>).website_url as string || '');
+          setTwitterHandle((p as Record<string, unknown>).twitter_handle as string || '');
+          setDiscordUsername((p as Record<string, unknown>).discord_username as string || '');
+          setEmailNotifications((p as Record<string, unknown>).email_notifications as boolean ?? true);
+          setThemePreference(((p as Record<string, unknown>).theme_preference as string || 'dark') as 'dark' | 'light');
+          setLanguagePreference((p as Record<string, unknown>).language_preference as string || 'en');
+          setJoinDate(new Date(p.created_at).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric',
+          }));
+        }
+      } catch (err) {
+        console.error('Settings: unexpected error', err);
+        setMessage({ type: 'error', text: 'Something went wrong loading settings.' });
       }
       setLoading(false);
     };
@@ -103,18 +115,21 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage(null);
 
+    const updateData: Record<string, unknown> = {
+      username: username.trim(),
+    };
+    // Only include extended fields if they exist on the profile (columns may not be added yet)
+    if ('bio' in profile || bio) updateData.bio = bio.trim() || null;
+    if ('website_url' in profile || websiteUrl) updateData.website_url = websiteUrl.trim() || null;
+    if ('twitter_handle' in profile || twitterHandle) updateData.twitter_handle = twitterHandle.trim() || null;
+    if ('discord_username' in profile || discordUsername) updateData.discord_username = discordUsername.trim() || null;
+    if ('email_notifications' in profile) updateData.email_notifications = emailNotifications;
+    if ('theme_preference' in profile) updateData.theme_preference = themePreference;
+    if ('language_preference' in profile) updateData.language_preference = languagePreference;
+
     const { error } = await supabase
       .from('profiles')
-      .update({
-        username: username.trim(),
-        bio: bio.trim() || null,
-        website_url: websiteUrl.trim() || null,
-        twitter_handle: twitterHandle.trim() || null,
-        discord_username: discordUsername.trim() || null,
-        email_notifications: emailNotifications,
-        theme_preference: themePreference,
-        language_preference: languagePreference,
-      })
+      .update(updateData)
       .eq('id', profile.id);
 
     if (error) {

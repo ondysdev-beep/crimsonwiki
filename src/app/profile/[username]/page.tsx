@@ -35,13 +35,13 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
   const supabase = await createClient();
   const tab = searchParams.tab || 'overview';
 
-  const { data: profileData } = await supabase
+  const { data: profileData, error: profileError } = await supabase
     .from('profiles')
-    .select('id, username, avatar_url, role, is_founder, created_at, discord_id')
+    .select('id, username, avatar_url, role, is_founder, created_at')
     .eq('username', params.username)
     .single();
 
-  if (!profileData) notFound();
+  if (!profileData || profileError) notFound();
   const profile = profileData as {
     id: string;
     username: string;
@@ -49,7 +49,6 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
     role: string;
     is_founder: boolean;
     created_at: string;
-    discord_id: string | null;
   };
 
   const { data: articlesData } = await supabase

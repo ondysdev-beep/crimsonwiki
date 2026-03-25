@@ -11,7 +11,7 @@ function CallbackContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const errorDesc = searchParams.get('error_description');
+    const errorDesc = searchParams.get('error_description') || searchParams.get('error');
 
     if (errorDesc) {
       setError(errorDesc);
@@ -20,6 +20,20 @@ function CallbackContent() {
 
     const supabase = createClient();
 
+    // Handle PKCE code exchange on client side (fallback if route.ts didn't catch it)
+    const code = searchParams.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
+        if (exchangeError) {
+          setError(exchangeError.message);
+        } else {
+          router.push('/');
+        }
+      });
+      return;
+    }
+
+    // Handle implicit flow (hash fragment) via onAuthStateChange
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -28,7 +42,20 @@ function CallbackContent() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Timeout fallback — if nothing happens in 5 seconds, check session directly
+    const timeout = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push('/');
+      } else {
+        setError('Authentication timed out. Please try again.');
+      }
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [router, searchParams]);
 
   if (error) {
