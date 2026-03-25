@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { LogOut, User, Shield } from 'lucide-react';
+import { LogOut, User, Shield, FileText, Settings } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types/database';
 
@@ -63,7 +63,25 @@ export function UserMenu({ user }: { user: Profile }) {
             className="flex items-center gap-2 px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 transition-colors"
           >
             <User className="w-4 h-4" />
-            Profile
+            My Profile
+          </Link>
+
+          <Link
+            href={`/profile/${user.username}?tab=articles`}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            My Articles
+          </Link>
+
+          <Link
+            href="/settings"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-dark-200 hover:bg-dark-700 transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            Settings
           </Link>
 
           {(user.role === 'admin' || user.role === 'moderator') && (
@@ -83,7 +101,7 @@ export function UserMenu({ user }: { user: Profile }) {
               className="flex items-center gap-2 px-4 py-2 text-sm text-crimson-400 hover:bg-dark-700 transition-colors w-full text-left"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              Log Out
             </button>
           </div>
         </div>

@@ -18,6 +18,13 @@ export interface Database {
           role: 'viewer' | 'editor' | 'moderator' | 'admin';
           is_founder: boolean;
           created_at: string;
+          bio: string | null;
+          website_url: string | null;
+          twitter_handle: string | null;
+          discord_username: string | null;
+          email_notifications: boolean;
+          theme_preference: 'dark' | 'light';
+          language_preference: string;
         };
         Insert: {
           id: string;
@@ -27,6 +34,13 @@ export interface Database {
           role?: 'viewer' | 'editor' | 'moderator' | 'admin';
           is_founder?: boolean;
           created_at?: string;
+          bio?: string | null;
+          website_url?: string | null;
+          twitter_handle?: string | null;
+          discord_username?: string | null;
+          email_notifications?: boolean;
+          theme_preference?: 'dark' | 'light';
+          language_preference?: string;
         };
         Update: {
           id?: string;
@@ -35,6 +49,13 @@ export interface Database {
           discord_id?: string | null;
           role?: 'viewer' | 'editor' | 'moderator' | 'admin';
           is_founder?: boolean;
+          bio?: string | null;
+          website_url?: string | null;
+          twitter_handle?: string | null;
+          discord_username?: string | null;
+          email_notifications?: boolean;
+          theme_preference?: 'dark' | 'light';
+          language_preference?: string;
         };
         Relationships: [];
       };

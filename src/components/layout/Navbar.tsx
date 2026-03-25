@@ -111,20 +111,23 @@ export function Navbar() {
                     <div className="user-dropdown-name">{user.username}</div>
                     <div className="user-dropdown-role">{user.role}</div>
                   </div>
-                  <a href="/settings" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/settings'); }}>
-                    ⚙️ Settings
+                  <a href={`/profile/${user.username}`} className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push(`/profile/${user.username}`); }}>
+                    My Profile
                   </a>
-                  <a href="/wiki/new" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/wiki/new'); }}>
-                    📝 New Article
+                  <a href={`/profile/${user.username}?tab=articles`} className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push(`/profile/${user.username}?tab=articles`); }}>
+                    My Articles
+                  </a>
+                  <a href="/settings" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/settings'); }}>
+                    Settings
                   </a>
                   {(user.role === 'admin' || user.role === 'moderator') && (
                     <a href="/admin" className="user-dropdown-item" onClick={(e) => { e.preventDefault(); setMenuOpen(false); router.push('/admin'); }}>
-                      🛡️ Admin Panel
+                      Admin Panel
                     </a>
                   )}
                   <div className="user-dropdown-divider" />
                   <button className="user-dropdown-item user-dropdown-signout" onClick={handleSignOut}>
-                    🚪 Sign Out
+                    Log Out
                   </button>
                 </div>
               )}

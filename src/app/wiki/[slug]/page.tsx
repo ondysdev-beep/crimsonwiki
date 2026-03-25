@@ -70,6 +70,20 @@ export default async function ArticlePage({ params }: PageProps) {
     .eq('id', a.id)
     .then();
 
+  // Fetch related articles (same category, excluding current)
+  let relatedArticles: { id: string; slug: string; title: string; excerpt: string | null }[] = [];
+  if (a.category_id) {
+    const { data: relData } = await supabase
+      .from('articles')
+      .select('id, slug, title, excerpt')
+      .eq('category_id', a.category_id)
+      .eq('is_published', true)
+      .neq('id', a.id)
+      .order('view_count', { ascending: false })
+      .limit(4);
+    if (relData) relatedArticles = relData as typeof relatedArticles;
+  }
+
   // JSON-LD Article structured data
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -181,10 +195,13 @@ export default async function ArticlePage({ params }: PageProps) {
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-dark-400">
             {a.profiles && (
-              <span className="flex items-center gap-1.5">
+              <Link
+                href={`/profile/${a.profiles.username}`}
+                className="flex items-center gap-1.5 hover:text-dark-200 transition-colors"
+              >
                 <User className="w-4 h-4" />
                 {a.profiles.username}
-              </span>
+              </Link>
             )}
             <span className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
@@ -233,6 +250,29 @@ export default async function ArticlePage({ params }: PageProps) {
         <div className="wiki-content">
           <ArticleContentRenderer content={a.content} />
         </div>
+
+        {/* Related Articles */}
+        {a.categories && relatedArticles.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-dark-700">
+            <h2 className="text-lg font-semibold text-dark-100 mb-4">
+              Related Articles in {a.categories.name}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {relatedArticles.map((ra) => (
+                <Link
+                  key={ra.id}
+                  href={`/wiki/${ra.slug}`}
+                  className="block bg-dark-800/50 border border-dark-700 rounded-lg p-4 hover:border-dark-600 hover:bg-dark-800 transition-all"
+                >
+                  <p className="text-dark-100 font-medium">{ra.title}</p>
+                  {ra.excerpt && (
+                    <p className="text-xs text-dark-500 mt-1 line-clamp-2">{ra.excerpt}</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Comments */}
         <CommentSection articleId={a.id} />

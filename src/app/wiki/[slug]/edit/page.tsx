@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { TiptapEditor } from '@/components/editor/TiptapEditor';
 import { extractTextFromJson } from '@/lib/utils';
-import type { Category, Article, Json } from '@/lib/types/database';
+import type { Article, Json } from '@/lib/types/database';
 import type { JSONContent } from '@tiptap/react';
 
 export default function EditArticlePage() {
@@ -30,6 +30,19 @@ export default function EditArticlePage() {
       setIsAuthenticated(!!session);
     };
     checkAuth();
+  }, []);
+
+  const uploadImage = useCallback(async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const json = await res.json();
+      if (json.url) return json.url as string;
+    } catch {
+      // upload failed
+    }
+    return null;
   }, []);
 
   useEffect(() => {
@@ -141,6 +154,8 @@ export default function EditArticlePage() {
           setContent(json);
           setContentText(text);
         }}
+        autosaveKey={`autosave-edit-${slug}`}
+        onImageUpload={uploadImage}
       />
 
       <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
