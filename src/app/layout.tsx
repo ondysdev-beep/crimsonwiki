@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/utils';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -85,7 +86,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#08070a" />
+        <meta name="theme-color" content="#111214" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9218255749368917"
@@ -94,7 +95,12 @@ export default function RootLayout({
       </head>
       <body>
         <Navbar />
-        <main>{children}</main>
+        <div className="page">
+          <LeftSidebar />
+          <main className="main-content">
+            {children}
+          </main>
+        </div>
         <Footer />
       </body>
     </html>

@@ -77,26 +77,33 @@ export default async function SearchPage({ searchParams }: PageProps) {
   };
 
   return (
-    <div className="page-enter" style={{ maxWidth: 800, margin: '0 auto', padding: '32px 16px' }}>
-      <div className="section-title" style={{ marginBottom: 20 }}>Search the Wiki</div>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Search</div>
+          <div className="page-hd-sub">Find articles, guides, and information</div>
+        </div>
+      </div>
 
-      <form action="/search" method="GET" style={{ marginBottom: 24 }}>
+      {/* SEARCH INPUT */}
+      <form action="/search" method="GET" style={{ marginBottom: '10px' }}>
         <input
           type="text"
           name="q"
           defaultValue={query}
-          placeholder="Search articles, guides, bosses, items..."
+          placeholder="Search wiki..."
           autoFocus
           style={{
             width: '100%',
-            padding: '12px 16px',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 10,
-            color: 'var(--text-primary)',
-            fontSize: 15,
+            height: '28px',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--border-2)',
+            color: 'var(--text-0)',
+            fontSize: '13px',
+            padding: '0 8px',
             outline: 'none',
-            fontFamily: 'inherit',
+            fontFamily: 'var(--ff)',
           }}
         />
         {categoryFilter && (
@@ -104,103 +111,120 @@ export default async function SearchPage({ searchParams }: PageProps) {
         )}
       </form>
 
-      {/* Category Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-        <span style={{ fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Filter:</span>
+      {/* CATEGORY FILTERS */}
+      <div style={{ marginBottom: '10px', fontSize: '11px', color: 'var(--text-2)' }}>
+        Filter by category:{' '}
         <Link
           href={query ? `/search?q=${encodeURIComponent(query)}` : '/search'}
-          style={!categoryFilter ? pillActive : pillBase}
+          style={{
+            color: !categoryFilter ? 'var(--amber)' : 'var(--link)',
+            textDecoration: 'none'
+          }}
         >
           All
         </Link>
-        {categories.map((cat) => (
-          <Link
-            key={cat.id}
-            href={query ? `/search?q=${encodeURIComponent(query)}&category=${cat.slug}` : `/search?category=${cat.slug}`}
-            style={categoryFilter === cat.slug ? pillActive : pillBase}
-          >
-            {cat.name}
-          </Link>
+        {categories.map((cat, i) => (
+          <span key={cat.id}>
+            {', '}
+            <Link
+              href={query ? `/search?q=${encodeURIComponent(query)}&category=${cat.slug}` : `/search?category=${cat.slug}`}
+              style={{
+                color: categoryFilter === cat.slug ? 'var(--amber)' : 'var(--link)',
+                textDecoration: 'none'
+              }}
+            >
+              {cat.name}
+            </Link>
+          </span>
         ))}
       </div>
 
+      {/* SEARCH RESULTS */}
       {query && (
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
-          {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
-          {categoryFilter && (
-            <span> in <strong style={{ color: 'var(--text-primary)' }}>{categories.find((c) => c.slug === categoryFilter)?.name || categoryFilter}</strong></span>
-          )}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {results.map((result) => (
-          <Link
-            key={result.id}
-            href={`/wiki/${result.slug}`}
-            className="article-item"
-            style={{ textDecoration: 'none', '--cat-color': result.category_color || '#9b2020' } as React.CSSProperties}
-          >
-            <div className="article-item-cat" />
-            <div className="article-item-body">
-              <div className="article-item-title">{result.title}</div>
-              {result.excerpt && (
-                <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 2, lineHeight: 1.5 }}>
-                  {result.excerpt.length > 160 ? result.excerpt.slice(0, 160) + '...' : result.excerpt}
-                </div>
+        <>
+          {results.length > 0 && (
+            <div style={{ fontSize: '11px', color: 'var(--text-2)', marginBottom: '8px' }}>
+              {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
+              {categoryFilter && (
+                <span> in <strong style={{ color: 'var(--text-0)' }}>
+                  {categories.find((c) => c.slug === categoryFilter)?.name || categoryFilter}
+                </strong></span>
               )}
             </div>
-            {result.category_name && (
-              <span className={`badge badge-${result.category_slug === 'quests' ? 'quest' : result.category_slug === 'bosses' ? 'boss' : result.category_slug === 'items' ? 'item' : result.category_slug === 'locations' ? 'location' : result.category_slug === 'classes' ? 'class' : result.category_slug === 'crafting' ? 'crafting' : result.category_slug === 'tips' ? 'tip' : result.category_slug === 'lore' ? 'lore' : 'quest'}`}>
-                {result.category_name}
-              </span>
-            )}
-          </Link>
-        ))}
-      </div>
+          )}
 
-      {query && results.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
-          <div style={{ color: 'var(--text-muted)', marginBottom: 8 }}>No articles found matching your search.</div>
-          <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>
-            Try different keywords or{' '}
-            <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)' }}>create a new article</Link>.
-          </div>
-        </div>
-      )}
-
-      {!query && (
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
-            Browse by Category
-          </div>
-          {categories.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-              {categories.map((cat) => {
-                const color = CATEGORY_COLORS[cat.slug] || cat.color || '#9b2020';
-                return (
-                  <Link
-                    key={cat.id}
-                    href={`/category/${cat.slug}`}
-                    className="cat-card"
-                    style={{ '--cat-color': color, '--cat-glow': `${color}1f`, textDecoration: 'none' } as React.CSSProperties}
-                  >
-                    <span className="cat-icon">{cat.name.charAt(0)}</span>
-                    <div className="cat-name">{cat.name}</div>
-                    {cat.description && (
-                      <div className="cat-desc">{cat.description}</div>
+          <table className="article-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Type</th>
+                <th>Excerpt</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((result) => (
+                <tr key={result.id}>
+                  <td className="td-title">
+                    <Link href={`/wiki/${result.slug}`}>{result.title}</Link>
+                  </td>
+                  <td>
+                    {result.category_name && (
+                      <span className={`tag tag-${result.category_slug}`}>
+                        {result.category_name}
+                      </span>
                     )}
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-dim)' }}>
-              No categories found. Type a search query above to find articles.
+                  </td>
+                  <td style={{ fontSize: '11px', color: 'var(--text-2)' }}>
+                    {result.excerpt && (
+                      result.excerpt.length > 120
+                        ? result.excerpt.slice(0, 120) + '...'
+                        : result.excerpt
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {results.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-2)' }}>
+              No articles found matching your search.
+              <br />
+              Try different keywords or{' '}
+              <Link href="/wiki/new" style={{ color: 'var(--link)' }}>create a new article</Link>.
             </div>
           )}
+        </>
+      )}
+
+      {/* BROWSE BY CATEGORY (when no search) */}
+      {!query && (
+        <div className="wiki-box">
+          <div className="wiki-box-hd">Browse by Category</div>
+          <table className="wiki-table">
+            <thead>
+              <tr>
+                <th className="td-icon"></th>
+                <th>Category</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((cat) => (
+                <tr key={cat.id}>
+                  <td className="td-icon">{cat.name.charAt(0)}</td>
+                  <td>
+                    <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
+                  </td>
+                  <td style={{ fontSize: '11px', color: 'var(--text-2)' }}>
+                    {cat.description || 'No description available'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
-    </div>
+    </>
   );
 }

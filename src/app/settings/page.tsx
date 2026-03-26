@@ -179,211 +179,241 @@ export default function SettingsPage() {
   if (!profile) return null;
 
   return (
-    <div className="settings-page page-enter">
-      <div className="settings-header">
-        <div className="section-title">Account Settings</div>
+    <div className="settings-page">
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Account Settings</div>
+          <div className="page-hd-sub">Manage your profile and preferences</div>
+        </div>
       </div>
 
-      {/* Profile Card */}
-      <div className="settings-card">
-        <div className="settings-card-title">Profile</div>
-        <div className="settings-profile-row">
-          <div className="settings-avatar">
-            {profile.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={profile.username}
-                width={64}
-                height={64}
-                className="settings-avatar-img"
-              />
-            ) : (
-              <span className="settings-avatar-fallback">
-                {profile.username.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-          <div className="settings-profile-info">
-            <div className="settings-profile-name">{profile.username}</div>
-            <div className="settings-profile-meta">
-              {profile.role} -- Joined {joinDate}
-              {profile.is_founder && <span className="founder-badge">Founder</span>}
+      {/* PROFILE SECTION */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Profile</div>
+        <div className="wiki-box-body">
+          <div className="settings-profile-row">
+            <div className="settings-avatar">
+              {profile.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile.username}
+                  width={64}
+                  height={64}
+                  className="settings-avatar-img"
+                />
+              ) : (
+                <span className="settings-avatar-fallback">
+                  {profile.username.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div>
+              <div className="settings-profile-name">{profile.username}</div>
+              <div className="settings-profile-meta">
+                {profile.role} -- Joined {joinDate}
+                {profile.is_founder && <span className="founder-tag">founder</span>}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="settings-field">
-          <label className="settings-label">Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="settings-input"
-            maxLength={30}
-          />
-          <div className="settings-hint">3-30 characters. Must be unique.</div>
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Bio / About me</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 500))}
-            rows={4}
-            maxLength={500}
-            placeholder="Tell the community about yourself..."
-            className="settings-input"
-            style={{ resize: 'vertical', minHeight: 80 }}
-          />
-          <div className="settings-hint">{bio.length}/500 characters</div>
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Email</label>
-          <input
-            type="text"
-            value={email}
-            disabled
-            className="settings-input settings-input-disabled"
-          />
-          <div className="settings-hint">Managed by Discord. Cannot be changed here.</div>
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Avatar</label>
-          <div className="settings-hint" style={{ marginBottom: 8 }}>
-            Your avatar is synced from Discord by default. You can upload a custom avatar below.
+          <div className="settings-field">
+            <label className="settings-label">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="settings-input"
+              maxLength={30}
+            />
+            <div className="settings-hint">3-30 characters. Must be unique.</div>
           </div>
-          <button
-            type="button"
-            onClick={() => avatarInputRef.current?.click()}
-            disabled={avatarUploading}
-            className="settings-save-btn"
-            style={{ maxWidth: 200 }}
-          >
-            <Upload className="w-4 h-4" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
-            {avatarUploading ? 'Uploading...' : 'Upload custom avatar'}
-          </button>
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarUpload}
-            className="hidden"
-            style={{ display: 'none' }}
-          />
-        </div>
-      </div>
 
-      {/* Social Links Card */}
-      <div className="settings-card">
-        <div className="settings-card-title">Social Links</div>
+          <div className="settings-field">
+            <label className="settings-label">Bio / About me</label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value.slice(0, 500))}
+              rows={4}
+              maxLength={500}
+              placeholder="Tell the community about yourself..."
+              className="settings-input"
+              style={{ resize: 'vertical', minHeight: '80px' }}
+            />
+            <div className="settings-hint">{bio.length}/500 characters</div>
+          </div>
 
-        <div className="settings-field">
-          <label className="settings-label">Website URL</label>
-          <input
-            type="url"
-            value={websiteUrl}
-            onChange={(e) => setWebsiteUrl(e.target.value)}
-            placeholder="https://yourwebsite.com"
-            className="settings-input"
-          />
-        </div>
+          <div className="settings-field">
+            <label className="settings-label">Email</label>
+            <input
+              type="text"
+              value={email}
+              disabled
+              className="settings-input"
+              style={{ opacity: '0.5', cursor: 'not-allowed' }}
+            />
+            <div className="settings-hint">Managed by Discord. Cannot be changed here.</div>
+          </div>
 
-        <div className="settings-field">
-          <label className="settings-label">Twitter / X</label>
-          <input
-            type="text"
-            value={twitterHandle}
-            onChange={(e) => setTwitterHandle(e.target.value)}
-            placeholder="@username"
-            className="settings-input"
-          />
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Discord Username</label>
-          <input
-            type="text"
-            value={discordUsername}
-            onChange={(e) => setDiscordUsername(e.target.value)}
-            placeholder="username#0000"
-            className="settings-input"
-          />
-        </div>
-      </div>
-
-      {/* Preferences Card */}
-      <div className="settings-card">
-        <div className="settings-card-title">Preferences</div>
-
-        <div className="settings-field">
-          <label className="settings-label">Email Notifications</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+          <div className="settings-field">
+            <label className="settings-label">Avatar</label>
+            <div className="settings-hint" style={{ marginBottom: '8px' }}>
+              Your avatar is synced from Discord by default. You can upload a custom avatar below.
+            </div>
             <button
               type="button"
-              onClick={() => setEmailNotifications(!emailNotifications)}
-              className="settings-toggle"
-              style={{
-                width: 44, height: 24, borderRadius: 12,
-                background: emailNotifications ? 'var(--crimson-bright, #c42c2c)' : 'var(--surface, #1a1724)',
-                border: '1px solid var(--border, #2a2035)',
-                position: 'relative', cursor: 'pointer', transition: 'background 0.2s',
-              }}
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="btn-login"
+              style={{ maxWidth: '200px', height: '28px' }}
             >
-              <span style={{
-                display: 'block', width: 18, height: 18, borderRadius: '50%',
-                background: '#fff', position: 'absolute', top: 2,
-                left: emailNotifications ? 22 : 2, transition: 'left 0.2s',
-              }} />
+              <Upload className="w-4 h-4" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+              {avatarUploading ? 'Uploading...' : 'Upload custom avatar'}
             </button>
-            <span style={{ fontSize: 13, color: 'var(--text-muted, #7a7088)' }}>
-              Notify me about new comments on my articles
-            </span>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+              style={{ display: 'none' }}
+            />
           </div>
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Theme</label>
-          <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-            {(['dark', 'light'] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setThemePreference(t)}
-                className={themePreference === t ? 'settings-save-btn' : 'settings-signout-btn'}
-                style={{ minWidth: 80, textTransform: 'capitalize' }}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-          <div className="settings-hint">Dark is the default theme.</div>
-        </div>
-
-        <div className="settings-field">
-          <label className="settings-label">Language</label>
-          <select
-            value={languagePreference}
-            onChange={(e) => setLanguagePreference(e.target.value)}
-            className="settings-input"
-          >
-            <option value="en">English</option>
-            <option value="cs">Cestina</option>
-            <option value="de">Deutsch</option>
-            <option value="es">Espanol</option>
-            <option value="fr">Francais</option>
-            <option value="ja">Japanese</option>
-            <option value="ko">Korean</option>
-            <option value="pt">Portugues</option>
-            <option value="zh">Chinese</option>
-          </select>
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* SOCIAL LINKS SECTION */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Social Links</div>
+        <div className="wiki-box-body">
+          <div className="settings-field">
+            <label className="settings-label">Website URL</label>
+            <input
+              type="url"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              placeholder="https://yourwebsite.com"
+              className="settings-input"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-label">Twitter / X</label>
+            <input
+              type="text"
+              value={twitterHandle}
+              onChange={(e) => setTwitterHandle(e.target.value)}
+              placeholder="@username"
+              className="settings-input"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-label">Discord Username</label>
+            <input
+              type="text"
+              value={discordUsername}
+              onChange={(e) => setDiscordUsername(e.target.value)}
+              placeholder="username#0000"
+              className="settings-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* PREFERENCES SECTION */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Preferences</div>
+        <div className="wiki-box-body">
+          <div className="settings-field">
+            <label className="settings-label">Email Notifications</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+              <button
+                type="button"
+                onClick={() => setEmailNotifications(!emailNotifications)}
+                style={{
+                  width: '44px',
+                  height: '24px',
+                  background: emailNotifications ? 'var(--amber)' : 'var(--bg-3)',
+                  border: '1px solid var(--border)',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background 0.1s',
+                }}
+              >
+                <span style={{
+                  display: 'block',
+                  width: '18px',
+                  height: '18px',
+                  background: 'var(--text-0)',
+                  position: 'absolute',
+                  top: '2px',
+                  left: emailNotifications ? '22px' : '2px',
+                  transition: 'left 0.1s',
+                }} />
+              </button>
+              <span style={{ fontSize: '13px', color: 'var(--text-1)' }}>
+                Notify me about new comments on my articles
+              </span>
+            </div>
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-label">Theme</label>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+              {(['dark', 'light'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setThemePreference(t)}
+                  className={themePreference === t ? 'btn-login' : 'btn-login'}
+                  style={{
+                    background: themePreference === t ? 'var(--amber)' : 'transparent',
+                    borderColor: themePreference === t ? 'var(--amber)' : 'var(--border-2)',
+                    color: themePreference === t ? 'var(--bg-0)' : 'var(--text-1)',
+                    minWidth: '80px',
+                    textTransform: 'capitalize',
+                    height: '28px'
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+            <div className="settings-hint">Dark is the default theme.</div>
+          </div>
+
+          <div className="settings-field">
+            <label className="settings-label">Language</label>
+            <select
+              value={languagePreference}
+              onChange={(e) => setLanguagePreference(e.target.value)}
+              className="settings-input"
+            >
+              <option value="en">English</option>
+              <option value="cs">Cestina</option>
+              <option value="de">Deutsch</option>
+              <option value="es">Espanol</option>
+              <option value="fr">Francais</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="pt">Portugues</option>
+              <option value="zh">Chinese</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* SAVE BUTTON */}
       {message && (
-        <div className={`settings-message ${message.type === 'error' ? 'settings-message-error' : 'settings-message-success'}`}>
+        <div style={{
+          padding: '10px 14px',
+          margin: '0 0 16px 0',
+          border: message.type === 'error' ? '1px solid var(--red)' : '1px solid var(--green)',
+          background: message.type === 'error' ? 'rgba(192,64,64,0.07)' : 'rgba(64,168,96,0.07)',
+          color: message.type === 'error' ? 'var(--red-bright)' : 'var(--green-bright)',
+          fontSize: '13px'
+        }}>
           {message.text}
         </div>
       )}
@@ -391,96 +421,126 @@ export default function SettingsPage() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="settings-save-btn"
+        className="btn-login"
+        style={{ height: '28px', padding: '0 16px', marginBottom: '20px' }}
       >
         {saving ? 'Saving...' : 'Save Changes'}
       </button>
 
-      {/* Account Info Card */}
-      <div className="settings-card">
-        <div className="settings-card-title">Account</div>
-        <div className="settings-info-grid">
-          <div className="settings-info-item">
-            <div className="settings-info-label">User ID</div>
-            <div className="settings-info-value">{profile.id.slice(0, 8)}...</div>
-          </div>
-          <div className="settings-info-item">
-            <div className="settings-info-label">Role</div>
-            <div className="settings-info-value" style={{ textTransform: 'capitalize' }}>{profile.role}</div>
-          </div>
-          <div className="settings-info-item">
-            <div className="settings-info-label">Discord ID</div>
-            <div className="settings-info-value">{profile.discord_id || 'N/A'}</div>
-          </div>
-          <div className="settings-info-item">
-            <div className="settings-info-label">Member Since</div>
-            <div className="settings-info-value">{joinDate}</div>
-          </div>
+      {/* ACCOUNT INFO SECTION */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Account Information</div>
+        <div className="wiki-box-body">
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['User ID', profile.id.slice(0, 8) + '...'],
+                ['Role', profile.role],
+                ['Discord ID', profile.discord_id || 'N/A'],
+                ['Member Since', joinDate],
+              ].map(([label, value]) => (
+                <tr key={label}>
+                  <td style={{
+                    width: '120px',
+                    padding: '4px 8px',
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border)',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: 'var(--text-2)'
+                  }}>
+                    {label}
+                  </td>
+                  <td style={{
+                    padding: '4px 8px',
+                    border: '1px solid var(--border)',
+                    fontSize: '11px',
+                    fontFamily: 'var(--ff-mono)',
+                    color: 'var(--text-1)'
+                  }}>
+                    {value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Danger Zone */}
-      <div className="settings-card settings-danger-card">
-        <div className="settings-card-title" style={{ color: 'var(--crimson-bright)' }}>Danger Zone</div>
-
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, lineHeight: 1.6 }}>
-          Sign out of your account on this device.
-        </div>
-        <button onClick={handleSignOut} className="settings-signout-btn" style={{ marginBottom: 20 }}>
-          Sign Out
-        </button>
-
-        <div style={{ borderTop: '1px solid var(--border, #2a2035)', paddingTop: 16 }}>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.6 }}>
-            Permanently delete your account and all associated data. This action cannot be undone.
+      {/* DANGER ZONE */}
+      <div className="wiki-box" style={{ borderLeft: '3px solid var(--red-bright)' }}>
+        <div className="wiki-box-hd" style={{ color: 'var(--red-bright)' }}>Danger Zone</div>
+        <div className="wiki-box-body">
+          <div style={{ fontSize: '13px', color: 'var(--text-1)', marginBottom: '16px', lineHeight: '1.6' }}>
+            Sign out of your account on this device.
           </div>
-          {!showDeleteConfirm ? (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              style={{
-                padding: '8px 16px', fontSize: 13, fontWeight: 500,
-                background: 'transparent', color: 'var(--crimson-bright, #c42c2c)',
-                border: '1px solid var(--crimson-bright, #c42c2c)',
-                borderRadius: 8, cursor: 'pointer',
-              }}
-            >
-              Delete my account
-            </button>
-          ) : (
-            <div>
-              <div style={{ fontSize: 13, color: 'var(--crimson-bright)', marginBottom: 8 }}>
-                Type DELETE to confirm:
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  type="text"
-                  value={deleteText}
-                  onChange={(e) => setDeleteText(e.target.value)}
-                  placeholder="DELETE"
-                  className="settings-input"
-                  style={{ maxWidth: 200 }}
-                />
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={deleteText !== 'DELETE'}
-                  style={{
-                    padding: '8px 16px', fontSize: 13, fontWeight: 500,
-                    background: deleteText === 'DELETE' ? 'var(--crimson-bright, #c42c2c)' : 'var(--surface)',
-                    color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer',
-                    opacity: deleteText === 'DELETE' ? 1 : 0.5,
-                  }}
-                >
-                  Confirm Delete
-                </button>
-                <button
-                  onClick={() => { setShowDeleteConfirm(false); setDeleteText(''); }}
-                  className="settings-signout-btn"
-                >
-                  Cancel
-                </button>
-              </div>
+          <button
+            onClick={handleSignOut}
+            className="btn-login"
+            style={{
+              background: 'transparent',
+              borderColor: 'var(--border-2)',
+              color: 'var(--text-1)',
+              marginBottom: '20px'
+            }}
+          >
+            Sign Out
+          </button>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-1)', marginBottom: '12px', lineHeight: '1.6' }}>
+              Permanently delete your account and all associated data. This action cannot be undone.
             </div>
-          )}
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="btn-login"
+                style={{
+                  background: 'transparent',
+                  borderColor: 'var(--red-bright)',
+                  color: 'var(--red-bright)',
+                }}
+              >
+                Delete my account
+              </button>
+            ) : (
+              <div>
+                <div style={{ fontSize: '13px', color: 'var(--red-bright)', marginBottom: '8px' }}>
+                  Type DELETE to confirm:
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={deleteText}
+                    onChange={(e) => setDeleteText(e.target.value)}
+                    placeholder="DELETE"
+                    className="settings-input"
+                    style={{ maxWidth: '200px' }}
+                  />
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={deleteText !== 'DELETE'}
+                    className="btn-login"
+                    style={{
+                      background: deleteText === 'DELETE' ? 'var(--red-bright)' : 'transparent',
+                      borderColor: deleteText === 'DELETE' ? 'var(--red-bright)' : 'var(--border-2)',
+                      color: deleteText === 'DELETE' ? 'var(--bg-0)' : 'var(--text-1)',
+                      opacity: deleteText === 'DELETE' ? 1 : 0.5,
+                    }}
+                  >
+                    Confirm Delete
+                  </button>
+                  <button
+                    onClick={() => { setShowDeleteConfirm(false); setDeleteText(''); }}
+                    className="btn-login"
+                    style={{ background: 'transparent', borderColor: 'var(--border-2)', color: 'var(--text-1)' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

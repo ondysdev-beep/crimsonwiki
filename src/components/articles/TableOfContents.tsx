@@ -86,48 +86,42 @@ export function TableOfContents({ content }: { content: Json }) {
   const minLevel = Math.min(...headings.map((h) => h.level));
 
   return (
-    <nav className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 mb-8">
-      <button
+    <div className="toc">
+      <div
+        className="toc-title"
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center gap-2 w-full text-left"
+        style={{ cursor: 'pointer' }}
       >
-        <List className="w-4 h-4 text-crimson-500" />
-        <span className="text-sm font-semibold text-dark-200">Table of Contents</span>
-        <span className="text-xs text-dark-500 ml-1">({headings.length})</span>
-        <span className="ml-auto text-dark-400">
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        Contents <span style={{ fontSize: '10px', fontWeight: '400', color: 'var(--text-2)' }}>
+          [{collapsed ? 'show' : 'hide'}]
         </span>
-      </button>
+      </div>
 
       {!collapsed && (
-        <ol className="mt-3 space-y-0.5">
-          {headings.map((h, i) => {
-            const indent = (h.level - minLevel) * 16;
-            return (
-              <li key={`${h.id}-${i}`} style={{ paddingLeft: `${indent}px` }}>
-                <a
-                  href={`#${h.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = document.getElementById(h.id);
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      setActiveId(h.id);
-                    }
-                  }}
-                  className={`block text-sm py-1 px-2 rounded transition-colors ${
-                    activeId === h.id
-                      ? 'text-crimson-400 bg-crimson-600/10'
-                      : 'text-dark-400 hover:text-dark-200 hover:bg-dark-700/50'
-                  }`}
-                >
-                  {h.text}
-                </a>
-              </li>
-            );
-          })}
+        <ol>
+          {headings.map((h, i) => (
+            <li key={`${h.id}-${i}`} style={{ marginLeft: `${(h.level - minLevel) * 16}px` }}>
+              <a
+                href={`#${h.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById(h.id);
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setActiveId(h.id);
+                  }
+                }}
+                style={{
+                  color: activeId === h.id ? 'var(--amber)' : 'var(--link)',
+                  fontSize: '12px'
+                }}
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
         </ol>
       )}
-    </nav>
+    </div>
   );
 }

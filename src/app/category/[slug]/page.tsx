@@ -131,113 +131,131 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <div className="page-enter" style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 16px' }}>
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-dim)', marginBottom: 24 }}>
-          <Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Home</Link>
-          <span>/</span>
-          <span style={{ color: 'var(--text-primary)' }}>{category.name}</span>
-        </nav>
 
-        {/* Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{
-            fontFamily: "'Cinzel', serif",
-            fontSize: 28,
-            fontWeight: 700,
-            color: catColor,
-            marginBottom: 8,
-          }}>
-            {category.name}
-          </h1>
-          {category.description && (
-            <div style={{ fontSize: 14, color: 'var(--text-muted)', maxWidth: 600, lineHeight: 1.6 }}>
-              {category.description}
-            </div>
-          )}
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 16, fontSize: 13 }}>
-            <span style={{ color: 'var(--text-dim)' }}>
-              {total} article{total !== 1 ? 's' : ''}
-            </span>
-            <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)', textDecoration: 'none' }}>
-              + Add article to this category
-            </Link>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <span>{category.name}</span>
+      </div>
+
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">{category.name}</div>
+          <div className="page-hd-sub">
+            <span className={`tag tag-${category.slug}`}>{category.name}</span>
+            &nbsp;· {total} articles
           </div>
         </div>
+        <Link href="/wiki/new" className="page-hd-edit">[ edit page ]</Link>
+      </div>
 
-        {/* Sort Options */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-          <span style={{ fontSize: 11, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sort by:</span>
-          {[
-            { key: 'recent', label: 'Most Recent' },
-            { key: 'views', label: 'Most Viewed' },
-            { key: 'alpha', label: 'Alphabetical' },
-          ].map((s) => (
-            <Link key={s.key} href={buildUrl(s.key)} style={sort === s.key ? pillActive : pillBase}>
+      {/* CATEGORY DESCRIPTION */}
+      {category.description && (
+        <div className="notice">
+          {category.description}
+        </div>
+      )}
+
+      {/* SORT CONTROLS */}
+      <div style={{ marginBottom: '10px', fontSize: '11px', color: 'var(--text-2)' }}>
+        Sort by:{' '}
+        {[
+          { key: 'recent', label: 'Most Recent' },
+          { key: 'views', label: 'Most Viewed' },
+          { key: 'alpha', label: 'A–Z' },
+        ].map((s, i) => (
+          <span key={s.key}>
+            {i > 0 && ' | '}
+            <Link
+              href={buildUrl(s.key)}
+              style={{
+                color: sort === s.key ? 'var(--amber)' : 'var(--link)',
+                textDecoration: 'none'
+              }}
+            >
               {s.label}
             </Link>
-          ))}
-        </div>
+          </span>
+        ))}
+      </div>
 
-        {/* Articles List */}
-        {articles && articles.length > 0 ? (
-          <div className="article-list">
+      {/* ARTICLES TABLE */}
+      {articles && articles.length > 0 ? (
+        <table className="article-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Last Edited</th>
+              <th>Views</th>
+            </tr>
+          </thead>
+          <tbody>
             {(articles as ArticleWithCategory[]).map((article) => {
               const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
               return (
-                <Link
-                  key={article.id}
-                  href={`/wiki/${article.slug}`}
-                  className="article-item"
-                  style={{ '--cat-color': catColor } as React.CSSProperties}
-                >
-                  <div className="article-item-cat" />
-                  <div className="article-item-body">
-                    <div className="article-item-title">{article.title}</div>
-                    <div className="article-item-meta">
-                      by <span>{authorName}</span> · {formatDateRelative(article.updated_at)} · <span>{(article.view_count || 0).toLocaleString()} views</span>
-                    </div>
-                  </div>
-                  <span className={`badge ${getBadgeClass(category.slug)}`}>{category.name}</span>
-                </Link>
+                <tr key={article.id}>
+                  <td className="td-title">
+                    <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
+                  </td>
+                  <td className="td-meta">
+                    <Link href={`/profile/${authorName}`}>{authorName}</Link> · {formatDateRelative(article.updated_at)}
+                  </td>
+                  <td className="td-views">{(article.view_count || 0).toLocaleString()}</td>
+                </tr>
               );
             })}
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <div style={{ color: 'var(--text-muted)', marginBottom: 16 }}>No articles in this category yet.</div>
-            <Link href="/wiki/new" className="btn-login" style={{ display: 'inline-block' }}>
-              Create the first article
-            </Link>
-          </div>
-        )}
+          </tbody>
+        </table>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-2)' }}>
+          No articles in this category yet.
+          <br />
+          <Link href="/wiki/new" className="btn-login" style={{ marginTop: '8px', display: 'inline-block' }}>
+            Create the first article
+          </Link>
+        </div>
+      )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 32 }}>
-            {currentPage > 1 && (
-              <Link href={buildUrl(sort, currentPage - 1)} style={pillBase}>Previous</Link>
-            )}
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
-              .map((p, i, arr) => {
-                const prev = arr[i - 1];
-                const showEllipsis = prev !== undefined && p - prev > 1;
-                return (
-                  <span key={p} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {showEllipsis && <span style={{ color: 'var(--text-dim)', padding: '0 4px' }}>...</span>}
-                    <Link href={buildUrl(sort, p)} style={p === currentPage ? pillActive : pillBase}>
-                      {p}
-                    </Link>
-                  </span>
-                );
-              })}
-            {currentPage < totalPages && (
-              <Link href={buildUrl(sort, currentPage + 1)} style={pillBase}>Next</Link>
-            )}
-          </div>
-        )}
-      </div>
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '11px' }}>
+          {currentPage > 1 && (
+            <Link href={buildUrl(sort, currentPage - 1)} style={{ marginRight: '8px', color: 'var(--link)' }}>
+              ← Previous
+            </Link>
+          )}
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+            .map((p, i, arr) => {
+              const prev = arr[i - 1];
+              const showEllipsis = prev !== undefined && p - prev > 1;
+              return (
+                <span key={p} style={{ margin: '0 2px' }}>
+                  {showEllipsis && <span style={{ color: 'var(--text-3)' }}>...</span>}
+                  <Link
+                    href={buildUrl(sort, p)}
+                    style={{
+                      color: p === currentPage ? 'var(--amber)' : 'var(--link)',
+                      textDecoration: 'none',
+                      fontWeight: p === currentPage ? 'bold' : 'normal'
+                    }}
+                  >
+                    {p}
+                  </Link>
+                </span>
+              );
+            })}
+
+          {currentPage < totalPages && (
+            <Link href={buildUrl(sort, currentPage + 1)} style={{ marginLeft: '8px', color: 'var(--link)' }}>
+              Next →
+            </Link>
+          )}
+        </div>
+      )}
     </>
   );
 }

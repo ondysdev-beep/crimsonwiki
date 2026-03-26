@@ -156,127 +156,129 @@ export default async function ArticlePage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-dark-500 mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-dark-300 transition-colors">Home</Link>
-          <span>/</span>
-          {a.categories && (
-            <>
-              <Link
-                href={`/category/${a.categories.slug}`}
-                className="hover:text-dark-300 transition-colors"
-              >
-                {a.categories.name}
-              </Link>
-              <span>/</span>
-            </>
-          )}
-          <span className="text-dark-300">{a.title}</span>
-        </nav>
-
-        {/* Header */}
-        <header className="mb-8">
-          {a.categories && (
-            <span
-              className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-3"
-              style={{
-                backgroundColor: `${a.categories.color}20`,
-                color: a.categories.color || '#dc2626',
-              }}
-            >
-              {a.categories.icon} {a.categories.name}
-            </span>
-          )}
-
-          <h1 className="text-3xl md:text-4xl font-bold text-dark-50 mb-4">
-            {a.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-dark-400">
-            {a.profiles && (
-              <Link
-                href={`/profile/${a.profiles.username}`}
-                className="flex items-center gap-1.5 hover:text-dark-200 transition-colors"
-              >
-                <User className="w-4 h-4" />
-                {a.profiles.username}
-              </Link>
-            )}
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4" />
-              {formatDate(a.updated_at)}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Eye className="w-4 h-4" />
-              {a.view_count.toLocaleString()} views
-            </span>
-            <div className="flex items-center gap-2 ml-auto">
-              <Link
-                href={`/wiki/${a.slug}/edit`}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg transition-colors"
-              >
-                <Edit className="w-3 h-3" />
-                Edit
-              </Link>
-              <Link
-                href={`/wiki/${a.slug}/history`}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg transition-colors"
-              >
-                <History className="w-3 h-3" />
-                History
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Cover Image */}
-        {a.cover_image_url && (
-          <div className="relative aspect-video rounded-xl overflow-hidden mb-8">
-            <Image
-              src={a.cover_image_url}
-              alt={a.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        {a.categories && (
+          <>
+            <Link href={`/category/${a.categories.slug}`}>{a.categories.name}</Link>
+            <span>›</span>
+          </>
         )}
+        <span style={{ color: 'var(--text-1)' }}>{a.title}</span>
+      </div>
 
-        {/* Table of Contents */}
-        <TableOfContents content={a.content} />
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">{a.title}</div>
+          <div className="page-hd-sub">
+            <span className={`tag tag-${a.categories?.slug}`}>{a.categories?.name}</span>
+            &nbsp;· Last edited by <Link href={`/profile/${a.profiles?.username}`}>{a.profiles?.username}</Link> · {formatDate(a.updated_at)} · <Link href={`/wiki/${a.slug}/history`}>{/* revision count placeholder */}23 revisions</Link>
+          </div>
+        </div>
+        <Link href={`/wiki/${a.slug}/edit`} className="page-hd-edit">[ edit page ]</Link>
+      </div>
 
-        {/* Content */}
-        <div className="wiki-content">
-          <ArticleContentRenderer content={a.content} />
+      {/* CONTENT GRID */}
+      <div className="content-grid">
+        <div>
+          {/* INFOBOX */}
+          <div className="infobox">
+            <div className="infobox-title">{a.title}</div>
+            {a.cover_image_url && (
+              <div className="infobox-img">
+                <Image
+                  src={a.cover_image_url}
+                  alt={a.title}
+                  fill
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                  priority
+                />
+              </div>
+            )}
+            {[
+              ['Type', a.categories?.name || 'Article'],
+              ['Category', a.categories?.name || 'None'],
+              ['Last Updated', formatDate(a.updated_at)],
+              ['Views', a.view_count.toLocaleString()],
+              ['Author', a.profiles?.username || 'Unknown'],
+            ].map(([key, value]) => (
+              <div key={key} className="infobox-row">
+                <span className="infobox-key">{key}</span>
+                <span className="infobox-val">{value}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* TABLE OF CONTENTS */}
+          <TableOfContents content={a.content} />
+
+          {/* ARTICLE BODY */}
+          <div className="article-body">
+            <ArticleContentRenderer content={a.content} />
+          </div>
         </div>
 
-        {/* Related Articles */}
-        {a.categories && relatedArticles.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-dark-700">
-            <h2 className="text-lg font-semibold text-dark-100 mb-4">
-              Related Articles in {a.categories.name}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {relatedArticles.map((ra) => (
-                <Link
-                  key={ra.id}
-                  href={`/wiki/${ra.slug}`}
-                  className="block bg-dark-800/50 border border-dark-700 rounded-lg p-4 hover:border-dark-600 hover:bg-dark-800 transition-all"
-                >
-                  <p className="text-dark-100 font-medium">{ra.title}</p>
-                  {ra.excerpt && (
-                    <p className="text-xs text-dark-500 mt-1 line-clamp-2">{ra.excerpt}</p>
-                  )}
-                </Link>
+        {/* RIGHT SIDEBAR */}
+        <div className="right-sidebar">
+          {/* ARTICLE STATS */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Article Stats</div>
+            <div>
+              {[
+                ['Views', a.view_count.toLocaleString()],
+                ['Revisions', '23'],
+                ['Authors', '1'],
+              ].map(([label, value]) => (
+                <div key={label} className="contrib-row" style={{ justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-1)' }}>{label}</span>
+                  <span style={{ fontFamily: 'var(--ff-mono)', fontSize: '12px', color: 'var(--amber)' }}>
+                    {value}
+                  </span>
+                </div>
               ))}
             </div>
-          </section>
-        )}
+          </div>
 
-        {/* Comments */}
+          {/* RELATED ARTICLES */}
+          {relatedArticles.length > 0 && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">Related Articles</div>
+              <div>
+                {relatedArticles.map((ra) => (
+                  <Link
+                    key={ra.id}
+                    href={`/wiki/${ra.slug}`}
+                    className="sidebar-link"
+                    style={{ fontSize: '12px' }}
+                  >
+                    {ra.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CATEGORIES */}
+          {a.categories && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">Categories</div>
+              <div className="wiki-box-body" style={{ fontSize: '12px' }}>
+                <Link href={`/category/${a.categories.slug}`} style={{ marginRight: '8px' }}>
+                  {a.categories.name}
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* COMMENTS SECTION */}
+      <div className="comments-section">
         <CommentSection articleId={a.id} />
-      </article>
+      </div>
     </>
   );
 }

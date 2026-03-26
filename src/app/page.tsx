@@ -34,7 +34,7 @@ export default async function HomePage() {
     .select('*, categories(*), profiles!articles_created_by_fkey(*)')
     .eq('is_published', true)
     .order('updated_at', { ascending: false })
-    .limit(8);
+    .limit(10);
   const recentArticles = (recentData ?? []) as unknown as ArticleWithCategory[];
 
   const { data: catData } = await supabase
@@ -56,150 +56,184 @@ export default async function HomePage() {
     .from('article_revisions')
     .select('*', { count: 'exact', head: true });
 
+  // Get article counts per category
+  const { data: categoryCounts } = await supabase
+    .from('categories')
+    .select('*, articles(count)')
+    .eq('articles.is_published', true);
+
+  const categoriesWithCounts = categories.map(cat => {
+    const countData = categoryCounts?.find(c => c.id === cat.id);
+    return {
+      ...cat,
+      article_count: countData?.articles?.[0]?.count || 0
+    };
+  });
+
   return (
-    <div className="page-enter">
-      {/* HERO */}
-      <div className="hero">
-        <div className="hero-bg" />
-        <div className="hero-ornament top" />
-        <div className="hero-ornament bottom" />
-        <div className="hero-content">
-          <div className="hero-eyebrow">Community Knowledge Base</div>
-          <h1 className="hero-title">CrimsonWiki</h1>
-          <div className="hero-subtitle">The World of Crimson Desert</div>
-          <div className="hero-desc">
-            A community-driven archive of quests, items, secrets, and lore -- built by explorers, for explorers.
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Crimson Desert Wiki</div>
+          <div className="page-hd-sub">
+            The community-driven reference for Crimson Desert — {articleCount?.toLocaleString() || '0'}+ articles, {profileCount?.toLocaleString() || '0'}+ contributors
           </div>
-          <form action="/search" method="GET" className="hero-search">
-            <input name="q" placeholder="Search quests, bosses, items, locations..." />
-            <button type="submit" className="hero-search-btn">Search</button>
-          </form>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <span className="hero-stat-num">{articleCount?.toLocaleString() || '0'}</span>
-              <div className="hero-stat-label">Articles</div>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat-num">{profileCount?.toLocaleString() || '0'}</span>
-              <div className="hero-stat-label">Contributors</div>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat-num">{categories.length}</span>
-              <div className="hero-stat-label">Categories</div>
-            </div>
-            <div className="hero-stat">
-              <span className="hero-stat-num">{editCount?.toLocaleString() || '0'}</span>
-              <div className="hero-stat-label">Edits</div>
-            </div>
-          </div>
+        </div>
+        <Link href="/wiki/new" className="page-hd-edit">[ edit page ]</Link>
+      </div>
+
+      {/* WELCOME NOTICE */}
+      <div className="notice">
+        <strong>Welcome to CrimsonWiki.</strong> This wiki is a community project. Anyone can contribute — <Link href="/auth/login">create an account</Link> to start editing. The game launched March 19, 2026. Many articles are stubs — help us expand them.
+      </div>
+
+      {/* STATS STRIP */}
+      <div className="stats-strip">
+        <div className="stat-cell">
+          <span className="stat-num">{articleCount?.toLocaleString() || '0'}</span>
+          <div className="stat-label">Articles</div>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-num">{profileCount?.toLocaleString() || '0'}</span>
+          <div className="stat-label">Contributors</div>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-num">{editCount?.toLocaleString() || '0'}</span>
+          <div className="stat-label">Edits</div>
+        </div>
+        <div className="stat-cell">
+          <span className="stat-num">92K</span>
+          <div className="stat-label">Monthly Readers</div>
         </div>
       </div>
 
-      {/* CATEGORIES */}
-      <div className="section">
-        <div className="section-header">
-          <div className="section-title">Browse by Category</div>
-          <Link href="/search" className="section-link">View All</Link>
-        </div>
-        {categories.length > 0 ? (
-          <div className="categories-grid">
-            {categories.map((cat) => {
-              const colors = CATEGORY_COLORS[cat.slug] || { color: '#9b2020', glow: 'rgba(155,32,32,0.12)' };
-              return (
-                <Link
-                  key={cat.id}
-                  href={`/category/${cat.slug}`}
-                  className="cat-card"
-                  style={{ '--cat-color': colors.color, '--cat-glow': colors.glow } as React.CSSProperties}
-                >
-                  <span className="cat-icon">{cat.name.charAt(0)}</span>
-                  <div className="cat-name">{cat.name}</div>
-                  <div className="cat-desc">{cat.description || ''}</div>
-                </Link>
-              );
-            })}
+      {/* CONTENT GRID */}
+      <div className="content-grid">
+        {/* MAIN COLUMN */}
+        <div>
+          {/* CATEGORIES TABLE */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">
+              Browse by Category
+              <Link href="/search" className="wiki-box-hd-link">[all categories]</Link>
+            </div>
+            <table className="wiki-table">
+              <thead>
+                <tr>
+                  <th className="td-icon"></th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th className="td-count">Articles</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categoriesWithCounts.map((cat) => (
+                  <tr key={cat.id}>
+                    <td className="td-icon">{cat.name.charAt(0)}</td>
+                    <td>
+                      <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
+                    </td>
+                    <td style={{ color: 'var(--text-2)', fontSize: '11px' }}>
+                      {cat.description || 'No description available'}
+                    </td>
+                    <td className="td-count">{cat.article_count.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
-            No categories yet. Be the first to{' '}
-            <Link href="/contribute" style={{ color: 'var(--crimson-bright)' }}>contribute</Link>!
+
+          {/* RECENT ARTICLES TABLE */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">
+              Recently Edited Articles
+              <Link href="/search" className="wiki-box-hd-link">[full list]</Link>
+            </div>
+            <table className="article-table">
+              <thead>
+                <tr>
+                  <th>Article</th>
+                  <th>Type</th>
+                  <th>Editor</th>
+                  <th>Edited</th>
+                  <th>Views</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentArticles.map((article) => {
+                  const catSlug = (article.categories as unknown as Category)?.slug || '';
+                  const catName = (article.categories as unknown as Category)?.name || '';
+                  const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
+                  return (
+                    <tr key={article.id}>
+                      <td className="td-title">
+                        <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
+                      </td>
+                      <td>
+                        <span className={`tag tag-${catSlug}`}>{catName}</span>
+                      </td>
+                      <td className="td-meta">
+                        <Link href={`/profile/${authorName}`}>{authorName}</Link>
+                      </td>
+                      <td className="td-meta">{formatDateRelative(article.updated_at)}</td>
+                      <td className="td-views">{(article.view_count || 0).toLocaleString()}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
-
-      {/* ORNAMENT */}
-      <div className="ornament-divider" style={{ maxWidth: 1400, margin: '0 auto 0', padding: '0 32px' }}>
-        <span></span>
-      </div>
-
-      {/* RECENT ARTICLES */}
-      <div className="section" style={{ paddingTop: 40 }}>
-        <div className="section-header">
-          <div className="section-title">Recently Edited</div>
-          <Link href="/search" className="section-link">All Changes</Link>
         </div>
-        <div className="article-list">
-          {recentArticles.map((article) => {
-            const catSlug = (article.categories as unknown as Category)?.slug || '';
-            const catName = (article.categories as unknown as Category)?.name || '';
-            const catColor = CATEGORY_COLORS[catSlug]?.color || '#9b2020';
-            const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
-            return (
-              <Link
-                key={article.id}
-                href={`/wiki/${article.slug}`}
-                className="article-item"
-                style={{ '--cat-color': catColor } as React.CSSProperties}
-              >
-                <div className="article-item-cat" />
-                <div className="article-item-body">
-                  <div className="article-item-title">{article.title}</div>
-                  <div className="article-item-meta">
-                    by <span>{authorName}</span> · {formatDateRelative(article.updated_at)} · <span>{(article.view_count || 0).toLocaleString()} views</span>
-                  </div>
+
+        {/* RIGHT SIDEBAR */}
+        <div className="right-sidebar">
+          {/* TOP CONTRIBUTORS */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Top Contributors</div>
+            <div>
+              {/* Mock data for now - replace with real data later */}
+              {[
+                { name: 'Theron', edits: 47, founder: true },
+                { name: 'Mirela', edits: 38, founder: true },
+                { name: 'Daevor', edits: 31, founder: true },
+                { name: 'Ondřej', edits: 24, founder: true },
+                { name: 'Lynara', edits: 19, founder: false },
+              ].map((contrib, i) => (
+                <div key={i} className="contrib-row">
+                  <span className="contrib-rank">#{i + 1}</span>
+                  <Link href={`/profile/${contrib.name}`} className="contrib-name">
+                    {contrib.name}
+                  </Link>
+                  {contrib.founder && <span className="founder-tag">founder</span>}
+                  <span className="contrib-edits">{contrib.edits} edits</span>
                 </div>
-                <span className={`badge ${getBadgeClass(catSlug)}`}>{catName}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* DID YOU KNOW */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Did You Know</div>
+            <div className="wiki-box-body" style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-1)' }}>
+              <p style={{ marginBottom: '6px' }}>The vault beneath Thornwood Village resets only on new moon cycles. Most players never discover it.</p>
+              <p style={{ marginBottom: '6px' }}>Myurdin can technically be defeated in the prologue, but the story outcome never changes.</p>
+              <p>Void Surge ignores all physical defence — evasion builds outperform armor builds in Phase 2+.</p>
+            </div>
+          </div>
+
+          {/* CONTRIBUTE BOX */}
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Contribute</div>
+            <div className="wiki-box-body" style={{ fontSize: '12px', color: 'var(--text-1)', lineHeight: '1.6' }}>
+              <p style={{ marginBottom: '8px' }}>This wiki is written by the community. Create an account to add and edit articles.</p>
+              <Link href="/auth/login" className="btn-login" style={{ width: '100%', height: '26px' }}>
+                Create Account
               </Link>
-            );
-          })}
-          {recentArticles.length === 0 && (
-            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
-              No articles yet. Be the first to{' '}
-              <Link href="/wiki/new" style={{ color: 'var(--crimson-bright)' }}>create one</Link>!
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* BOTTOM CARDS: Quick Links + Did You Know + Contribute */}
-      <div className="section" style={{ paddingTop: 0 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-          <div className="sidebar-card" style={{ margin: 0 }}>
-            <div className="sidebar-title">Quick Links</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <Link href="/wiki/new" className="footer-link" style={{ fontSize: 13 }}>Create New Article</Link>
-              <Link href="/search" className="footer-link" style={{ fontSize: 13 }}>Search the Wiki</Link>
-              <Link href="/category/quests" className="footer-link" style={{ fontSize: 13 }}>Browse Quests</Link>
-              <Link href="/category/bosses" className="footer-link" style={{ fontSize: 13 }}>Browse Bosses</Link>
-            </div>
-          </div>
-
-          <div className="sidebar-card" style={{ margin: 0, fontFamily: "'Crimson Pro', serif", fontSize: 15, color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: 1.7 }}>
-            <div className="sidebar-title" style={{ fontStyle: 'normal' }}>Did You Know?</div>
-            &ldquo;The secret vault beneath Thornwood Village contains a one-time loot chest that respawns only on new moon cycles.&rdquo;
-          </div>
-
-          <div className="sidebar-card" style={{ margin: 0, border: '1px solid rgba(155,32,32,0.3)', background: 'rgba(155,32,32,0.05)' }}>
-            <div className="sidebar-title" style={{ color: 'var(--crimson-bright)' }}>Contribute</div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 12 }}>
-              Help build the most complete Crimson Desert resource. Every edit counts.
-            </div>
-            <Link href="/contribute" className="btn-login" style={{ width: '100%', textAlign: 'center' }}>
-              Join and Start Editing
-            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
