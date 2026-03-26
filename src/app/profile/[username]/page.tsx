@@ -85,160 +85,227 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
   const joinDate = formatDate(profile.created_at);
 
   return (
-    <div className="section page-enter" style={{ maxWidth: 860 }}>
-      {/* Profile Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 32 }}>
-        <div style={{ flexShrink: 0 }}>
-          {profile.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={profile.username}
-              width={80}
-              height={80}
-              style={{ borderRadius: '50%', border: '2px solid var(--border)' }}
-            />
-          ) : (
-            <div style={{
-              width: 80, height: 80, borderRadius: '50%',
-              background: 'var(--crimson)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 28, fontWeight: 700,
-              border: '2px solid var(--border)',
-            }}>
-              {profile.username.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-              {profile.username}
-            </h1>
-            {profile.is_founder && (
-              <span className="founder-badge">Founder</span>
-            )}
-            <span className="badge" style={{ textTransform: 'capitalize' }}>{profile.role}</span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>
-            Joined {joinDate}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
-        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{articles.length}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Articles Created</div>
-        </div>
-        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{editCount ?? 0}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Total Edits</div>
-        </div>
-        <div className="sidebar-card" style={{ textAlign: 'center', margin: 0 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>{commentCount ?? 0}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Comments</div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
-        {[
-          { key: 'overview', label: 'Overview' },
-          { key: 'articles', label: 'Articles' },
-          { key: 'contributions', label: 'Contributions' },
-        ].map((t) => (
-          <Link
-            key={t.key}
-            href={`/profile/${profile.username}${t.key === 'overview' ? '' : `?tab=${t.key}`}`}
-            style={{
-              padding: '10px 16px', fontSize: 13, fontWeight: 500,
-              borderBottom: tab === t.key ? '2px solid var(--crimson-bright)' : '2px solid transparent',
-              color: tab === t.key ? 'var(--crimson-bright)' : 'var(--text-muted)',
-              textDecoration: 'none', transition: 'color 0.15s',
-            }}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      {(tab === 'overview' || tab === 'articles') && (
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
         <div>
-          <div className="section-title" style={{ fontSize: 16, marginBottom: 16 }}>
-            {tab === 'overview' ? 'Recent Articles' : 'All Articles'}
+          <div className="page-hd-title">{profile.username}</div>
+          <div className="page-hd-sub">
+            {profile.is_founder && <span className="founder-tag">founder</span>}
+            <span className={`tag tag-${profile.role}`}>{profile.role}</span>
+            &nbsp;· Joined {joinDate}
           </div>
-          {articles.length > 0 ? (
-            <div className="article-list">
-              {(tab === 'overview' ? articles.slice(0, 5) : articles).map((article) => {
-                const cat = article.categories as unknown as Category | null;
-                return (
-                  <Link
-                    key={article.id}
-                    href={`/wiki/${article.slug}`}
-                    className="article-item"
-                    style={{ '--cat-color': cat?.color || '#9b2020' } as React.CSSProperties}
-                  >
-                    <div className="article-item-cat" />
-                    <div className="article-item-body">
-                      <div className="article-item-title">{article.title}</div>
-                      <div className="article-item-meta">
-                        {cat?.name && <span style={{ color: cat.color || '#dc2626' }}>{cat.name}</span>}
-                        {' -- '}
-                        {formatDateRelative(article.updated_at)}
-                      </div>
+        </div>
+      </div>
+
+      {/* PROFILE INFO */}
+      <div className="content-grid">
+        <div>
+          {/* PROFILE HEADER */}
+          <div className="wiki-box">
+            <div className="wiki-box-body">
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{ flexShrink: 0 }}>
+                  {profile.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.username}
+                      width={80}
+                      height={80}
+                      style={{
+                        borderRadius: '50%',
+                        border: '2px solid var(--border)',
+                        width: '80px',
+                        height: '80px'
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '80px', height: '80px', borderRadius: '50%',
+                      background: 'var(--amber)', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--bg-0)', fontSize: '28px', fontWeight: '700',
+                      border: '2px solid var(--border)',
+                    }}>
+                      {profile.username.charAt(0).toUpperCase()}
                     </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
-              No articles yet.
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab === 'contributions' && (
-        <div>
-          <div className="section-title" style={{ fontSize: 16, marginBottom: 16 }}>
-            Recent Contributions
-          </div>
-          {recentEdits.length > 0 ? (
-            <div className="article-list">
-              {recentEdits.map((edit) => (
-                <div key={edit.id} className="article-item" style={{ cursor: 'default' }}>
-                  <div className="article-item-body">
-                    {edit.articles ? (
-                      <Link
-                        href={`/wiki/${edit.articles.slug}`}
-                        className="article-item-title"
-                        style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
-                      >
-                        {edit.articles.title}
-                      </Link>
-                    ) : (
-                      <span style={{ color: 'var(--text-dim)' }}>Deleted article</span>
-                    )}
-                    {edit.edit_summary && (
-                      <div className="article-item-meta" style={{ fontStyle: 'italic' }}>{edit.edit_summary}</div>
-                    )}
-                  </div>
-                  <span style={{ fontSize: 12, color: 'var(--text-dim)', flexShrink: 0 }}>
-                    {formatDateRelative(edit.created_at)}
-                  </span>
+                  )}
                 </div>
-              ))}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-0)', marginBottom: '4px' }}>
+                    {profile.username}
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-1)' }}>
+                    {profile.is_founder && <span style={{ color: 'var(--amber)', marginRight: '8px' }}>Founder</span>}
+                    <span style={{ textTransform: 'capitalize' }}>{profile.role}</span>
+                    {' · Joined '}{joinDate}
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-dim)' }}>
-              No contributions yet.
+          </div>
+
+          {/* STATS */}
+          <table className="wiki-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th className="td-count">Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Articles Created</td>
+                <td className="td-count">{articles.length}</td>
+              </tr>
+              <tr>
+                <td>Total Edits</td>
+                <td className="td-count">{editCount ?? 0}</td>
+              </tr>
+              <tr>
+                <td>Comments</td>
+                <td className="td-count">{commentCount ?? 0}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* TABS */}
+          <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid var(--border)', marginBottom: '16px' }}>
+            {[
+              { key: 'overview', label: 'Overview' },
+              { key: 'articles', label: 'Articles' },
+              { key: 'contributions', label: 'Contributions' },
+            ].map((t) => (
+              <Link
+                key={t.key}
+                href={`/profile/${profile.username}${t.key === 'overview' ? '' : `?tab=${t.key}`}`}
+                style={{
+                  padding: '8px 16px', fontSize: '13px', fontWeight: '500',
+                  borderBottom: tab === t.key ? '2px solid var(--amber)' : '2px solid transparent',
+                  color: tab === t.key ? 'var(--amber)' : 'var(--text-1)',
+                  textDecoration: 'none', transition: 'color 0.15s',
+                }}
+              >
+                {t.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* TAB CONTENT */}
+          {(tab === 'overview' || tab === 'articles') && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">
+                {tab === 'overview' ? 'Recent Articles' : 'All Articles'}
+              </div>
+              <div className="wiki-box-body">
+                {articles.length > 0 ? (
+                  <table className="article-table">
+                    <thead>
+                      <tr>
+                        <th>Article</th>
+                        <th>Category</th>
+                        <th>Last Updated</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(tab === 'overview' ? articles.slice(0, 5) : articles).map((article) => {
+                        const cat = article.categories as unknown as Category | null;
+                        return (
+                          <tr key={article.id}>
+                            <td className="td-title">
+                              <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
+                            </td>
+                            <td>
+                              {cat?.name && (
+                                <span className={`tag tag-${cat.slug}`}>{cat.name}</span>
+                              )}
+                            </td>
+                            <td className="td-meta">{formatDateRelative(article.updated_at)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-2)' }}>
+                    No articles yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {tab === 'contributions' && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">Recent Contributions</div>
+              <div className="wiki-box-body">
+                {recentEdits.length > 0 ? (
+                  <table className="article-table">
+                    <thead>
+                      <tr>
+                        <th>Article</th>
+                        <th>Summary</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentEdits.map((edit) => (
+                        <tr key={edit.id}>
+                          <td className="td-title">
+                            {edit.articles ? (
+                              <Link href={`/wiki/${edit.articles.slug}`}>{edit.articles.title}</Link>
+                            ) : (
+                              <span style={{ color: 'var(--text-2)' }}>Deleted article</span>
+                            )}
+                          </td>
+                          <td style={{ fontSize: '12px', color: 'var(--text-2)' }}>
+                            {edit.edit_summary || 'No summary'}
+                          </td>
+                          <td className="td-meta">{formatDateRelative(edit.created_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-2)' }}>
+                    No contributions yet.
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
-      )}
-    </div>
+
+        {/* RIGHT SIDEBAR */}
+        <div className="right-sidebar">
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Activity</div>
+            <div className="wiki-box-body">
+              <div className="contrib-row">
+                <span>Articles Created</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{articles.length}</span>
+              </div>
+              <div className="contrib-row">
+                <span>Total Edits</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{editCount ?? 0}</span>
+              </div>
+              <div className="contrib-row">
+                <span>Comments</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{commentCount ?? 0}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="wiki-box">
+            <div className="wiki-box-hd">Quick Actions</div>
+            <div className="wiki-box-body">
+              <Link href="/wiki/new" className="sidebar-link">Create Article</Link>
+              <Link href="/search" className="sidebar-link">Browse Wiki</Link>
+              <Link href="/contribute" className="sidebar-link">Contribute</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

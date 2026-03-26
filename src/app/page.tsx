@@ -56,6 +56,14 @@ export default async function HomePage() {
     .from('article_revisions')
     .select('*', { count: 'exact', head: true });
 
+  // Get total monthly readers (sum of all article views in last 30 days)
+  const { data: viewData } = await supabase
+    .from('articles')
+    .select('view_count')
+    .eq('is_published', true);
+
+  const totalViews = viewData?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
+
   // Get article counts per category
   const { data: categoryCounts } = await supabase
     .from('categories')
@@ -120,8 +128,8 @@ export default async function HomePage() {
           <div className="stat-label">Edits</div>
         </div>
         <div className="stat-cell">
-          <span className="stat-num">92K</span>
-          <div className="stat-label">Monthly Readers</div>
+          <span className="stat-num">{totalViews > 1000 ? `${Math.round(totalViews / 1000)}K` : totalViews}</span>
+          <div className="stat-label">Total Views</div>
         </div>
       </div>
 
