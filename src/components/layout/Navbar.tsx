@@ -22,8 +22,8 @@ export function Navbar() {
     { name: 'Bosses', href: '/bosses' },
     { name: 'Items', href: '/items' },
     { name: 'Quests', href: '/quests' },
-    { name: 'Builds', href: '/builds' },
-    { name: 'Maps', href: '/maps' }
+    { name: 'Builds', href: '/systems/builds' },
+    { name: 'Characters', href: '/characters' }
   ];
 
   const subLinks = [
