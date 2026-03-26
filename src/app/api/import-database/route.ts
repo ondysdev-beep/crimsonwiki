@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 
 // Crimson Desert GG Database Import Implementation
 interface CategoryData {
@@ -11,22 +12,37 @@ interface CategoryData {
 
 // Function to create the new hierarchical category structure
 async function createItemCategories() {
-  const supabase = await createClient();
+  // Use service role client to bypass RLS
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase = createServiceClient(supabaseUrl, supabaseServiceKey);
 
   try {
-    // 1. Create main "Items" category
-    const { data: itemsCategory, error: itemsError } = await supabase
+    // 1. Create or get main "Items" category
+    let { data: itemsCategory, error: itemsError } = await supabase
       .from('categories')
-      .insert({
-        name: 'Items',
-        slug: 'items',
-        description: 'All items, equipment, and materials from Crimson Desert including weapons, armor, consumables, and crafting materials.',
-        color: '#9b59b6'
-      })
-      .select()
+      .select('id')
+      .eq('slug', 'items')
       .single();
 
-    if (itemsError) throw itemsError;
+    if (itemsError && itemsError.code === 'PGRST116') {
+      // Category doesn't exist, create it
+      const { data: newCategory, error: createError } = await supabase
+        .from('categories')
+        .insert({
+          name: 'Items',
+          slug: 'items',
+          description: 'All items, equipment, and materials from Crimson Desert including weapons, armor, consumables, and crafting materials.',
+          color: '#9b59b6'
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      itemsCategory = newCategory;
+    } else if (itemsError) {
+      throw itemsError;
+    }
 
     // 2. Create subcategories under "Items"
     const subcategories: CategoryData[] = [
@@ -43,14 +59,29 @@ async function createItemCategories() {
     ];
 
     for (const subcat of subcategories) {
-      const { error } = await supabase
+      // Check if subcategory already exists
+      const { data: existingSubcat, error: checkError } = await supabase
         .from('categories')
-        .insert({
-          ...subcat,
-          parent_id: itemsCategory.id
-        });
+        .select('id')
+        .eq('slug', subcat.slug)
+        .single();
 
-      if (error) throw error;
+      if (checkError && checkError.code === 'PGRST116') {
+        // Subcategory doesn't exist, create it (without parent_id for now)
+        const { error: insertError } = await supabase
+          .from('categories')
+          .insert({
+            name: subcat.name,
+            slug: subcat.slug,
+            description: subcat.description,
+            color: subcat.color
+          });
+
+        if (insertError) throw insertError;
+      } else if (checkError) {
+        throw checkError;
+      }
+      // If subcategory exists, we skip it (idempotent)
     }
 
     console.log('✅ Created Items category hierarchy');
@@ -64,7 +95,10 @@ async function createItemCategories() {
 
 // Function to clean up old categories
 async function cleanupOldCategories() {
-  const supabase = await createClient();
+  // Use service role client to bypass RLS
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabase = createServiceClient(supabaseUrl, supabaseServiceKey);
 
   const oldCategories = ['armor', 'weapons', 'materials', 'consumables', 'accessories'];
 
