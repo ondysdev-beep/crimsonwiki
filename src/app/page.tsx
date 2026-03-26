@@ -70,6 +70,23 @@ export default async function HomePage() {
     };
   });
 
+  // Get top contributors
+  const { data: topContributors } = await supabase
+    .from('profiles')
+    .select('*, article_revisions(count)')
+    .eq('is_founder', true)
+    .order('article_revisions(count)', { ascending: false })
+    .limit(5);
+
+  // Get random tips for "Did You Know" section
+  const { data: tipsData } = await supabase
+    .from('articles')
+    .select('title, content')
+    .eq('is_published', true)
+    .ilike('content', '%tip%')
+    .order('random()')
+    .limit(3);
+
   return (
     <>
       {/* PAGE HEADER */}
@@ -130,7 +147,7 @@ export default async function HomePage() {
               <tbody>
                 {categoriesWithCounts.map((cat) => (
                   <tr key={cat.id}>
-                    <td className="td-icon">{cat.name.charAt(0)}</td>
+                    <td className="td-icon">{cat.icon}</td>
                     <td>
                       <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
                     </td>
@@ -192,21 +209,14 @@ export default async function HomePage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Top Contributors</div>
             <div>
-              {/* Mock data for now - replace with real data later */}
-              {[
-                { name: 'Theron', edits: 47, founder: true },
-                { name: 'Mirela', edits: 38, founder: true },
-                { name: 'Daevor', edits: 31, founder: true },
-                { name: 'Ondřej', edits: 24, founder: true },
-                { name: 'Lynara', edits: 19, founder: false },
-              ].map((contrib, i) => (
-                <div key={i} className="contrib-row">
+              {topContributors?.map((contrib, i) => (
+                <div key={contrib.id} className="contrib-row">
                   <span className="contrib-rank">#{i + 1}</span>
-                  <Link href={`/profile/${contrib.name}`} className="contrib-name">
-                    {contrib.name}
+                  <Link href={`/profile/${contrib.username}`} className="contrib-name">
+                    {contrib.username}
                   </Link>
-                  {contrib.founder && <span className="founder-tag">founder</span>}
-                  <span className="contrib-edits">{contrib.edits} edits</span>
+                  {contrib.is_founder && <span className="founder-tag">founder</span>}
+                  <span className="contrib-edits">{(contrib as any).article_revisions?.[0]?.count || 0} edits</span>
                 </div>
               ))}
             </div>
@@ -216,9 +226,14 @@ export default async function HomePage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Did You Know</div>
             <div className="wiki-box-body" style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-1)' }}>
-              <p style={{ marginBottom: '6px' }}>The vault beneath Thornwood Village resets only on new moon cycles. Most players never discover it.</p>
-              <p style={{ marginBottom: '6px' }}>Myurdin can technically be defeated in the prologue, but the story outcome never changes.</p>
-              <p>Void Surge ignores all physical defence — evasion builds outperform armor builds in Phase 2+.</p>
+              {tipsData?.map((tip, i) => (
+                <p key={i} style={{ marginBottom: '6px' }}>
+                  {typeof tip.content === 'string'
+                    ? (tip.content.length > 100 ? tip.content.slice(0, 100) + '...' : tip.content)
+                    : String(tip.content)
+                  }
+                </p>
+              ))}
             </div>
           </div>
 

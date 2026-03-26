@@ -212,7 +212,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
             <tbody>
               {categories.map((cat) => (
                 <tr key={cat.id}>
-                  <td className="td-icon">{cat.name.charAt(0)}</td>
+                  <td className="td-icon">{cat.icon}</td>
                   <td>
                     <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
                   </td>
