@@ -10,6 +10,13 @@ export const metadata: Metadata = {
 export default function WalkthroughPage() {
   return (
     <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <span>Walkthrough</span>
+      </div>
+
       {/* PAGE HEADER */}
       <div className="page-hd">
         <div>
@@ -29,15 +36,15 @@ export default function WalkthroughPage() {
                 Full Walkthrough Coming Soon
               </h3>
               <p style={{ marginBottom: '24px', maxWidth: '600px', margin: '0 auto 24px' }}>
-                A comprehensive walkthrough for Crimson Desert is currently in development. 
-                The game launched recently, and our community is working to document the complete story, 
+                A comprehensive walkthrough for Crimson Desert is currently in development.
+                The game launched recently, and our community is working to document the complete story,
                 all quests, and optimal progression paths.
               </p>
               <p style={{ marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
-                In the meantime, you can explore our existing guides and contribute to building the 
+                In the meantime, you can explore our existing guides and contribute to building the
                 most comprehensive resource for Crimson Desert players.
               </p>
-              
+
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '32px' }}>
                 <Link href="/category/quests" className="btn-login" style={{ display: 'inline-block', padding: '12px 24px' }}>
                   Browse Quests
@@ -58,7 +65,7 @@ export default function WalkthroughPage() {
               <p style={{ marginBottom: '16px' }}>
                 While we work on the complete walkthrough, these resources can help you navigate Crimson Desert:
               </p>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 <div className="wiki-box" style={{ margin: 0 }}>
                   <div className="wiki-box-hd">
@@ -178,7 +185,7 @@ export default function WalkthroughPage() {
                 </li>
               </ol>
               <p>
-                Every contribution helps create the best possible resource for the Crimson Desert community. 
+                Every contribution helps create the best possible resource for the Crimson Desert community.
                 Even small additions like quest objectives or location descriptions make a big difference!
               </p>
             </div>

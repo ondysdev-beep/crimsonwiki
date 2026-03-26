@@ -39,6 +39,18 @@ const nextConfig = {
       { source: '/items', destination: '/category/items', permanent: false },
       { source: '/builds', destination: '/category/classes', permanent: false },
       { source: '/maps', destination: '/category/locations', permanent: false },
+
+      // Character redirects for consistency
+      { source: '/wiki/kliff', destination: '/characters/kliff', permanent: true },
+      { source: '/wiki/damiane', destination: '/characters/damiane', permanent: true },
+      { source: '/wiki/oongka', destination: '/characters/oongka', permanent: true },
+
+      // Walkthrough redirects for consistency
+      { source: '/wiki/prologue', destination: '/walkthrough/prologue', permanent: true },
+      { source: '/wiki/chapter-1', destination: '/walkthrough/chapter-1', permanent: true },
+      { source: '/wiki/chapter-2', destination: '/walkthrough/chapter-2', permanent: true },
+      { source: '/wiki/chapter-3', destination: '/walkthrough/chapter-3', permanent: true },
+      { source: '/wiki/chapter-4', destination: '/walkthrough/chapter-4', permanent: true },
     ];
   },
 };

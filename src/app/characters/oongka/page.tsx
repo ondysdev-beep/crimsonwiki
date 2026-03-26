@@ -84,7 +84,7 @@ export default function OongkaPage() {
               <Link href="/walkthrough" className="sidebar-link">Story Progression</Link>
               <Link href="/category/quests" className="sidebar-link">Character Quests</Link>
               <Link href="/category/lore" className="sidebar-link">Character Lore</Link>
-              <Link href="/category/factions" className="sidebar-link">Faction Role</Link>
+              <Link href="/category/lore" className="sidebar-link">Factions</Link>
             </div>
           </div>
 

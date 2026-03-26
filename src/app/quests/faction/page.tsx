@@ -82,7 +82,7 @@ export default function FactionQuestsPage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Related Content</div>
             <div className="wiki-box-body">
-              <Link href="/category/characters" className="sidebar-link">Faction NPCs</Link>
+              <Link href="/characters" className="sidebar-link">Characters</Link>
               <Link href="/category/locations" className="sidebar-link">Faction Bases</Link>
               <Link href="/category/lore" className="sidebar-link">Faction Lore</Link>
               <Link href="/category/items" className="sidebar-link">Faction Gear</Link>

@@ -83,7 +83,7 @@ export default function Chapter4Page() {
             <div className="wiki-box-hd">Related Content</div>
             <div className="wiki-box-body">
               <Link href="/category/quests" className="sidebar-link">Main Quests</Link>
-              <Link href="/category/characters" className="sidebar-link">Characters</Link>
+              <Link href="/characters" className="sidebar-link">Characters</Link>
               <Link href="/category/locations" className="sidebar-link">Locations</Link>
               <Link href="/walkthrough" className="sidebar-link">Full Walkthrough</Link>
             </div>

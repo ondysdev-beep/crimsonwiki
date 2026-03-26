@@ -10,6 +10,13 @@ export const metadata: Metadata = {
 export default function CharactersPage() {
   return (
     <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <span>Characters</span>
+      </div>
+
       {/* PAGE HEADER */}
       <div className="page-hd">
         <div>
@@ -83,7 +90,7 @@ export default function CharactersPage() {
             <div className="wiki-box-body">
               <Link href="/category/lore" className="sidebar-link">Story Lore</Link>
               <Link href="/category/quests" className="sidebar-link">Character Quests</Link>
-              <Link href="/category/factions" className="sidebar-link">Factions</Link>
+              <Link href="/category/lore" className="sidebar-link">Factions</Link>
               <Link href="/walkthrough" className="sidebar-link">Story Progression</Link>
             </div>
           </div>

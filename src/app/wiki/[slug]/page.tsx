@@ -70,6 +70,12 @@ export default async function ArticlePage({ params }: PageProps) {
     .eq('id', a.id)
     .then();
 
+  // Fetch revision count
+  const { count: revisionCount } = await supabase
+    .from('article_revisions')
+    .select('*', { count: 'exact', head: true })
+    .eq('article_id', a.id);
+
   // Fetch related articles (same category, excluding current)
   let relatedArticles: { id: string; slug: string; title: string; excerpt: string | null }[] = [];
   if (a.category_id) {
@@ -175,7 +181,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <div className="page-hd-title">{a.title}</div>
           <div className="page-hd-sub">
             <span className={`tag tag-${a.categories?.slug}`}>{a.categories?.name}</span>
-            &nbsp;· Last edited by <Link href={`/profile/${a.profiles?.username}`}>{a.profiles?.username}</Link> · {formatDate(a.updated_at)} · <Link href={`/wiki/${a.slug}/history`}>{/* revision count placeholder */}23 revisions</Link>
+            &nbsp;· Last edited by <Link href={`/profile/${a.profiles?.username}`}>{a.profiles?.username}</Link> · {formatDate(a.updated_at)} · <Link href={`/wiki/${a.slug}/history`}>{revisionCount || 0} revisions</Link>
           </div>
         </div>
         <Link href={`/wiki/${a.slug}/edit`} className="page-hd-edit">[ edit page ]</Link>
@@ -229,7 +235,7 @@ export default async function ArticlePage({ params }: PageProps) {
             <div>
               {[
                 ['Views', a.view_count.toLocaleString()],
-                ['Revisions', '23'],
+                ['Revisions', String(revisionCount || 0)],
                 ['Authors', '1'],
               ].map(([label, value]) => (
                 <div key={label} className="contrib-row" style={{ justifyContent: 'space-between' }}>

@@ -82,7 +82,7 @@ export default function SideQuestsPage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Related Content</div>
             <div className="wiki-box-body">
-              <Link href="/category/characters" className="sidebar-link">NPCs</Link>
+              <Link href="/characters" className="sidebar-link">Characters</Link>
               <Link href="/category/locations" className="sidebar-link">Quest Locations</Link>
               <Link href="/category/items" className="sidebar-link">Quest Rewards</Link>
               <Link href="/category/tips" className="sidebar-link">Quest Tips</Link>

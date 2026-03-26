@@ -10,6 +10,15 @@ export const metadata: Metadata = {
 export default function Chapter1Page() {
   return (
     <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <Link href="/walkthrough">Walkthrough</Link>
+        <span>›</span>
+        <span>Chapter 1</span>
+      </div>
+
       {/* PAGE HEADER */}
       <div className="page-hd">
         <div>
@@ -83,7 +92,7 @@ export default function Chapter1Page() {
             <div className="wiki-box-hd">Related Content</div>
             <div className="wiki-box-body">
               <Link href="/category/quests" className="sidebar-link">Main Quests</Link>
-              <Link href="/category/characters" className="sidebar-link">Characters</Link>
+              <Link href="/characters" style={{ color: 'var(--link)' }}>Characters</Link>
               <Link href="/category/locations" className="sidebar-link">Locations</Link>
               <Link href="/walkthrough" className="sidebar-link">Full Walkthrough</Link>
             </div>

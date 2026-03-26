@@ -10,6 +10,15 @@ export const metadata: Metadata = {
 export default function KliffPage() {
   return (
     <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <Link href="/characters">Characters</Link>
+        <span>›</span>
+        <span>Kliff</span>
+      </div>
+
       {/* PAGE HEADER */}
       <div className="page-hd">
         <div>
