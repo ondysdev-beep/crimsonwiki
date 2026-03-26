@@ -78,20 +78,43 @@ export default async function HomePage() {
     };
   });
 
-  // Get top contributors
-  const { data: topContributors } = await supabase
-    .from('profiles')
-    .select('*, article_revisions(count)')
-    .eq('is_founder', true)
-    .order('article_revisions(count)', { ascending: false })
-    .limit(5);
+  // Get top contributors by actual revision count
+  const { data: revisionData } = await supabase
+    .from('article_revisions')
+    .select('edited_by, profiles!article_revisions_edited_by_fkey(username, is_founder)')
+    .not('edited_by', 'is', null)
+    .limit(50);
 
-  // Get random tips for "Did You Know" section
+  // Count revisions per user and get top 5
+  const contributorCounts = revisionData?.reduce((acc, rev) => {
+    const userId = rev.edited_by;
+    const username = rev.profiles?.username || 'Unknown';
+    const isFounder = rev.profiles?.is_founder || false;
+
+    if (!userId) return acc;
+
+    if (!acc[userId]) {
+      acc[userId] = { username, count: 0, isFounder };
+    }
+    acc[userId].count++;
+    return acc;
+  }, {} as Record<string, { username: string; count: number; isFounder: boolean }>) || {};
+
+  const topContributors = Object.entries(contributorCounts)
+    .sort(([, a], [, b]) => b.count - a.count)
+    .slice(0, 5)
+    .map(([userId, data], index) => ({
+      id: userId,
+      username: data.username,
+      is_founder: data.isFounder,
+      edit_count: data.count
+    }));
+
+  // Get random articles for "Did You Know" section
   const { data: tipsData } = await supabase
     .from('articles')
-    .select('title, content')
+    .select('title, content, excerpt')
     .eq('is_published', true)
-    .ilike('content', '%tip%')
     .order('random()')
     .limit(3);
 
@@ -217,16 +240,24 @@ export default async function HomePage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Top Contributors</div>
             <div>
-              {topContributors?.map((contrib, i) => (
-                <div key={contrib.id} className="contrib-row">
-                  <span className="contrib-rank">#{i + 1}</span>
-                  <Link href={`/profile/${contrib.username}`} className="contrib-name">
-                    {contrib.username}
-                  </Link>
-                  {contrib.is_founder && <span className="founder-tag">founder</span>}
-                  <span className="contrib-edits">{(contrib as any).article_revisions?.[0]?.count || 0} edits</span>
+              {topContributors?.length > 0 ? (
+                topContributors.map((contrib, i) => (
+                  <div key={contrib.id} className="contrib-row">
+                    <span className="contrib-rank">#{i + 1}</span>
+                    <Link href={`/profile/${contrib.username}`} className="contrib-name">
+                      {contrib.username}
+                    </Link>
+                    {contrib.is_founder && <span className="founder-tag">founder</span>}
+                    <span className="contrib-edits">{contrib.edit_count} edits</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-2)' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
+                  <p style={{ fontSize: '12px' }}>No contributors yet</p>
+                  <p style={{ fontSize: '11px', marginTop: '8px' }}>Be the first to contribute!</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -234,14 +265,28 @@ export default async function HomePage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">Did You Know</div>
             <div className="wiki-box-body" style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-1)' }}>
-              {tipsData?.map((tip, i) => (
-                <p key={i} style={{ marginBottom: '6px' }}>
-                  {typeof tip.content === 'string'
-                    ? (tip.content.length > 100 ? tip.content.slice(0, 100) + '...' : tip.content)
-                    : String(tip.content)
-                  }
-                </p>
-              ))}
+              {tipsData && tipsData.length > 0 ? (
+                tipsData.map((tip, i) => (
+                  <div key={i} style={{ marginBottom: i < tipsData.length - 1 ? '12px' : '0' }}>
+                    <p style={{ marginBottom: '4px', fontWeight: '600', color: 'var(--text-0)' }}>
+                      {tip.title}
+                    </p>
+                    <p style={{ marginBottom: '0' }}>
+                      {tip.excerpt || (
+                        typeof tip.content === 'string'
+                          ? (tip.content.length > 120 ? tip.content.slice(0, 120) + '...' : tip.content)
+                          : String(tip.content).slice(0, 120) + '...'
+                      )}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>💡</div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-2)' }}>No articles yet</p>
+                  <p style={{ fontSize: '11px', marginTop: '8px', color: 'var(--text-2)' }}>Create the first article to see tips here!</p>
+                </div>
+              )}
             </div>
           </div>
 
