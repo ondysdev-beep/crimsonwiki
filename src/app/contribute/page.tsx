@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { createClient } from '@/lib/supabase/server';
 import { SITE_NAME } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -7,7 +8,59 @@ export const metadata: Metadata = {
   description: `Help build ${SITE_NAME} -- the community-driven wiki for Crimson Desert.`,
 };
 
-export default function ContributePage() {
+export default async function ContributePage() {
+  const supabase = await createClient();
+
+  // Fetch real stats from Supabase
+  const [
+    { count: totalUsers },
+    { count: totalArticles },
+    { count: totalEdits },
+    { count: articlesThisMonth },
+    { count: editsThisWeek },
+    topContributors
+  ] = await Promise.all([
+    // Total users
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+
+    // Total articles
+    supabase.from('articles').select('*', { count: 'exact', head: true }).eq('is_published', true),
+
+    // Total edits (revisions)
+    supabase.from('article_revisions').select('*', { count: 'exact', head: true }),
+
+    // Articles this month
+    supabase
+      .from('articles')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_published', true)
+      .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+
+    // Edits this week
+    supabase
+      .from('article_revisions')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+
+    // Top contributors (by revision count)
+    supabase
+      .from('article_revisions')
+      .select('edited_by, profiles!article_revisions_edited_by_fkey(username)')
+      .not('edited_by', 'is', null)
+      .limit(10)
+  ]);
+
+  // Process top contributors data
+  const contributorCounts = topContributors.data?.reduce((acc, rev) => {
+    const username = rev.profiles?.username || 'Unknown';
+    acc[username] = (acc[username] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>) || {};
+
+  const topContributorsList = Object.entries(contributorCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([name, edits]) => ({ name, edits }));
   return (
     <>
       {/* PAGE HEADER */}
@@ -94,35 +147,45 @@ export default function ContributePage() {
             <div className="wiki-box-hd">Quick Stats</div>
             <div className="wiki-box-body">
               <div className="contrib-row">
-                <span>Active Contributors</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>12</span>
+                <span>Total Contributors</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalUsers || 0}</span>
               </div>
               <div className="contrib-row">
                 <span>Articles This Month</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>47</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{articlesThisMonth || 0}</span>
               </div>
               <div className="contrib-row">
                 <span>Edits This Week</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>156</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{editsThisWeek || 0}</span>
+              </div>
+              <div className="contrib-row">
+                <span>Total Articles</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalArticles || 0}</span>
+              </div>
+              <div className="contrib-row">
+                <span>Total Edits</span>
+                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalEdits || 0}</span>
               </div>
             </div>
           </div>
 
           <div className="wiki-box">
-            <div className="wiki-box-hd">Recent Contributors</div>
+            <div className="wiki-box-hd">Top Contributors</div>
             <div className="wiki-box-body">
-              <div className="contrib-row">
-                <span className="contrib-name">Theron</span>
-                <span className="contrib-edits">23 edits</span>
-              </div>
-              <div className="contrib-row">
-                <span className="contrib-name">Mirela</span>
-                <span className="contrib-edits">18 edits</span>
-              </div>
-              <div className="contrib-row">
-                <span className="contrib-name">Daevor</span>
-                <span className="contrib-edits">15 edits</span>
-              </div>
+              {topContributorsList.length > 0 ? (
+                topContributorsList.map((contributor, index) => (
+                  <div key={index} className="contrib-row">
+                    <span className="contrib-name">{contributor.name}</span>
+                    <span className="contrib-edits">{contributor.edits} edits</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-2)' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
+                  <p style={{ fontSize: '12px' }}>No contributors yet</p>
+                  <p style={{ fontSize: '11px', marginTop: '8px' }}>Be the first to contribute!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
