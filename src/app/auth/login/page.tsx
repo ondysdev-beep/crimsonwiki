@@ -43,7 +43,7 @@ function LoginContent() {
               color: '#e05555',
               lineHeight: 1.5,
             }}>
-              Prihlaseni selhalo: {decodeURIComponent(errorFromCallback)}
+              Login failed: {decodeURIComponent(errorFromCallback)}
             </div>
           )}
 

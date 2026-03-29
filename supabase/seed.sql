@@ -90,6 +90,14 @@ UPDATE public.profiles
 SET username = split_part(username, '@', 1)
 WHERE username like '%@%';
 
+-- 5b. Atomic view count increment function (avoids race conditions)
+create or replace function public.increment_article_views(p_article_id uuid)
+returns void as $$
+begin
+  update public.articles set view_count = view_count + 1 where id = p_article_id;
+end;
+$$ language plpgsql security definer set search_path = public;
+
 -- 5. Deduplicate: if the split caused duplicates, append random suffix
 DO $$
 DECLARE

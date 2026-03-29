@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+const STORAGE_KEY = 'sidebar-open-sections';
 
 const sidebarSections = {
   "Getting Started": [
     { name: "Main Page", href: "/" },
     { name: "About CrimsonWiki", href: "/about" },
-    { name: "Editing Guide", href: "/help:editing" },
-    { name: "Style Guide", href: "/help:style" },
-    { name: "Recent Changes", href: "/special:recentchanges" }
+    { name: "Editing Guide", href: "/help/editing" },
+    { name: "Style Guide", href: "/help/style" },
+    { name: "Recent Changes", href: "/special/recentchanges" }
   ],
   "Walkthrough": [
     { name: "Prologue", href: "/walkthrough/prologue" },
@@ -62,16 +64,23 @@ const sidebarSections = {
 };
 
 export function LeftSidebar() {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(
-    Object.fromEntries(Object.keys(sidebarSections).map(key => [key, true]))
-  );
+  const defaultOpen = Object.fromEntries(Object.keys(sidebarSections).map(key => [key, true]));
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(defaultOpen);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setOpenSections(JSON.parse(saved));
+    } catch { }
+  }, []);
   const pathname = usePathname();
 
   const toggleSection = (section: string) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+    setOpenSections(prev => {
+      const next = { ...prev, [section]: !prev[section] };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { }
+      return next;
+    });
   };
 
   const isActive = (href: string) => {

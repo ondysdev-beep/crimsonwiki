@@ -59,47 +59,55 @@ export default function AdminArticlesPage() {
 
   if (loading) {
     return (
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-dark-800 rounded w-48" />
-          <div className="h-64 bg-dark-800 rounded" />
-        </div>
+      <div className="settings-page">
+        <div className="settings-loading">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Admin
-        </Link>
-        <h1 className="text-2xl font-bold text-dark-50">Manage Articles</h1>
-        <span className="text-sm text-dark-500">{articles.length} total</span>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Manage Articles</div>
+          <div className="page-hd-sub">
+            <Link href="/admin" style={{ color: 'var(--link)' }}>← Admin</Link>
+            &nbsp;· {articles.length} total
+          </div>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+      {/* FILTERS */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Search style={{ width: 13, height: 13, color: 'var(--text-2)', flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search articles..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-dark-800 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+            style={{
+              width: '240px', height: '26px',
+              background: 'var(--bg-2)', border: '1px solid var(--border-2)',
+              color: 'var(--text-0)', fontSize: '12px', padding: '0 8px',
+              outline: 'none', fontFamily: 'var(--ff)',
+            }}
           />
         </div>
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '4px' }}>
           {(['all', 'published', 'draft'] as const).map((f) => (
             <button
               key={f}
+              type="button"
               onClick={() => setFilter(f)}
-              className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${
-                filter === f
-                  ? 'bg-crimson-600/20 border-crimson-600/40 text-crimson-400'
-                  : 'bg-dark-800 border-dark-600 text-dark-400 hover:text-dark-200'
-              }`}
+              style={{
+                padding: '3px 10px', fontSize: '11px', fontWeight: '600',
+                border: `1px solid ${filter === f ? 'rgba(155,32,32,0.4)' : 'var(--border-2)'}`,
+                background: filter === f ? 'rgba(155,32,32,0.1)' : 'var(--bg-2)',
+                color: filter === f ? 'var(--crimson-bright)' : 'var(--text-2)',
+                cursor: 'pointer', fontFamily: 'var(--ff)',
+              }}
             >
               {f === 'all' ? 'All' : f === 'published' ? 'Published' : 'Drafts'}
             </button>
@@ -107,73 +115,71 @@ export default function AdminArticlesPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-dark-800/50 border border-dark-700 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-dark-700 text-dark-400">
-                <th className="text-left px-4 py-3 font-medium">Title</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Views</th>
-                <th className="text-left px-4 py-3 font-medium">Updated</th>
-                <th className="text-left px-4 py-3 font-medium">Actions</th>
+      {/* TABLE */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Articles ({filtered.length})</div>
+        <table className="article-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Views</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((article) => (
+              <tr key={article.id}>
+                <td className="td-title">
+                  <div>{article.title}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>/wiki/{article.slug}</div>
+                </td>
+                <td>
+                  <span style={{
+                    fontSize: '11px', fontWeight: '600', padding: '2px 8px',
+                    background: article.is_published ? 'rgba(51,204,119,0.1)' : 'rgba(200,130,10,0.1)',
+                    border: `1px solid ${article.is_published ? 'rgba(51,204,119,0.25)' : 'rgba(200,130,10,0.25)'}`,
+                    color: article.is_published ? '#33cc77' : 'var(--amber)',
+                  }}>
+                    {article.is_published ? 'Published' : 'Draft'}
+                  </span>
+                </td>
+                <td className="td-views">{article.view_count.toLocaleString()}</td>
+                <td className="td-meta">{formatDate(article.updated_at)}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Link href={`/wiki/${article.slug}`} title="View" style={{ color: 'var(--text-2)', lineHeight: 0 }}>
+                      <ExternalLink style={{ width: 14, height: 14 }} />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => togglePublish(article.id, article.is_published)}
+                      title={article.is_published ? 'Unpublish' : 'Publish'}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-2)', padding: '2px', lineHeight: 0 }}
+                    >
+                      {article.is_published ? <EyeOff style={{ width: 14, height: 14 }} /> : <Eye style={{ width: 14, height: 14 }} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteArticle(article.id, article.title)}
+                      title="Delete"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', padding: '2px', lineHeight: 0 }}
+                    >
+                      <Trash2 style={{ width: 14, height: 14 }} />
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.map((article) => (
-                <tr key={article.id} className="border-b border-dark-700/50 hover:bg-dark-800/50">
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="text-dark-100 font-medium">{article.title}</p>
-                      <p className="text-xs text-dark-500">/wiki/{article.slug}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      article.is_published
-                        ? 'bg-green-600/20 text-green-400'
-                        : 'bg-yellow-600/20 text-yellow-400'
-                    }`}>
-                      {article.is_published ? 'Published' : 'Draft'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-dark-400">{article.view_count.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-dark-500 text-xs">{formatDate(article.updated_at)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <Link
-                        href={`/wiki/${article.slug}`}
-                        className="p-1.5 text-dark-400 hover:text-dark-200 transition-colors"
-                        title="View"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => togglePublish(article.id, article.is_published)}
-                        className="p-1.5 text-dark-400 hover:text-dark-200 transition-colors"
-                        title={article.is_published ? 'Unpublish' : 'Publish'}
-                      >
-                        {article.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                      <button
-                        onClick={() => deleteArticle(article.id, article.title)}
-                        className="p-1.5 text-dark-400 hover:text-crimson-400 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
         {filtered.length === 0 && (
-          <p className="text-center text-dark-500 py-8 text-sm">No articles found.</p>
+          <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-2)', fontSize: '12px' }}>
+            No articles found.
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

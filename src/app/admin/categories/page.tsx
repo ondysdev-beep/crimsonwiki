@@ -87,144 +87,169 @@ export default function AdminCategoriesPage() {
     fetchCategories();
   };
 
+  const inputStyle = {
+    width: '100%', height: '28px',
+    background: 'var(--bg-2)', border: '1px solid var(--border-2)',
+    color: 'var(--text-0)', fontSize: '12px', padding: '0 8px',
+    outline: 'none', fontFamily: 'var(--ff)',
+  };
+
   if (loading) {
     return (
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-dark-800 rounded w-48" />
-          <div className="h-64 bg-dark-800 rounded" />
-        </div>
+      <div className="settings-page">
+        <div className="settings-loading">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Admin
-        </Link>
-        <h1 className="text-2xl font-bold text-dark-50">Manage Categories</h1>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Manage Categories</div>
+          <div className="page-hd-sub">
+            <Link href="/admin" style={{ color: 'var(--link)' }}>← Admin</Link>
+          </div>
+        </div>
         <button
+          type="button"
           onClick={() => { resetForm(); setShowNew(true); }}
-          className="ml-auto flex items-center gap-1.5 px-3 py-2 bg-crimson-600 hover:bg-crimson-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="btn-login"
+          style={{ height: '26px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '4px' }}
         >
-          <Plus className="w-4 h-4" /> Add Category
+          <Plus style={{ width: 13, height: 13 }} /> Add Category
         </button>
       </div>
 
-      {/* New / Edit Form */}
+      {/* NEW / EDIT FORM */}
       {(showNew || editId !== null) && (
-        <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-dark-100">
-              {editId ? 'Edit Category' : 'New Category'}
-            </h2>
-            <button onClick={resetForm} className="p-1 text-dark-400 hover:text-dark-200">
-              <X className="w-5 h-5" />
+        <div className="wiki-box" style={{ marginBottom: '16px' }}>
+          <div className="wiki-box-hd" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>{editId ? 'Edit Category' : 'New Category'}</span>
+            <button type="button" onClick={resetForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-2)', lineHeight: 0 }}>
+              <X style={{ width: 14, height: 14 }} />
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-dark-400 mb-1">Name</label>
-              <input
-                value={form.name}
-                onChange={(e) => {
-                  setForm((f) => ({ ...f, name: e.target.value, ...(editId ? {} : { slug: slugify(e.target.value) }) }));
-                }}
-                className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
-                placeholder="e.g. Bosses"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-dark-400 mb-1">Slug</label>
-              <input
-                value={form.slug}
-                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
-                placeholder="e.g. bosses"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-dark-400 mb-1">Icon (emoji)</label>
-              <input
-                value={form.icon}
-                onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
-                className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
-                placeholder="e.g. 🐉"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-dark-400 mb-1">Color</label>
-              <div className="flex items-center gap-2">
+          <div className="wiki-box-body">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="settings-field" style={{ margin: 0 }}>
+                <label className="settings-label">Name</label>
                 <input
-                  type="color"
-                  value={form.color}
-                  onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
-                  className="w-10 h-10 rounded border border-dark-600 cursor-pointer bg-transparent"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, ...(editId ? {} : { slug: slugify(e.target.value) }) }))}
+                  style={inputStyle}
+                  placeholder="e.g. Bosses"
+                  className="settings-input"
                 />
+              </div>
+              <div className="settings-field" style={{ margin: 0 }}>
+                <label className="settings-label">Slug</label>
                 <input
-                  value={form.color}
-                  onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
-                  className="flex-1 px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 font-mono focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+                  value={form.slug}
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="e.g. bosses"
+                  className="settings-input"
+                />
+              </div>
+              <div className="settings-field" style={{ margin: 0 }}>
+                <label className="settings-label">Icon (letter or emoji)</label>
+                <input
+                  value={form.icon}
+                  onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="e.g. B"
+                  className="settings-input"
+                />
+              </div>
+              <div className="settings-field" style={{ margin: 0 }}>
+                <label className="settings-label">Color</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="color"
+                    value={form.color}
+                    onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
+                    style={{ width: 28, height: 28, padding: 0, border: '1px solid var(--border-2)', background: 'transparent', cursor: 'pointer' }}
+                  />
+                  <input
+                    value={form.color}
+                    onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
+                    style={{ ...inputStyle, flex: 1, fontFamily: 'var(--ff-mono)', width: 'auto' }}
+                    className="settings-input"
+                  />
+                </div>
+              </div>
+              <div className="settings-field" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                <label className="settings-label">Description</label>
+                <input
+                  value={form.description}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  style={inputStyle}
+                  placeholder="Short description..."
+                  className="settings-input"
                 />
               </div>
             </div>
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-dark-400 mb-1">Description</label>
-              <input
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-sm text-dark-100 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
-                placeholder="Short description..."
-              />
+            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="btn-login"
+                style={{ height: '26px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <Save style={{ width: 13, height: 13 }} /> {editId ? 'Update' : 'Create'}
+              </button>
             </div>
-          </div>
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-1.5 px-4 py-2 bg-crimson-600 hover:bg-crimson-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              <Save className="w-4 h-4" /> {editId ? 'Update' : 'Create'}
-            </button>
           </div>
         </div>
       )}
 
-      {/* List */}
-      <div className="space-y-2">
-        {categories.map((cat) => (
-          <div
-            key={cat.id}
-            className="flex items-center gap-4 bg-dark-800/50 border border-dark-700 rounded-lg px-4 py-3"
-          >
-            <span className="text-2xl">{cat.icon}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-dark-100 font-medium">{cat.name}</p>
-              <p className="text-xs text-dark-500">/category/{cat.slug}</p>
-            </div>
+      {/* LIST */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Categories ({categories.length})</div>
+        <div className="wiki-box-body" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {categories.map((cat) => (
             <div
-              className="w-4 h-4 rounded-full shrink-0"
-              style={{ backgroundColor: cat.color || '#dc2626' }}
-            />
-            <button
-              onClick={() => startEdit(cat)}
-              className="px-3 py-1 text-xs text-dark-300 hover:text-dark-100 bg-dark-800 border border-dark-600 rounded-lg transition-colors"
+              key={cat.id}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '8px 12px', border: '1px solid var(--border)', background: 'var(--bg-2)',
+              }}
             >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(cat.id, cat.name)}
-              className="p-1.5 text-dark-400 hover:text-crimson-400 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-        {categories.length === 0 && (
-          <p className="text-center text-dark-500 py-8 text-sm">No categories yet.</p>
-        )}
+              <span style={{ fontSize: '16px', flexShrink: 0, minWidth: '20px', textAlign: 'center' }}>{cat.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-0)' }}>{cat.name}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>/category/{cat.slug}</div>
+              </div>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: cat.color || '#dc2626', flexShrink: 0 }} />
+              <button
+                type="button"
+                onClick={() => startEdit(cat)}
+                style={{
+                  padding: '2px 10px', fontSize: '11px',
+                  background: 'var(--bg-3)', border: '1px solid var(--border-2)',
+                  color: 'var(--text-1)', cursor: 'pointer', fontFamily: 'var(--ff)',
+                }}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(cat.id, cat.name)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', padding: '2px', lineHeight: 0 }}
+              >
+                <Trash2 style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+          ))}
+          {categories.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-2)', fontSize: '12px' }}>
+              No categories yet.
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

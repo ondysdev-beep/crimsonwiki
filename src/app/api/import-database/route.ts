@@ -158,10 +158,14 @@ async function runDatabaseImport() {
 }
 
 export async function POST(request: NextRequest) {
+  // Block in production — this is a dev/maintenance endpoint
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not available in production' }, { status: 404 });
+  }
   try {
-    // Verify this is an authorized request (you should add proper authentication)
     const authHeader = request.headers.get('authorization');
-    if (!authHeader || authHeader !== 'Bearer import-crimson-desert-db') {
+    const expectedToken = process.env.IMPORT_SECRET_TOKEN;
+    if (!expectedToken || !authHeader || authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

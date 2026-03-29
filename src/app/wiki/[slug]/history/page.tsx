@@ -36,64 +36,75 @@ export default async function HistoryPage({ params }: PageProps) {
   const revisions = (revData || []) as Record<string, unknown>[];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href={`/wiki/${article.slug}`}
-          className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to article
-        </Link>
+    <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
+        <span>›</span>
+        <span>Revision History</span>
       </div>
 
-      <h1 className="text-2xl font-bold text-dark-50 mb-2">
-        Revision History
-      </h1>
-      <p className="text-dark-400 mb-8">{article.title}</p>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Revision History</div>
+          <div className="page-hd-sub">{article.title}</div>
+        </div>
+        <Link href={`/wiki/${article.slug}`} style={{ color: 'var(--link)', fontSize: '12px' }}>← Back to article</Link>
+      </div>
 
       {revisions.length > 0 ? (
-        <div className="space-y-3">
-          {revisions.map((rev) => {
-            const profile = rev.profiles as Record<string, unknown> | null;
-            return (
-              <div
-                key={String(rev.id)}
-                className="bg-dark-800/50 border border-dark-700 rounded-lg p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-sm text-dark-300">
-                      <User className="w-4 h-4" />
-                      {String(profile?.username ?? 'Unknown')}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm text-dark-500">
-                      <Clock className="w-4 h-4" />
+        <div className="wiki-box">
+          <div className="wiki-box-hd">Revisions ({revisions.length})</div>
+          <table className="article-table">
+            <thead>
+              <tr>
+                <th>Editor</th>
+                <th>Date</th>
+                <th>Summary</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {revisions.map((rev) => {
+                const profile = rev.profiles as Record<string, unknown> | null;
+                return (
+                  <tr key={String(rev.id)}>
+                    <td style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <User style={{ width: 12, height: 12, color: 'var(--text-2)', flexShrink: 0 }} />
+                      <span style={{ fontSize: '12px', color: 'var(--text-1)' }}>
+                        {String(profile?.username ?? 'Unknown')}
+                      </span>
+                    </td>
+                    <td className="td-meta">
+                      <Clock style={{ width: 11, height: 11, display: 'inline', verticalAlign: 'middle', marginRight: 4, color: 'var(--text-2)' }} />
                       {formatDate(String(rev.created_at))}
-                    </div>
-                  </div>
-                  <Link
-                    href={`/wiki/${article.slug}/history/${String(rev.id)}`}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg text-dark-300 hover:text-dark-100 transition-colors"
-                  >
-                    <GitCompare className="w-3 h-3" />
-                    View Diff
-                  </Link>
-                </div>
-                {rev.edit_summary ? (
-                  <p className="mt-2 text-sm text-dark-400 italic">
-                    {String(rev.edit_summary)}
-                  </p>
-                ) : null}
-              </div>
-            );
-          })}
+                    </td>
+                    <td style={{ fontSize: '12px', color: 'var(--text-1)', fontStyle: rev.edit_summary ? 'normal' : 'italic' }}>
+                      {rev.edit_summary ? String(rev.edit_summary) : <span style={{ color: 'var(--text-2)' }}>No summary</span>}
+                    </td>
+                    <td>
+                      <Link
+                        href={`/wiki/${article.slug}/history/${String(rev.id)}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--link)' }}
+                      >
+                        <GitCompare style={{ width: 11, height: 11 }} />
+                        View Diff
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <p className="text-center text-dark-500 py-12">
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-2)', fontSize: '13px' }}>
           No revisions yet. This article has not been edited since it was created.
-        </p>
+        </div>
       )}
-    </div>
+    </>
   );
 }

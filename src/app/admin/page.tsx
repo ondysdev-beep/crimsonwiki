@@ -51,17 +51,25 @@ export default async function AdminPage() {
     .select('*', { count: 'exact', head: true });
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-3 mb-8">
-        <Shield className="w-7 h-7 text-crimson-500" />
-        <h1 className="text-2xl font-bold text-dark-50">Admin Panel</h1>
-        <span className="text-xs px-2 py-0.5 bg-crimson-600/20 text-crimson-400 rounded-full font-medium capitalize">
-          {me.role}
-        </span>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Admin Panel</div>
+          <div className="page-hd-sub">
+            <span style={{
+              fontSize: '11px', padding: '2px 8px',
+              background: 'rgba(155,32,32,0.12)',
+              border: '1px solid rgba(155,32,32,0.3)',
+              color: 'var(--crimson-bright)',
+              textTransform: 'capitalize',
+            }}>{me.role}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      {/* STATS */}
+      <div className="stats-strip">
         {[
           { label: 'Users', value: userCount ?? 0 },
           { label: 'Articles', value: articleCount ?? 0 },
@@ -69,52 +77,45 @@ export default async function AdminPage() {
           { label: 'Categories', value: categoryCount ?? 0 },
           { label: 'Comments', value: commentCount ?? 0 },
         ].map((stat) => (
-          <div key={stat.label} className="bg-dark-800/50 border border-dark-700 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-dark-50">{stat.value}</p>
-            <p className="text-xs text-dark-400">{stat.label}</p>
+          <div key={stat.label} className="stat-cell">
+            <span className="stat-num">{stat.value}</span>
+            <div className="stat-label">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link
-          href="/admin/users"
-          className="flex items-center gap-4 p-6 bg-dark-800/50 border border-dark-700 rounded-xl hover:border-dark-600 hover:bg-dark-800 transition-all group"
-        >
-          <Users className="w-8 h-8 text-crimson-500" />
-          <div>
-            <p className="font-medium text-dark-100 group-hover:text-white transition-colors">
-              Manage Users
-            </p>
-            <p className="text-sm text-dark-500">Roles, bans, profiles</p>
-          </div>
-        </Link>
-        <Link
-          href="/admin/articles"
-          className="flex items-center gap-4 p-6 bg-dark-800/50 border border-dark-700 rounded-xl hover:border-dark-600 hover:bg-dark-800 transition-all group"
-        >
-          <FileText className="w-8 h-8 text-crimson-500" />
-          <div>
-            <p className="font-medium text-dark-100 group-hover:text-white transition-colors">
-              Manage Articles
-            </p>
-            <p className="text-sm text-dark-500">Publish, unpublish, delete</p>
-          </div>
-        </Link>
-        <Link
-          href="/admin/categories"
-          className="flex items-center gap-4 p-6 bg-dark-800/50 border border-dark-700 rounded-xl hover:border-dark-600 hover:bg-dark-800 transition-all group"
-        >
-          <FolderOpen className="w-8 h-8 text-crimson-500" />
-          <div>
-            <p className="font-medium text-dark-100 group-hover:text-white transition-colors">
-              Manage Categories
-            </p>
-            <p className="text-sm text-dark-500">Add, edit, reorder</p>
-          </div>
-        </Link>
+      {/* SECTIONS */}
+      <div className="wiki-box" style={{ marginTop: '20px' }}>
+        <div className="wiki-box-hd">Manage Content</div>
+        <div className="wiki-box-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[
+            { href: '/admin/users', Icon: Users, title: 'Manage Users', desc: 'Roles, bans, profiles' },
+            { href: '/admin/articles', Icon: FileText, title: 'Manage Articles', desc: 'Publish, unpublish, delete' },
+            { href: '/admin/categories', Icon: FolderOpen, title: 'Manage Categories', desc: 'Add, edit, reorder' },
+          ].map(({ href, Icon, title, desc }) => (
+            <Link
+              key={href}
+              href={href}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '16px',
+                padding: '12px 16px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-2)',
+                textDecoration: 'none',
+                transition: 'border-color 0.15s, background 0.15s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--amber-border)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; }}
+            >
+              <Icon style={{ width: 20, height: 20, color: 'var(--crimson-bright)', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-0)' }}>{title}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>{desc}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

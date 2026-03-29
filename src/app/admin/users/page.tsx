@@ -60,89 +60,109 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-dark-800 rounded w-48" />
-          <div className="h-64 bg-dark-800 rounded" />
-        </div>
+      <div className="settings-page">
+        <div className="settings-loading">Loading...</div>
       </div>
     );
   }
 
+  const roleColor = (role: string) => {
+    if (role === 'admin') return { bg: 'rgba(155,32,32,0.12)', border: 'rgba(155,32,32,0.3)', color: 'var(--crimson-bright)' };
+    if (role === 'moderator') return { bg: 'rgba(74,158,255,0.1)', border: 'rgba(74,158,255,0.25)', color: '#4a9eff' };
+    if (role === 'editor') return { bg: 'rgba(51,204,119,0.1)', border: 'rgba(51,204,119,0.25)', color: '#33cc77' };
+    return { bg: 'var(--bg-3)', border: 'var(--border)', color: 'var(--text-2)' };
+  };
+
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Admin
-        </Link>
-        <h1 className="text-2xl font-bold text-dark-50">Manage Users</h1>
-        <span className="text-sm text-dark-500">{users.length} total</span>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Manage Users</div>
+          <div className="page-hd-sub">
+            <Link href="/admin" style={{ color: 'var(--link)' }}>← Admin</Link>
+            &nbsp;· {users.length} total
+          </div>
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+      {/* SEARCH */}
+      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Search style={{ width: 14, height: 14, color: 'var(--text-2)', flexShrink: 0 }} />
         <input
           type="text"
           placeholder="Search users..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-dark-800 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+          style={{
+            flex: 1, maxWidth: '320px', height: '28px',
+            background: 'var(--bg-2)', border: '1px solid var(--border-2)',
+            color: 'var(--text-0)', fontSize: '12px', padding: '0 8px',
+            outline: 'none', fontFamily: 'var(--ff)',
+          }}
         />
       </div>
 
-      {/* Table */}
-      <div className="bg-dark-800/50 border border-dark-700 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-dark-700 text-dark-400">
-                <th className="text-left px-4 py-3 font-medium">User</th>
-                <th className="text-left px-4 py-3 font-medium">Discord ID</th>
-                <th className="text-left px-4 py-3 font-medium">Role</th>
-                <th className="text-left px-4 py-3 font-medium">Joined</th>
-                {myRole === 'admin' && (
-                  <th className="text-left px-4 py-3 font-medium">Actions</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((user) => (
-                <tr key={user.id} className="border-b border-dark-700/50 hover:bg-dark-800/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+      {/* TABLE */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">Users ({filtered.length})</div>
+        <table className="article-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Discord ID</th>
+              <th>Role</th>
+              <th>Joined</th>
+              {myRole === 'admin' && <th>Change Role</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((user) => {
+              const rc = roleColor(user.role);
+              return (
+                <tr key={user.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {user.avatar_url ? (
-                        <Image src={user.avatar_url} alt={user.username} width={28} height={28} className="rounded-full" />
+                        <Image src={user.avatar_url} alt={user.username} width={24} height={24} style={{ borderRadius: '50%' }} />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-crimson-600 flex items-center justify-center text-white text-xs font-bold">
+                        <div style={{
+                          width: 24, height: 24, borderRadius: '50%',
+                          background: 'var(--crimson)', display: 'flex',
+                          alignItems: 'center', justifyContent: 'center',
+                          color: '#fff', fontSize: '10px', fontWeight: '700', flexShrink: 0,
+                        }}>
                           {user.username.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span className="text-dark-100 font-medium">{user.username}</span>
-                      {user.is_founder && <span className="text-xs text-yellow-500">★</span>}
+                      <span style={{ color: 'var(--text-0)', fontWeight: '600', fontSize: '12px' }}>{user.username}</span>
+                      {user.is_founder && <span style={{ color: 'var(--amber)', fontSize: '11px' }}>★</span>}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-dark-400 font-mono text-xs">{user.discord_id || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                      user.role === 'admin' ? 'bg-crimson-600/20 text-crimson-400' :
-                      user.role === 'moderator' ? 'bg-blue-600/20 text-blue-400' :
-                      user.role === 'editor' ? 'bg-green-600/20 text-green-400' :
-                      'bg-dark-600/50 text-dark-400'
-                    }`}>
-                      {user.role === 'admin' && <Shield className="w-3 h-3" />}
+                  <td className="td-meta" style={{ fontFamily: 'var(--ff-mono)', fontSize: '11px' }}>
+                    {user.discord_id || '—'}
+                  </td>
+                  <td>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      fontSize: '11px', fontWeight: '600', padding: '2px 8px',
+                      background: rc.bg, border: `1px solid ${rc.border}`, color: rc.color,
+                    }}>
+                      {user.role === 'admin' && <Shield style={{ width: 10, height: 10 }} />}
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-dark-500 text-xs">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td>
+                  <td className="td-meta">{new Date(user.created_at).toLocaleDateString()}</td>
                   {myRole === 'admin' && (
-                    <td className="px-4 py-3">
+                    <td>
                       <select
                         value={user.role}
                         onChange={(e) => updateRole(user.id, e.target.value)}
-                        className="bg-dark-900 border border-dark-600 rounded px-2 py-1 text-xs text-dark-200 focus:outline-none focus:ring-1 focus:ring-crimson-500/50"
+                        style={{
+                          background: 'var(--bg-3)', border: '1px solid var(--border-2)',
+                          color: 'var(--text-1)', fontSize: '11px', padding: '2px 6px',
+                          fontFamily: 'var(--ff)', outline: 'none',
+                        }}
                       >
                         {ROLES.map((r) => (
                           <option key={r} value={r}>{r}</option>
@@ -151,14 +171,16 @@ export default function AdminUsersPage() {
                     </td>
                   )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
         {filtered.length === 0 && (
-          <p className="text-center text-dark-500 py-8 text-sm">No users found.</p>
+          <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-2)', fontSize: '12px' }}>
+            No users found.
+          </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

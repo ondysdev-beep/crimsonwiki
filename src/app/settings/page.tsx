@@ -391,14 +391,14 @@ export default function SettingsPage() {
               className="settings-input"
             >
               <option value="en">English</option>
-              <option value="cs">Cestina</option>
+              <option value="cs">Čeština</option>
               <option value="de">Deutsch</option>
-              <option value="es">Espanol</option>
-              <option value="fr">Francais</option>
-              <option value="ja">Japanese</option>
-              <option value="ko">Korean</option>
-              <option value="pt">Portugues</option>
-              <option value="zh">Chinese</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+              <option value="pt">Português</option>
+              <option value="zh">中文</option>
             </select>
           </div>
         </div>

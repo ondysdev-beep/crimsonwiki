@@ -11,17 +11,22 @@ export const metadata: Metadata = {
 export default async function RecentChangesPage() {
   const supabase = await createClient();
 
-  // Fetch last 50 edits with article information
+  // Fetch last 50 edits with article and editor information
   const { data: revisions } = await supabase
     .from('article_revisions')
     .select(`
       id,
       created_at,
       edit_summary,
+      edited_by,
       article:articles(title, slug)
     `)
     .order('created_at', { ascending: false })
     .limit(50);
+
+  const uniqueEditorCount = revisions
+    ? new Set(revisions.map(r => r.edited_by).filter(Boolean)).size
+    : 0;
 
   return (
     <>
@@ -104,7 +109,7 @@ export default async function RecentChangesPage() {
 
                   <div style={{ textAlign: 'center', padding: '16px', border: '1px solid var(--border)' }}>
                     <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--amber)', marginBottom: '4px' }}>
-                      Multiple
+                      {uniqueEditorCount}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-1)' }}>Active Editors</div>
                   </div>

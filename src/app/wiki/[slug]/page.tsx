@@ -63,12 +63,8 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const a = articleData as unknown as ArticleWithCategory;
 
-  // Increment view count (fire and forget)
-  supabase
-    .from('articles')
-    .update({ view_count: a.view_count + 1 } as never)
-    .eq('id', a.id)
-    .then();
+  // Increment view count atomically via RPC (fire and forget)
+  supabase.rpc('increment_article_views', { p_article_id: a.id }).then();
 
   // Fetch revision count
   const { count: revisionCount } = await supabase
@@ -205,7 +201,6 @@ export default async function ArticlePage({ params }: PageProps) {
               </div>
             )}
             {[
-              ['Type', a.categories?.name || 'Article'],
               ['Category', a.categories?.name || 'None'],
               ['Last Updated', formatDate(a.updated_at)],
               ['Views', a.view_count.toLocaleString()],
@@ -282,9 +277,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </div>
 
       {/* COMMENTS SECTION */}
-      <div className="comments-section">
-        <CommentSection articleId={a.id} />
-      </div>
+      <CommentSection articleId={a.id} />
     </>
   );
 }

@@ -85,20 +85,25 @@ export default function EditArticlePage() {
       edit_summary: editSummary || 'No summary provided',
     });
 
-    // Update article
+    // Update article — preserve existing excerpt, only update content
+    const updatePayload: Record<string, unknown> = {
+      content: content as unknown as Json,
+      content_text: plainText,
+      updated_by: session.user.id,
+    };
+    // Only auto-fill excerpt if the article currently has none
+    if (!article.excerpt) {
+      updatePayload.excerpt = plainText.slice(0, 200);
+    }
     const { error } = await supabase
       .from('articles')
-      .update({
-        content: content as unknown as Json,
-        content_text: plainText,
-        excerpt: plainText.slice(0, 200),
-        updated_by: session.user.id,
-      })
+      .update(updatePayload)
       .eq('id', article.id);
 
     if (error) {
       alert('Failed to save: ' + error.message);
     } else {
+      try { localStorage.removeItem(`autosave-edit-${slug}`); } catch { }
       router.push(`/wiki/${slug}`);
       router.refresh();
     }
@@ -127,25 +132,21 @@ export default function EditArticlePage() {
 
   if (!article) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 text-center">
-        <p className="text-dark-400">Article not found.</p>
+      <div style={{ textAlign: 'center', padding: '60px 16px', color: 'var(--text-2)' }}>
+        Article not found.
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href={`/wiki/${slug}`}
-          className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to article
-        </Link>
-        <h1 className="text-2xl font-bold text-dark-50">
-          Editing: {article.title}
-        </h1>
+    <>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Editing Article</div>
+          <div className="page-hd-sub">{article.title}</div>
+        </div>
+        <Link href={`/wiki/${slug}`} style={{ color: 'var(--link)', fontSize: '12px' }}>← Back to article</Link>
       </div>
 
       <TiptapEditor
@@ -158,23 +159,25 @@ export default function EditArticlePage() {
         onImageUpload={uploadImage}
       />
 
-      <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <div style={{ marginTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
         <input
           type="text"
           placeholder="Edit summary (e.g. Fixed typo, Added boss strategy)"
           value={editSummary}
           onChange={(e) => setEditSummary(e.target.value)}
-          className="flex-1 w-full px-4 py-2 bg-dark-800 border border-dark-600 rounded-lg text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-crimson-500/50"
+          className="settings-input"
+          style={{ flex: 1, minWidth: '200px', height: '32px' }}
         />
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-2.5 bg-crimson-600 hover:bg-crimson-700 disabled:opacity-50 text-white font-medium rounded-lg transition-colors shrink-0"
+          className="btn-login"
+          style={{ height: '32px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.6 : 1 }}
         >
-          <Save className="w-4 h-4" />
+          <Save style={{ width: 14, height: 14 }} />
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
-    </div>
+    </>
   );
 }

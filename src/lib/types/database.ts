@@ -228,6 +228,10 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
+      increment_article_views: {
+        Args: { p_article_id: string };
+        Returns: undefined;
+      };
       search_articles: {
         Args: { search_query: string; result_limit?: number };
         Returns: {

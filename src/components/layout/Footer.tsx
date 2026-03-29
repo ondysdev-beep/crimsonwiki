@@ -16,8 +16,8 @@ export function Footer() {
         <div>
           <div className="footer-col-title">Explore</div>
           <Link href="/category/quests" className="footer-link">All Categories</Link>
-          <Link href="/special:recentchanges" className="footer-link">Recent Changes</Link>
-          <Link href="/special:random" className="footer-link">Random Article</Link>
+          <Link href="/special/recentchanges" className="footer-link">Recent Changes</Link>
+          <Link href="/special/random" className="footer-link">Random Article</Link>
           <Link href="/statistics" className="footer-link">Statistics</Link>
         </div>
 
@@ -25,8 +25,8 @@ export function Footer() {
         <div>
           <div className="footer-col-title">Contribute</div>
           <Link href="/auth/login" className="footer-link">Create Account</Link>
-          <Link href="/help:editing" className="footer-link">Editing Guide</Link>
-          <Link href="/help:style" className="footer-link">Style Guide</Link>
+          <Link href="/help/editing" className="footer-link">Editing Guide</Link>
+          <Link href="/help/style" className="footer-link">Style Guide</Link>
           <Link href="/discord" className="footer-link">Discord Server</Link>
         </div>
 

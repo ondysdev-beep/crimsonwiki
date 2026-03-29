@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 60;
 
 const CATEGORY_COLORS: Record<string, { color: string; glow: string }> = {
@@ -111,12 +110,14 @@ export default async function HomePage() {
     }));
 
   // Get random articles for "Did You Know" section
-  const { data: tipsData } = await supabase
+  const { data: tipsRaw } = await supabase
     .from('articles')
     .select('title, content, excerpt')
     .eq('is_published', true)
-    .order('random()')
-    .limit(3);
+    .limit(20);
+  const tipsData = tipsRaw
+    ? [...tipsRaw].sort(() => Math.random() - 0.5).slice(0, 3)
+    : [];
 
   return (
     <>

@@ -12,26 +12,26 @@ export function DiffViewer({ oldText, newText }: DiffViewerProps) {
 
   if (oldText === newText) {
     return (
-      <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-8 text-center">
-        <p className="text-dark-400">No text differences found between this revision and the current version.</p>
+      <div style={{ border: '1px solid var(--border)', padding: '32px', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-2)', fontSize: '13px' }}>No text differences found between this revision and the current version.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-dark-800/50 border border-dark-700 rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
-        <pre className="text-sm font-mono leading-relaxed">
+    <div style={{ border: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div style={{ overflowX: 'auto' }}>
+        <pre style={{ fontSize: '12px', fontFamily: 'var(--ff-mono)', lineHeight: '1.6', margin: 0 }}>
           {changes.map((part, i) => {
             if (part.added) {
               return (
                 <div
                   key={i}
-                  className="bg-green-500/10 border-l-2 border-green-500 px-4 py-0.5"
+                  style={{ background: 'rgba(51,160,96,0.1)', borderLeft: '3px solid #33cc77', padding: '2px 12px' }}
                 >
                   {part.value.split('\n').filter(Boolean).map((line, j) => (
-                    <div key={j} className="text-green-300">
-                      <span className="select-none text-green-600 mr-3">+</span>
+                    <div key={j} style={{ color: '#4aaa70' }}>
+                      <span style={{ userSelect: 'none', color: '#33cc77', marginRight: '10px' }}>+</span>
                       {line}
                     </div>
                   ))}
@@ -42,11 +42,11 @@ export function DiffViewer({ oldText, newText }: DiffViewerProps) {
               return (
                 <div
                   key={i}
-                  className="bg-red-500/10 border-l-2 border-red-500 px-4 py-0.5"
+                  style={{ background: 'rgba(192,64,64,0.1)', borderLeft: '3px solid var(--red-bright)', padding: '2px 12px' }}
                 >
                   {part.value.split('\n').filter(Boolean).map((line, j) => (
-                    <div key={j} className="text-red-300">
-                      <span className="select-none text-red-600 mr-3">-</span>
+                    <div key={j} style={{ color: '#c07070' }}>
+                      <span style={{ userSelect: 'none', color: 'var(--red-bright)', marginRight: '10px' }}>-</span>
                       {line}
                     </div>
                   ))}
@@ -56,10 +56,10 @@ export function DiffViewer({ oldText, newText }: DiffViewerProps) {
             const lines = part.value.split('\n').filter(Boolean);
             if (lines.length <= 6) {
               return (
-                <div key={i} className="px-4 py-0.5">
+                <div key={i} style={{ padding: '2px 12px' }}>
                   {lines.map((line, j) => (
-                    <div key={j} className="text-dark-400">
-                      <span className="select-none text-dark-600 mr-3">&nbsp;</span>
+                    <div key={j} style={{ color: 'var(--text-2)' }}>
+                      <span style={{ userSelect: 'none', color: 'var(--text-3)', marginRight: '10px' }}>&nbsp;</span>
                       {line}
                     </div>
                   ))}
@@ -68,21 +68,21 @@ export function DiffViewer({ oldText, newText }: DiffViewerProps) {
             }
             return (
               <div key={i}>
-                <div className="px-4 py-0.5">
+                <div style={{ padding: '2px 12px' }}>
                   {lines.slice(0, 3).map((line, j) => (
-                    <div key={j} className="text-dark-400">
-                      <span className="select-none text-dark-600 mr-3">&nbsp;</span>
+                    <div key={j} style={{ color: 'var(--text-2)' }}>
+                      <span style={{ userSelect: 'none', color: 'var(--text-3)', marginRight: '10px' }}>&nbsp;</span>
                       {line}
                     </div>
                   ))}
                 </div>
-                <div className="px-4 py-1 bg-dark-700/30 text-dark-500 text-xs text-center">
+                <div style={{ padding: '4px 12px', background: 'var(--bg-2)', color: 'var(--text-2)', fontSize: '11px', textAlign: 'center' }}>
                   ··· {lines.length - 6} unchanged lines ···
                 </div>
-                <div className="px-4 py-0.5">
+                <div style={{ padding: '2px 12px' }}>
                   {lines.slice(-3).map((line, j) => (
-                    <div key={j} className="text-dark-400">
-                      <span className="select-none text-dark-600 mr-3">&nbsp;</span>
+                    <div key={j} style={{ color: 'var(--text-2)' }}>
+                      <span style={{ userSelect: 'none', color: 'var(--text-3)', marginRight: '10px' }}>&nbsp;</span>
                       {line}
                     </div>
                   ))}

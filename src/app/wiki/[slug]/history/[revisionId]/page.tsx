@@ -46,43 +46,54 @@ export default async function RevisionDiffPage({ params }: PageProps) {
   const newText = typedArticle.content_text || '';
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href={`/wiki/${typedArticle.slug}/history`}
-          className="flex items-center gap-1 text-sm text-dark-400 hover:text-dark-200 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to history
-        </Link>
+    <>
+      {/* BREADCRUMB */}
+      <div className="breadcrumb">
+        <Link href="/">Main Page</Link>
+        <span>›</span>
+        <Link href={`/wiki/${typedArticle.slug}`}>{typedArticle.title}</Link>
+        <span>›</span>
+        <Link href={`/wiki/${typedArticle.slug}/history`}>History</Link>
+        <span>›</span>
+        <span>Diff</span>
       </div>
 
-      <h1 className="text-2xl font-bold text-dark-50 mb-2">Revision Diff</h1>
-      <p className="text-dark-400 mb-1">{typedArticle.title}</p>
-      <div className="flex items-center gap-3 text-sm text-dark-500 mb-6">
-        <span>By {String(profile?.username ?? 'Unknown')}</span>
-        <span>•</span>
-        <span>{formatDate(String(rev.created_at))}</span>
+      {/* PAGE HEADER */}
+      <div className="page-hd">
+        <div>
+          <div className="page-hd-title">Revision Diff</div>
+          <div className="page-hd-sub">{typedArticle.title}</div>
+        </div>
+        <Link href={`/wiki/${typedArticle.slug}/history`} style={{ color: 'var(--link)', fontSize: '12px' }}>← Back to history</Link>
+      </div>
+
+      {/* META */}
+      <div className="notice" style={{ marginBottom: '12px' }}>
+        <span style={{ color: 'var(--text-1)' }}>By </span>
+        <strong style={{ color: 'var(--text-0)' }}>{String(profile?.username ?? 'Unknown')}</strong>
+        <span style={{ color: 'var(--text-2)', margin: '0 6px' }}>·</span>
+        <span style={{ color: 'var(--text-2)' }}>{formatDate(String(rev.created_at))}</span>
         {rev.edit_summary ? (
           <>
-            <span>•</span>
-            <span className="italic">{String(rev.edit_summary)}</span>
+            <span style={{ color: 'var(--text-2)', margin: '0 6px' }}>·</span>
+            <em style={{ color: 'var(--text-1)' }}>{String(rev.edit_summary)}</em>
           </>
         ) : null}
       </div>
 
-      <div className="flex items-center gap-4 mb-4 text-xs text-dark-400">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded bg-red-500/30 border border-red-500/50" />
-          <span>Removed (old revision)</span>
+      {/* LEGEND */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '8px', fontSize: '11px', color: 'var(--text-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-block', width: 12, height: 12, background: 'rgba(192,64,64,0.2)', border: '1px solid rgba(192,64,64,0.4)' }} />
+          Removed (old revision)
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded bg-green-500/30 border border-green-500/50" />
-          <span>Added (current)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ display: 'inline-block', width: 12, height: 12, background: 'rgba(51,160,96,0.2)', border: '1px solid rgba(51,160,96,0.4)' }} />
+          Added (current)
         </div>
       </div>
 
       <DiffViewer oldText={oldText} newText={newText} />
-    </div>
+    </>
   );
 }
