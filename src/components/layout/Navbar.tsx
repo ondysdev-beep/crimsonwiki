@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavbarAuth } from './NavbarAuth';
+import { useSidebar } from '@/lib/context/SidebarContext';
 
 export function Navbar() {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
+  const { toggleMobile } = useSidebar();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +64,14 @@ export function Navbar() {
             </Link>
           ))}
         </div>
+
+        <button
+          className="topbar-hamburger"
+          onClick={toggleMobile}
+          aria-label="Open navigation"
+        >
+          <span /><span /><span />
+        </button>
 
         <div className="topbar-right">
           <form onSubmit={handleSearch} className="topbar-search">

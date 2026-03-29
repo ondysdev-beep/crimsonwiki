@@ -213,6 +213,27 @@ export default async function ArticlePage({ params }: PageProps) {
             ))}
           </div>
 
+          {/* STUB BANNER */}
+          {(() => {
+            const extractText = (node: unknown): string => {
+              if (!node || typeof node !== 'object') return '';
+              const n = node as Record<string, unknown>;
+              if (n.type === 'text' && typeof n.text === 'string') return n.text + ' ';
+              if (Array.isArray(n.content)) return (n.content as unknown[]).map(extractText).join('');
+              return '';
+            };
+            const wordCount = extractText(a.content).trim().split(/\s+/).filter(Boolean).length;
+            return wordCount < 300 ? (
+              <div className="stub-banner">
+                <span>⚠</span>
+                <span>
+                  This article is a <strong>stub</strong>. You can help CrimsonWiki by expanding it.{' '}
+                  <a href={`/wiki/${a.slug}/edit`}>Edit →</a>
+                </span>
+              </div>
+            ) : null;
+          })()}
+
           {/* TABLE OF CONTENTS */}
           <TableOfContents content={a.content} />
 

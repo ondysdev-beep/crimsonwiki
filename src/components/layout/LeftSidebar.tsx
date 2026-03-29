@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSidebar } from '@/lib/context/SidebarContext';
 
 const STORAGE_KEY = 'sidebar-open-sections';
 
@@ -26,6 +27,7 @@ const sidebarSections = {
 export function LeftSidebar() {
   const defaultOpen = Object.fromEntries(Object.keys(sidebarSections).map(key => [key, true]));
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(defaultOpen);
+  const { mobileOpen, closeMobile } = useSidebar();
 
   useEffect(() => {
     try {
@@ -33,7 +35,12 @@ export function LeftSidebar() {
       if (saved) setOpenSections(JSON.parse(saved));
     } catch { }
   }, []);
+
   const pathname = usePathname();
+
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => {
@@ -44,14 +51,12 @@ export function LeftSidebar() {
   };
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/';
-    }
+    if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   };
 
-  return (
-    <aside className="left-sidebar">
+  const inner = (
+    <aside className={`left-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       {Object.entries(sidebarSections).map(([section, links]) => (
         <div key={section} className="sidebar-section">
           <button
@@ -75,5 +80,14 @@ export function LeftSidebar() {
         </div>
       ))}
     </aside>
+  );
+
+  return (
+    <>
+      {mobileOpen && (
+        <div className="mobile-sidebar-overlay" onClick={closeMobile} />
+      )}
+      {inner}
+    </>
   );
 }

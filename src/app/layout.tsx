@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { AdSlot } from '@/components/layout/AdSlot';
+import { ClientProviders } from '@/components/layout/ClientProviders';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -95,34 +96,36 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Navbar />
-        <div className="page-outer">
-          {/* LEFT AD COLUMN */}
-          <div className="ad-col ad-col-left">
-            <AdSlot
-              slotId="LEFT_AD_SLOT_ID"
-              format="vertical"
-              style={{ width: 160, height: 600 }}
-            />
-          </div>
+        <ClientProviders>
+          <Navbar />
+          <div className="page-outer">
+            {/* LEFT AD COLUMN */}
+            <div className="ad-col ad-col-left">
+              <AdSlot
+                slotId="LEFT_AD_SLOT_ID"
+                format="vertical"
+                style={{ width: 160, height: 600 }}
+              />
+            </div>
 
-          <div className="page">
-            <LeftSidebar />
-            <main className="main-content">
-              {children}
-            </main>
-          </div>
+            <div className="page">
+              <LeftSidebar />
+              <main className="main-content">
+                {children}
+              </main>
+            </div>
 
-          {/* RIGHT AD COLUMN */}
-          <div className="ad-col ad-col-right">
-            <AdSlot
-              slotId="RIGHT_AD_SLOT_ID"
-              format="vertical"
-              style={{ width: 160, height: 600 }}
-            />
+            {/* RIGHT AD COLUMN */}
+            <div className="ad-col ad-col-right">
+              <AdSlot
+                slotId="RIGHT_AD_SLOT_ID"
+                format="vertical"
+                style={{ width: 160, height: 600 }}
+              />
+            </div>
           </div>
-        </div>
-        <Footer />
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   );

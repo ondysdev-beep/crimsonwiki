@@ -15,7 +15,7 @@ export function Footer() {
         {/* Explore Column */}
         <div>
           <div className="footer-col-title">Explore</div>
-          <Link href="/category/quests" className="footer-link">All Categories</Link>
+          <Link href="/categories" className="footer-link">All Categories</Link>
           <Link href="/special/recentchanges" className="footer-link">Recent Changes</Link>
           <Link href="/special/random" className="footer-link">Random Article</Link>
           <Link href="/statistics" className="footer-link">Statistics</Link>

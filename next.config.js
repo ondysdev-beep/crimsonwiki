@@ -2,20 +2,17 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.discordapp.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: 'media.discordapp.net' },
+      { protocol: 'https', hostname: 'cdn.crimsonwiki.org' },
+      { protocol: 'https', hostname: 'crimsonwiki.org' },
+      { protocol: 'https', hostname: 'i.imgur.com' },
+      { protocol: 'https', hostname: '*.amazonaws.com' },
+      { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' },
     ],
   },
+  trailingSlash: false,
   experimental: {
     serverActions: {
       bodySizeLimit: '4mb',

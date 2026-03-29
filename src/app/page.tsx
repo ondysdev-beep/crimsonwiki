@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
+import { HeroSearch } from '@/components/wiki/HeroSearch';
 
 export const revalidate = 60;
 
@@ -35,6 +36,14 @@ export default async function HomePage() {
     .order('updated_at', { ascending: false })
     .limit(10);
   const recentArticles = (recentData ?? []) as unknown as ArticleWithCategory[];
+
+  const { data: popularData } = await supabase
+    .from('articles')
+    .select('slug, title, view_count, categories(name, slug)')
+    .eq('is_published', true)
+    .order('view_count', { ascending: false })
+    .limit(5);
+  const popularArticles = (popularData ?? []) as { slug: string; title: string; view_count: number; categories: { name: string; slug: string } | null }[];
 
   const { data: catData } = await supabase
     .from('categories')
@@ -127,8 +136,11 @@ export default async function HomePage() {
         <strong>Welcome to CrimsonWiki.</strong> This wiki is a community project. Anyone can contribute — <Link href="/auth/login">create an account</Link> to start editing. The game launched March 19, 2026. Many articles are stubs — help us expand them.
       </div>
 
-      {/* STATS STRIP */}
-      <div className="stats-strip">
+      {/* HERO SEARCH */}
+      <HeroSearch />
+
+      {/* STATS STRIP — only shown once we have meaningful data */}
+      {(articleCount ?? 0) >= 50 && <div className="stats-strip">
         <div className="stat-cell">
           <span className="stat-num">{articleCount?.toLocaleString() || '0'}</span>
           <div className="stat-label">Articles</div>
@@ -145,7 +157,7 @@ export default async function HomePage() {
           <span className="stat-num">{totalViews > 1000 ? `${Math.round(totalViews / 1000)}K` : totalViews}</span>
           <div className="stat-label">Total Views</div>
         </div>
-      </div>
+      </div>}
 
       {/* CONTENT GRID */}
       <div className="content-grid">
@@ -155,7 +167,7 @@ export default async function HomePage() {
           <div className="wiki-box">
             <div className="wiki-box-hd">
               Browse by Category
-              <Link href="/search" className="wiki-box-hd-link">[all categories]</Link>
+              <Link href="/categories" className="wiki-box-hd-link">[all categories]</Link>
             </div>
             <table className="wiki-table">
               <thead>
@@ -251,6 +263,24 @@ export default async function HomePage() {
               )}
             </div>
           </div>
+
+          {/* POPULAR ARTICLES */}
+          {popularArticles.length > 0 && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">Popular Articles</div>
+              <div>
+                {popularArticles.map((art, i) => (
+                  <div key={art.slug} className="contrib-row">
+                    <span className="contrib-rank">#{i + 1}</span>
+                    <Link href={`/wiki/${art.slug}`} className="contrib-name">
+                      {art.title}
+                    </Link>
+                    <span className="contrib-edits">{(art.view_count || 0).toLocaleString()} views</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* CONTRIBUTE BOX */}
           <div className="wiki-box">
