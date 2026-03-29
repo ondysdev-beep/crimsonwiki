@@ -109,16 +109,6 @@ export default async function HomePage() {
       edit_count: data.count
     }));
 
-  // Get random articles for "Did You Know" section
-  const { data: tipsRaw } = await supabase
-    .from('articles')
-    .select('title, content, excerpt')
-    .eq('is_published', true)
-    .limit(20);
-  const tipsData = tipsRaw
-    ? [...tipsRaw].sort(() => Math.random() - 0.5).slice(0, 3)
-    : [];
-
   return (
     <>
       {/* PAGE HEADER */}
@@ -257,35 +247,6 @@ export default async function HomePage() {
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
                   <p style={{ fontSize: '12px' }}>No contributors yet</p>
                   <p style={{ fontSize: '11px', marginTop: '8px' }}>Be the first to contribute!</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* DID YOU KNOW */}
-          <div className="wiki-box">
-            <div className="wiki-box-hd">Did You Know</div>
-            <div className="wiki-box-body" style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-1)' }}>
-              {tipsData && tipsData.length > 0 ? (
-                tipsData.map((tip, i) => (
-                  <div key={i} style={{ marginBottom: i < tipsData.length - 1 ? '12px' : '0' }}>
-                    <p style={{ marginBottom: '4px', fontWeight: '600', color: 'var(--text-0)' }}>
-                      {tip.title}
-                    </p>
-                    <p style={{ marginBottom: '0' }}>
-                      {tip.excerpt || (
-                        typeof tip.content === 'string'
-                          ? (tip.content.length > 120 ? tip.content.slice(0, 120) + '...' : tip.content)
-                          : String(tip.content).slice(0, 120) + '...'
-                      )}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>💡</div>
-                  <p style={{ fontSize: '12px', color: 'var(--text-2)' }}>No articles yet</p>
-                  <p style={{ fontSize: '11px', marginTop: '8px', color: 'var(--text-2)' }}>Create the first article to see tips here!</p>
                 </div>
               )}
             </div>

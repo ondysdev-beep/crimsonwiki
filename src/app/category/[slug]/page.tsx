@@ -57,6 +57,20 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   if (!category) notFound();
 
+  // Fetch subcategories (children) of this category
+  const { data: subCatsData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('parent_id', category.id)
+    .order('name', { ascending: true });
+  const subCategories = (subCatsData || []) as Category[];
+
+  // Fetch parent category if this is a subcategory
+  const { data: parentCatData } = category.parent_id
+    ? await supabase.from('categories').select('*').eq('id', category.parent_id).single()
+    : { data: null };
+  const parentCategory = parentCatData as Category | null;
+
   let query = supabase
     .from('articles')
     .select('*, categories(*), profiles!articles_created_by_fkey(*)', { count: 'exact' })
@@ -136,6 +150,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       <div className="breadcrumb">
         <Link href="/">Main Page</Link>
         <span>›</span>
+        {parentCategory && (
+          <>
+            <Link href={`/category/${parentCategory.slug}`}>{parentCategory.name}</Link>
+            <span>›</span>
+          </>
+        )}
         <span>{category.name}</span>
       </div>
 
@@ -144,17 +164,66 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         <div>
           <div className="page-hd-title">{category.name}</div>
           <div className="page-hd-sub">
-            <span className={`tag tag-${category.slug}`}>{category.name}</span>
-            &nbsp;· {total} articles
+            {parentCategory && (
+              <>
+                <Link href={`/category/${parentCategory.slug}`} style={{ color: 'var(--link)' }}>
+                  {parentCategory.name}
+                </Link>
+                {' › '}
+              </>
+            )}
+            {total} {total === 1 ? 'article' : 'articles'}
+            {subCategories.length > 0 && ` · ${subCategories.length} subcategories`}
           </div>
         </div>
-        <Link href="/wiki/new" className="page-hd-edit">[ edit page ]</Link>
+        <Link href="/wiki/new" className="page-hd-edit">[ + new article ]</Link>
       </div>
 
       {/* CATEGORY DESCRIPTION */}
       {category.description && (
         <div className="notice">
           {category.description}
+        </div>
+      )}
+
+      {/* SUBCATEGORIES GRID (shown when this is a parent category) */}
+      {subCategories.length > 0 && (
+        <div className="wiki-box" style={{ marginBottom: '12px' }}>
+          <div className="wiki-box-hd">Subcategories</div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+            gap: '1px',
+            background: 'var(--border)',
+          }}>
+            {subCategories.map((sub) => (
+              <Link
+                key={sub.id}
+                href={`/category/${sub.slug}`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '8px 10px',
+                  background: 'var(--bg-1)',
+                  textDecoration: 'none',
+                  transition: 'background 0.1s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-2)'}
+                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-1)'}
+              >
+                <span style={{
+                  width: 22, height: 22, flexShrink: 0,
+                  background: sub.color || category.color || '#4a9eff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '11px', fontWeight: '700', color: '#fff',
+                }}>
+                  {sub.icon || sub.name.charAt(0)}
+                </span>
+                <span style={{ fontSize: '12px', color: 'var(--text-0)', fontWeight: '500' }}>
+                  {sub.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

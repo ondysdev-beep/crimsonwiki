@@ -67,6 +67,7 @@ export interface Database {
           icon: string | null;
           description: string | null;
           color: string | null;
+          parent_id: number | null;
         };
         Insert: {
           name: string;
@@ -74,6 +75,7 @@ export interface Database {
           icon?: string | null;
           description?: string | null;
           color?: string | null;
+          parent_id?: number | null;
         };
         Update: {
           name?: string;
@@ -81,6 +83,7 @@ export interface Database {
           icon?: string | null;
           description?: string | null;
           color?: string | null;
+          parent_id?: number | null;
         };
         Relationships: [];
       };

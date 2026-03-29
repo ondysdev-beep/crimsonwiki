@@ -1,47 +1,106 @@
 -- =============================================
 -- CrimsonWiki seed / migration (safe re-run)
+-- Source: crimsondb.gg/items for item categories
 -- =============================================
 
--- 1. Categories seed
-insert into public.categories (name, slug, icon, description, color)
-select * from (values
-  ('Quests',       'quests',    'Q', 'Main story, side quests, and hidden quests',           '#c9a227'),
-  ('Bosses',       'bosses',    'B', 'World bosses, dungeon bosses, and field bosses',       '#cc3333'),
-  ('Items',        'items',     'I', 'Weapons, armor, consumables, and collectibles',        '#4a9eff'),
-  ('Locations',    'locations', 'L', 'Regions, dungeons, towns, and points of interest',     '#33cc77'),
-  ('Classes',      'classes',   'C', 'Playable classes, skills, and builds',                 '#9b59b6'),
-  ('Crafting',     'crafting',  'R', 'Recipes, materials, and crafting guides',              '#e67e22'),
-  ('Tips & Tricks','tips',      'T', 'Community tips, hidden mechanics, and beginner guides','#1abc9c'),
-  ('Lore',         'lore',      'H', 'Story, world lore, characters, and factions',         '#95a5a6')
-) as v(name, slug, icon, description, color)
-where not exists (select 1 from public.categories where slug = v.slug);
+-- ─────────────────────────────────────────────
+-- 1. Add parent_id support to categories table
+-- ─────────────────────────────────────────────
+ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS parent_id integer REFERENCES public.categories(id) ON DELETE SET NULL;
 
--- 1b. Fix existing category icons (replace emojis with letters)
-UPDATE public.categories SET icon = 'Q' WHERE slug = 'quests' AND (icon IS NULL OR icon != 'Q');
-UPDATE public.categories SET icon = 'B' WHERE slug = 'bosses' AND (icon IS NULL OR icon != 'B');
-UPDATE public.categories SET icon = 'I' WHERE slug = 'items' AND (icon IS NULL OR icon != 'I');
+-- ─────────────────────────────────────────────
+-- 2. Top-level categories (parent_id = NULL)
+-- ─────────────────────────────────────────────
+INSERT INTO public.categories (name, slug, icon, description, color)
+SELECT v.name, v.slug, v.icon, v.description, v.color
+FROM (VALUES
+  ('Quests',        'quests',    'Q', 'Main story, side quests, and hidden quests',            '#c9a227'),
+  ('Bosses',        'bosses',    'B', 'World bosses, dungeon bosses, and field bosses',        '#cc3333'),
+  ('Items',         'items',     'I', 'Weapons, armor, consumables, and all collectibles',     '#4a9eff'),
+  ('Locations',     'locations', 'L', 'Regions, dungeons, towns, and points of interest',      '#33cc77'),
+  ('Classes',       'classes',   'C', 'Playable classes, skills, and builds',                  '#9b59b6'),
+  ('Crafting',      'crafting',  'R', 'Recipes, materials, and crafting guides',               '#e67e22'),
+  ('Tips & Tricks', 'tips',      'T', 'Community tips, hidden mechanics, and beginner guides', '#1abc9c'),
+  ('Lore',          'lore',      'H', 'Story, world lore, characters, and factions',          '#95a5a6')
+) AS v(name, slug, icon, description, color)
+WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE slug = v.slug);
+
+-- 2b. Fix existing category icons (replace emojis with letters)
+UPDATE public.categories SET icon = 'Q' WHERE slug = 'quests'    AND (icon IS NULL OR icon != 'Q');
+UPDATE public.categories SET icon = 'B' WHERE slug = 'bosses'    AND (icon IS NULL OR icon != 'B');
+UPDATE public.categories SET icon = 'I' WHERE slug = 'items'     AND (icon IS NULL OR icon != 'I');
 UPDATE public.categories SET icon = 'L' WHERE slug = 'locations' AND (icon IS NULL OR icon != 'L');
-UPDATE public.categories SET icon = 'C' WHERE slug = 'classes' AND (icon IS NULL OR icon != 'C');
-UPDATE public.categories SET icon = 'R' WHERE slug = 'crafting' AND (icon IS NULL OR icon != 'R');
-UPDATE public.categories SET icon = 'T' WHERE slug = 'tips' AND (icon IS NULL OR icon != 'T');
-UPDATE public.categories SET icon = 'H' WHERE slug = 'lore' AND (icon IS NULL OR icon != 'H');
+UPDATE public.categories SET icon = 'C' WHERE slug = 'classes'   AND (icon IS NULL OR icon != 'C');
+UPDATE public.categories SET icon = 'R' WHERE slug = 'crafting'  AND (icon IS NULL OR icon != 'R');
+UPDATE public.categories SET icon = 'T' WHERE slug = 'tips'      AND (icon IS NULL OR icon != 'T');
+UPDATE public.categories SET icon = 'H' WHERE slug = 'lore'      AND (icon IS NULL OR icon != 'H');
 
--- 2. Add new profile fields for settings page
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS website_url text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS twitter_handle text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS discord_username text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_notifications boolean DEFAULT true;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS theme_preference text DEFAULT 'dark' CHECK (theme_preference IN ('dark', 'light'));
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS language_preference text DEFAULT 'en';
+-- ─────────────────────────────────────────────
+-- 3. Items subcategories (source: crimsondb.gg)
+--    Equipment: Weapons, Armor, Shields,
+--               Accessories, Mount Gear
+--    Items:     Consumables, Materials, Tools,
+--               Ammunition, Abyss Gears, Misc
+-- ─────────────────────────────────────────────
+DO $$
+DECLARE
+  v_items_id integer;
+BEGIN
+  SELECT id INTO v_items_id FROM public.categories WHERE slug = 'items';
 
--- 3. Fix handle_new_user trigger
-create or replace function public.handle_new_user()
-returns trigger as $$
-declare
+  IF v_items_id IS NULL THEN
+    RAISE WARNING 'Items category not found, skipping subcategory insert.';
+    RETURN;
+  END IF;
+
+  INSERT INTO public.categories (name, slug, icon, description, color, parent_id)
+  SELECT v.name, v.slug, v.icon, v.description, v.color, v_items_id
+  FROM (VALUES
+    -- Equipment
+    ('Weapons',      'items-weapons',      'W', 'Swords, axes, bows, firearms, and exotic arms',        '#4a9eff'),
+    ('Armor',        'items-armor',        'A', 'Helms, chest armor, gloves, boots, and cloaks',        '#4a9eff'),
+    ('Shields',      'items-shields',      'S', 'Shields and tower shields for defense',                '#4a9eff'),
+    ('Accessories',  'items-accessories',  'X', 'Rings, necklaces, earrings, and bracelets',            '#4a9eff'),
+    ('Mount Gear',   'items-mount-gear',   'M', 'Horse armor, saddles, and pet equipment',              '#4a9eff'),
+    -- Items & Materials
+    ('Consumables',  'items-consumables',  'P', 'Potions, food, elixirs, and usable items',             '#4a9eff'),
+    ('Materials',    'items-materials',    'O', 'Ores, herbs, hides, and crafting ingredients',         '#4a9eff'),
+    ('Tools',        'items-tools',        'K', 'Pickaxes, fishing rods, torches, and instruments',     '#4a9eff'),
+    ('Ammunition',   'items-ammunition',   'Z', 'Arrows, bolts, bullets, and throwables',               '#4a9eff'),
+    ('Abyss Gears',  'items-abyss-gears',  'Y', 'Abyss stones, fragments, and enhancement materials',  '#4a9eff'),
+    ('Miscellaneous','items-misc',         'V', 'Quest items, keys, and other miscellaneous objects',   '#4a9eff')
+  ) AS v(name, slug, icon, description, color)
+  WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE slug = v.slug);
+END;
+$$;
+
+-- ─────────────────────────────────────────────
+-- 4. Delete sample / placeholder articles
+-- ─────────────────────────────────────────────
+DELETE FROM public.articles
+WHERE slug IN ('iron-ore', 'aeserion-plate-armor', 'aeserion-sword')
+   OR title IN ('Iron Ore', 'Aeserion Plate Armor', 'Aeserion Sword');
+
+-- ─────────────────────────────────────────────
+-- 5. Profile fields for settings page
+-- ─────────────────────────────────────────────
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio                  text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS website_url          text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS twitter_handle       text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS discord_username     text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email_notifications  boolean DEFAULT true;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS theme_preference     text    DEFAULT 'dark' CHECK (theme_preference IN ('dark', 'light'));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS language_preference  text    DEFAULT 'en';
+
+-- ─────────────────────────────────────────────
+-- 6. Fix handle_new_user trigger
+-- ─────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
   _username text;
-begin
-  _username := coalesce(
+BEGIN
+  _username := COALESCE(
     new.raw_user_meta_data->'custom_claims'->>'global_name',
     new.raw_user_meta_data->>'user_name',
     new.raw_user_meta_data->>'name',
@@ -51,54 +110,48 @@ begin
   );
 
   _username := trim(_username);
-  if _username = '' or _username is null then
+  IF _username = '' OR _username IS NULL THEN
     _username := 'user_' || substr(new.id::text, 1, 8);
-  end if;
+  END IF;
 
-  -- Remove email-like usernames
-  if _username like '%@%' then
+  IF _username LIKE '%@%' THEN
     _username := split_part(_username, '@', 1);
-  end if;
+  END IF;
 
-  if exists (select 1 from public.profiles where username = _username) then
+  IF EXISTS (SELECT 1 FROM public.profiles WHERE username = _username) THEN
     _username := _username || '_' || substr(md5(random()::text), 1, 4);
-  end if;
+  END IF;
 
-  insert into public.profiles (id, username, avatar_url, discord_id)
-  values (
+  INSERT INTO public.profiles (id, username, avatar_url, discord_id)
+  VALUES (
     new.id,
     _username,
     new.raw_user_meta_data->>'avatar_url',
     new.raw_user_meta_data->>'provider_id'
   );
 
-  return new;
-exception when others then
-  raise warning 'handle_new_user failed for user %: %', new.id, sqlerrm;
-  return new;
-end;
-$$ language plpgsql security definer set search_path = public;
+  RETURN new;
+EXCEPTION WHEN OTHERS THEN
+  RAISE WARNING 'handle_new_user failed for user %: %', new.id, SQLERRM;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
-drop trigger if exists on_auth_user_created on auth.users;
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-
--- 4. Fix any existing profiles that have email as username
+-- ─────────────────────────────────────────────
+-- 7. Fix profiles with email as username
+-- ─────────────────────────────────────────────
 UPDATE public.profiles
 SET username = split_part(username, '@', 1)
-WHERE username like '%@%';
+WHERE username LIKE '%@%';
 
--- 5b. Atomic view count increment function (avoids race conditions)
-create or replace function public.increment_article_views(p_article_id uuid)
-returns void as $$
-begin
-  update public.articles set view_count = view_count + 1 where id = p_article_id;
-end;
-$$ language plpgsql security definer set search_path = public;
-
--- 5. Deduplicate: if the split caused duplicates, append random suffix
+-- ─────────────────────────────────────────────
+-- 8. Deduplicate usernames
+-- ─────────────────────────────────────────────
 DO $$
 DECLARE
   r RECORD;
@@ -106,7 +159,7 @@ BEGIN
   FOR r IN
     SELECT id, username FROM public.profiles
     WHERE username IN (
-      SELECT username FROM public.profiles GROUP BY username HAVING count(*) > 1
+      SELECT username FROM public.profiles GROUP BY username HAVING COUNT(*) > 1
     )
     ORDER BY created_at DESC
   LOOP
@@ -116,3 +169,13 @@ BEGIN
   END LOOP;
 END;
 $$;
+
+-- ─────────────────────────────────────────────
+-- 9. Atomic view count increment function
+-- ─────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.increment_article_views(p_article_id uuid)
+RETURNS void AS $$
+BEGIN
+  UPDATE public.articles SET view_count = view_count + 1 WHERE id = p_article_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;

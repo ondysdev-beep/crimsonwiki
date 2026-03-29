@@ -376,10 +376,38 @@ select option {
 }
 
 /* ===== PAGE LAYOUT ===== */
+
+/* Outer wrapper: [left-ad] [page] [right-ad] */
+.page-outer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Ad columns (160px wide skyscraper slots) */
+.ad-col {
+  width: 160px;
+  flex-shrink: 0;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Hide ad columns on screens too narrow to show them */
+@media (max-width: 1400px) {
+  .ad-col-right { display: none; }
+}
+@media (max-width: 1200px) {
+  .ad-col { display: none; }
+}
+
 .page {
   display: flex;
+  width: 100%;
   max-width: 1440px;
-  margin: 0 auto;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ===== LEFT SIDEBAR ===== */

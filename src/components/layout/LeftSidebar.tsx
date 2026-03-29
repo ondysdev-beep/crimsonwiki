@@ -14,53 +14,13 @@ const sidebarSections = {
     { name: "Style Guide", href: "/help/style" },
     { name: "Recent Changes", href: "/special/recentchanges" }
   ],
-  "Walkthrough": [
-    { name: "Prologue", href: "/walkthrough/prologue" },
-    { name: "Chapter 1", href: "/walkthrough/chapter-1" },
-    { name: "Chapter 2", href: "/walkthrough/chapter-2" },
-    { name: "Chapter 3", href: "/walkthrough/chapter-3" },
-    { name: "Chapter 4", href: "/walkthrough/chapter-4" },
-    { name: "All Chapters", href: "/walkthrough" }
-  ],
-  "Bosses": [
-    { name: "World Bosses", href: "/bosses/world" },
-    { name: "Dungeon Bosses", href: "/bosses/dungeon" },
-    { name: "Field Bosses", href: "/bosses/field" },
-    { name: "Boss List", href: "/bosses" }
-  ],
   "Quests": [
     { name: "Main Quests", href: "/quests/main" },
     { name: "Side Quests", href: "/quests/side" },
     { name: "Faction Quests", href: "/quests/faction" },
-    { name: "Hidden Quests", href: "/quests/hidden" }
+    { name: "Hidden Quests", href: "/quests/hidden" },
+    { name: "All Quests", href: "/category/quests" }
   ],
-  "Items": [
-    { name: "Weapons", href: "/items/weapons" },
-    { name: "Armor", href: "/items/armor" },
-    { name: "Accessories", href: "/items/accessories" },
-    { name: "Consumables", href: "/items/consumables" },
-    { name: "Materials", href: "/items/materials" }
-  ],
-  "Characters": [
-    { name: "Kliff", href: "/characters/kliff" },
-    { name: "Damiane", href: "/characters/damiane" },
-    { name: "Oongka", href: "/characters/oongka" },
-    { name: "All Characters", href: "/characters" }
-  ],
-  "Locations": [
-    { name: "Hernand", href: "/locations/hernand" },
-    { name: "Demeniss", href: "/locations/demeniss" },
-    { name: "Delesyia", href: "/locations/delesyia" },
-    { name: "Pailune", href: "/locations/pailune" },
-    { name: "Maps", href: "/maps" }
-  ],
-  "Systems": [
-    { name: "Combat", href: "/systems/combat" },
-    { name: "Crafting", href: "/systems/crafting" },
-    { name: "Skills", href: "/systems/skills" },
-    { name: "Builds", href: "/systems/builds" },
-    { name: "Leveling", href: "/systems/leveling" }
-  ]
 };
 
 export function LeftSidebar() {
