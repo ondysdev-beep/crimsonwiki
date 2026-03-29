@@ -13,6 +13,7 @@ DO $$
 DECLARE
   valid_slugs text[] := ARRAY[
     'quests', 'bosses', 'items', 'locations', 'classes', 'crafting', 'tips', 'lore',
+    'characters', 'mounts', 'collectibles', 'walkthrough', 'factions', 'activities', 'camp',
     'items-weapons', 'items-armor', 'items-shields', 'items-accessories',
     'items-mount-gear', 'items-consumables', 'items-materials', 'items-tools',
     'items-ammunition', 'items-abyss-gears', 'items-misc'
@@ -52,26 +53,40 @@ ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS parent_id integer REFEREN
 INSERT INTO public.categories (name, slug, icon, description, color)
 SELECT v.name, v.slug, v.icon, v.description, v.color
 FROM (VALUES
-  ('Quests',        'quests',    'Q', 'Main story, side quests, and hidden quests',            '#c9a227'),
-  ('Bosses',        'bosses',    'B', 'World bosses, dungeon bosses, and field bosses',        '#cc3333'),
-  ('Items',         'items',     'I', 'Weapons, armor, consumables, and all collectibles',     '#4a9eff'),
-  ('Locations',     'locations', 'L', 'Regions, dungeons, towns, and points of interest',      '#33cc77'),
-  ('Classes',       'classes',   'C', 'Playable classes, skills, and builds',                  '#9b59b6'),
-  ('Crafting',      'crafting',  'R', 'Recipes, materials, and crafting guides',               '#e67e22'),
-  ('Tips & Tricks', 'tips',      'T', 'Community tips, hidden mechanics, and beginner guides', '#1abc9c'),
-  ('Lore',          'lore',      'H', 'Story, world lore, characters, and factions',          '#95a5a6')
+  ('Quests',        'quests',      'Q', 'Main story, side quests, and hidden quests',              '#c9a227'),
+  ('Bosses',        'bosses',      'B', 'World bosses, dungeon bosses, and field bosses',          '#cc3333'),
+  ('Items',         'items',       'I', 'Weapons, armor, consumables, and all collectibles',       '#4a9eff'),
+  ('Locations',     'locations',   'L', 'Regions, dungeons, towns, and points of interest',        '#33cc77'),
+  ('Classes',       'classes',     'C', 'Playable classes, skills, and builds',                    '#9b59b6'),
+  ('Crafting',      'crafting',    'R', 'Recipes, materials, and crafting guides',                 '#e67e22'),
+  ('Tips & Tricks', 'tips',        'T', 'Community tips, hidden mechanics, and beginner guides',   '#1abc9c'),
+  ('Lore',          'lore',        'H', 'Story, world lore, characters, and factions',             '#95a5a6'),
+  ('Characters',    'characters',  'N', 'Story characters, NPCs, companions, and factions',        '#e74c3c'),
+  ('Mounts',        'mounts',      'M', 'Horses, camels, mounts, and mount equipment',             '#8e44ad'),
+  ('Collectibles',  'collectibles','X', 'Hidden collectibles, journal entries, and discoveries',   '#f39c12'),
+  ('Walkthrough',   'walkthrough', 'W', 'Main story walkthrough, chapter guides, and endings',     '#27ae60'),
+  ('Factions',      'factions',    'F', 'Greymanes, kingdoms, guilds, and rival factions',         '#2c3e50'),
+  ('Activities',    'activities',  'A', 'Fishing, hunting, minigames, and side activities',        '#16a085'),
+  ('Camp',          'camp',        'K', 'Camp building, management, upgrades, and resources',      '#d35400')
 ) AS v(name, slug, icon, description, color)
 WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE slug = v.slug);
 
 -- 2b. Fix existing category icons (replace emojis with letters)
-UPDATE public.categories SET icon = 'Q' WHERE slug = 'quests'    AND (icon IS NULL OR icon != 'Q');
-UPDATE public.categories SET icon = 'B' WHERE slug = 'bosses'    AND (icon IS NULL OR icon != 'B');
-UPDATE public.categories SET icon = 'I' WHERE slug = 'items'     AND (icon IS NULL OR icon != 'I');
-UPDATE public.categories SET icon = 'L' WHERE slug = 'locations' AND (icon IS NULL OR icon != 'L');
-UPDATE public.categories SET icon = 'C' WHERE slug = 'classes'   AND (icon IS NULL OR icon != 'C');
-UPDATE public.categories SET icon = 'R' WHERE slug = 'crafting'  AND (icon IS NULL OR icon != 'R');
-UPDATE public.categories SET icon = 'T' WHERE slug = 'tips'      AND (icon IS NULL OR icon != 'T');
-UPDATE public.categories SET icon = 'H' WHERE slug = 'lore'      AND (icon IS NULL OR icon != 'H');
+UPDATE public.categories SET icon = 'Q' WHERE slug = 'quests'       AND (icon IS NULL OR icon != 'Q');
+UPDATE public.categories SET icon = 'B' WHERE slug = 'bosses'       AND (icon IS NULL OR icon != 'B');
+UPDATE public.categories SET icon = 'I' WHERE slug = 'items'        AND (icon IS NULL OR icon != 'I');
+UPDATE public.categories SET icon = 'L' WHERE slug = 'locations'    AND (icon IS NULL OR icon != 'L');
+UPDATE public.categories SET icon = 'C' WHERE slug = 'classes'      AND (icon IS NULL OR icon != 'C');
+UPDATE public.categories SET icon = 'R' WHERE slug = 'crafting'     AND (icon IS NULL OR icon != 'R');
+UPDATE public.categories SET icon = 'T' WHERE slug = 'tips'         AND (icon IS NULL OR icon != 'T');
+UPDATE public.categories SET icon = 'H' WHERE slug = 'lore'         AND (icon IS NULL OR icon != 'H');
+UPDATE public.categories SET icon = 'N' WHERE slug = 'characters'   AND (icon IS NULL OR icon != 'N');
+UPDATE public.categories SET icon = 'M' WHERE slug = 'mounts'       AND (icon IS NULL OR icon != 'M');
+UPDATE public.categories SET icon = 'X' WHERE slug = 'collectibles' AND (icon IS NULL OR icon != 'X');
+UPDATE public.categories SET icon = 'W' WHERE slug = 'walkthrough'  AND (icon IS NULL OR icon != 'W');
+UPDATE public.categories SET icon = 'F' WHERE slug = 'factions'     AND (icon IS NULL OR icon != 'F');
+UPDATE public.categories SET icon = 'A' WHERE slug = 'activities'   AND (icon IS NULL OR icon != 'A');
+UPDATE public.categories SET icon = 'K' WHERE slug = 'camp'         AND (icon IS NULL OR icon != 'K');
 
 -- ─────────────────────────────────────────────
 -- 3. Items subcategories (source: crimsondb.gg)
