@@ -40,7 +40,7 @@ export default async function HomePage() {
     .from('categories')
     .select('*')
     .order('name');
-  const categories = (catData ?? []) as Category[];
+  const categories = ((catData ?? []) as Category[]).filter(c => !c.parent_id);
 
   const { count: articleCount } = await supabase
     .from('articles')
@@ -63,7 +63,7 @@ export default async function HomePage() {
 
   const totalViews = viewData?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
 
-  // Get article counts per category
+  // Get article counts per category (top-level only)
   const { data: categoryCounts } = await supabase
     .from('categories')
     .select('*, articles(count)')
