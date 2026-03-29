@@ -396,10 +396,15 @@ select option {
 
 /* Hide ad columns on screens too narrow to show them */
 @media (max-width: 1400px) {
-  .ad-col-right { display: none; }
+  .ad-col-right {
+    display: none;
+  }
 }
+
 @media (max-width: 1200px) {
-  .ad-col { display: none; }
+  .ad-col {
+    display: none;
+  }
 }
 
 .page {
@@ -408,6 +413,39 @@ select option {
   max-width: 1440px;
   flex: 1;
   min-width: 0;
+}
+
+/* ===== SUBCATEGORY GRID ===== */
+.subcat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-1);
+  text-decoration: none;
+  transition: background 0.1s;
+}
+
+.subcat-item:hover {
+  background: var(--bg-2);
+}
+
+.subcat-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.subcat-name {
+  font-size: 12px;
+  color: var(--text-0);
+  font-weight: 500;
 }
 
 /* ===== LEFT SIDEBAR ===== */

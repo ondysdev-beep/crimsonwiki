@@ -4,6 +4,44 @@
 -- =============================================
 
 -- ─────────────────────────────────────────────
+-- 0. Clean up old / duplicate categories
+--    Keep ONLY the canonical slugs listed below.
+--    Articles assigned to deleted categories
+--    have their category_id set to NULL first.
+-- ─────────────────────────────────────────────
+DO $$
+DECLARE
+  valid_slugs text[] := ARRAY[
+    'quests', 'bosses', 'items', 'locations', 'classes', 'crafting', 'tips', 'lore',
+    'items-weapons', 'items-armor', 'items-shields', 'items-accessories',
+    'items-mount-gear', 'items-consumables', 'items-materials', 'items-tools',
+    'items-ammunition', 'items-abyss-gears', 'items-misc'
+  ];
+BEGIN
+  -- Detach articles from categories that will be deleted
+  UPDATE public.articles
+  SET category_id = NULL
+  WHERE category_id IN (
+    SELECT id FROM public.categories WHERE slug != ALL(valid_slugs)
+  );
+
+  -- Remove self-references (parent_id pointing to rows about to be deleted)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'categories' AND column_name = 'parent_id'
+  ) THEN
+    UPDATE public.categories SET parent_id = NULL
+    WHERE parent_id IN (
+      SELECT id FROM public.categories WHERE slug != ALL(valid_slugs)
+    );
+  END IF;
+
+  -- Delete all categories not in the valid set
+  DELETE FROM public.categories WHERE slug != ALL(valid_slugs);
+END;
+$$;
+
+-- ─────────────────────────────────────────────
 -- 1. Add parent_id support to categories table
 -- ─────────────────────────────────────────────
 ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS parent_id integer REFERENCES public.categories(id) ON DELETE SET NULL;
@@ -71,6 +109,16 @@ BEGIN
     ('Miscellaneous','items-misc',         'V', 'Quest items, keys, and other miscellaneous objects',   '#4a9eff')
   ) AS v(name, slug, icon, description, color)
   WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE slug = v.slug);
+
+  -- Also fix existing subcategories that might have parent_id = NULL
+  UPDATE public.categories
+  SET parent_id = v_items_id
+  WHERE slug IN (
+    'items-weapons','items-armor','items-shields','items-accessories',
+    'items-mount-gear','items-consumables','items-materials','items-tools',
+    'items-ammunition','items-abyss-gears','items-misc'
+  )
+  AND (parent_id IS NULL OR parent_id != v_items_id);
 END;
 $$;
 

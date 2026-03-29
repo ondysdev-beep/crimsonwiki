@@ -200,27 +200,15 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               <Link
                 key={sub.id}
                 href={`/category/${sub.slug}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                  padding: '8px 10px',
-                  background: 'var(--bg-1)',
-                  textDecoration: 'none',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-2)'}
-                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-1)'}
+                className="subcat-item"
               >
-                <span style={{
-                  width: 22, height: 22, flexShrink: 0,
-                  background: sub.color || category.color || '#4a9eff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: '700', color: '#fff',
-                }}>
+                <span
+                  className="subcat-icon"
+                  style={{ background: sub.color || category.color || '#4a9eff' }}
+                >
                   {sub.icon || sub.name.charAt(0)}
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--text-0)', fontWeight: '500' }}>
-                  {sub.name}
-                </span>
+                <span className="subcat-name">{sub.name}</span>
               </Link>
             ))}
           </div>
