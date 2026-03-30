@@ -39,56 +39,50 @@ function getBadgeClass(slug: string): string {
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const settings = await getSettings();
 
-  const { data: recentData } = await supabase
-    .from('articles')
-    .select('*, categories(*), profiles!articles_created_by_fkey(*)')
-    .eq('is_published', true)
-    .order('updated_at', { ascending: false })
-    .limit(10);
+  // Run all independent queries in parallel
+  const [
+    settings,
+    { data: recentData },
+    { data: popularData },
+    { data: catData },
+    { count: articleCount },
+    { count: profileCount },
+    { count: editCount },
+    { data: viewData },
+    { data: categoryCounts },
+    { data: revisionData },
+  ] = await Promise.all([
+    getSettings(),
+    supabase
+      .from('articles')
+      .select('*, categories(*), profiles!articles_created_by_fkey(*)')
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false })
+      .limit(10),
+    supabase
+      .from('articles')
+      .select('slug, title, view_count, categories(name, slug)')
+      .eq('is_published', true)
+      .order('view_count', { ascending: false })
+      .limit(5),
+    supabase.from('categories').select('*').order('name'),
+    supabase.from('articles').select('*', { count: 'exact', head: true }).eq('is_published', true),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('article_revisions').select('*', { count: 'exact', head: true }),
+    supabase.from('articles').select('view_count').eq('is_published', true),
+    supabase.from('categories').select('*, articles(count)').eq('articles.is_published', true),
+    supabase
+      .from('article_revisions')
+      .select('edited_by, profiles!article_revisions_edited_by_fkey(username, is_founder)')
+      .not('edited_by', 'is', null)
+      .limit(50),
+  ]);
+
   const recentArticles = (recentData ?? []) as unknown as ArticleWithCategory[];
-
-  const { data: popularData } = await supabase
-    .from('articles')
-    .select('slug, title, view_count, categories(name, slug)')
-    .eq('is_published', true)
-    .order('view_count', { ascending: false })
-    .limit(5);
   const popularArticles = (popularData ?? []) as { slug: string; title: string; view_count: number; categories: { name: string; slug: string } | null }[];
-
-  const { data: catData } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
   const categories = ((catData ?? []) as Category[]).filter(c => !c.parent_id);
-
-  const { count: articleCount } = await supabase
-    .from('articles')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_published', true);
-
-  const { count: profileCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: editCount } = await supabase
-    .from('article_revisions')
-    .select('*', { count: 'exact', head: true });
-
-  // Get total monthly readers (sum of all article views in last 30 days)
-  const { data: viewData } = await supabase
-    .from('articles')
-    .select('view_count')
-    .eq('is_published', true);
-
   const totalViews = viewData?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
-
-  // Get article counts per category (top-level only)
-  const { data: categoryCounts } = await supabase
-    .from('categories')
-    .select('*, articles(count)')
-    .eq('articles.is_published', true);
 
   const categoriesWithCounts = categories.map(cat => {
     const countData = categoryCounts?.find(c => c.id === cat.id);
@@ -97,13 +91,6 @@ export default async function HomePage() {
       article_count: countData?.articles?.[0]?.count || 0
     };
   });
-
-  // Get top contributors by actual revision count
-  const { data: revisionData } = await supabase
-    .from('article_revisions')
-    .select('edited_by, profiles!article_revisions_edited_by_fkey(username, is_founder)')
-    .not('edited_by', 'is', null)
-    .limit(50);
 
   // Count revisions per user and get top 5
   const contributorCounts = revisionData?.reduce((acc, rev) => {
