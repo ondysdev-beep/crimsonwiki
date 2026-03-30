@@ -88,6 +88,18 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
 
   const joinDate = formatDate(profile.created_at);
 
+  // Compute earned badges from real data
+  const badges: { label: string; title: string; color: string }[] = [];
+  if (profile.is_founder) badges.push({ label: '⚔ Founder', title: 'Original founder of CrimsonWiki', color: '#c9a227' });
+  if (profile.role === 'admin') badges.push({ label: '🛡 Admin', title: 'Wiki administrator', color: '#cc3333' });
+  if (profile.role === 'moderator') badges.push({ label: '🔨 Moderator', title: 'Wiki moderator', color: '#9b59b6' });
+  if (articles.length >= 1) badges.push({ label: '✏ Author', title: 'Created at least one article', color: '#3498db' });
+  if (articles.length >= 5) badges.push({ label: '📚 Prolific Writer', title: 'Created 5 or more articles', color: '#27ae60' });
+  if (articles.length >= 10) badges.push({ label: '🏆 Wiki Veteran', title: 'Created 10 or more articles', color: '#c9a227' });
+  if ((editCount ?? 0) >= 10) badges.push({ label: '🔧 Active Editor', title: 'Made 10 or more edits', color: '#16a085' });
+  if ((editCount ?? 0) >= 50) badges.push({ label: '⚡ Wiki Expert', title: 'Made 50 or more edits', color: '#e67e22' });
+  if ((commentCount ?? 0) >= 10) badges.push({ label: '💬 Commentator', title: 'Posted 10 or more comments', color: '#1abc9c' });
+
   return (
     <>
       {/* PAGE HEADER */}
@@ -168,6 +180,34 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
               </div>
             </div>
           </div>
+
+          {/* BADGES */}
+          {badges.length > 0 && (
+            <div className="wiki-box">
+              <div className="wiki-box-hd">Badges</div>
+              <div className="wiki-box-body" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {badges.map(b => (
+                  <span
+                    key={b.label}
+                    title={b.title}
+                    style={{
+                      display: 'inline-block',
+                      padding: '4px 10px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      border: `1px solid ${b.color}44`,
+                      background: `${b.color}18`,
+                      color: b.color,
+                      cursor: 'default',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {b.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* STATS */}
           <table className="wiki-table">
