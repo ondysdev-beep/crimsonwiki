@@ -50,7 +50,6 @@ export default async function HomePage() {
     { count: profileCount },
     { count: editCount },
     { data: viewData },
-    { data: categoryCounts },
     { data: revisionData },
   ] = await Promise.all([
     getSettings(),
@@ -71,7 +70,6 @@ export default async function HomePage() {
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('article_revisions').select('*', { count: 'exact', head: true }),
     supabase.from('articles').select('view_count').eq('is_published', true),
-    supabase.from('categories').select('*, articles(count)').eq('articles.is_published', true),
     supabase
       .from('article_revisions')
       .select('edited_by, profiles!article_revisions_edited_by_fkey(username, is_founder)')
@@ -85,10 +83,9 @@ export default async function HomePage() {
   const totalViews = viewData?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
 
   const categoriesWithCounts = categories.map(cat => {
-    const countData = categoryCounts?.find(c => c.id === cat.id);
     return {
       ...cat,
-      article_count: countData?.articles?.[0]?.count || 0
+      article_count: 0 // TODO: Fix with proper count query later
     };
   });
 
