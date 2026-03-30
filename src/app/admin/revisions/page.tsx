@@ -25,7 +25,7 @@ export default function AdminRevisionsPage() {
   useEffect(() => {
     checkAccess();
     fetchRevisions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -112,8 +112,10 @@ export default function AdminRevisionsPage() {
                       </Link>
                     ) : <em style={{ color: 'var(--text-3)' }}>deleted</em>}
                   </td>
-                  <td style={{ fontSize: '12px', color: 'var(--text-1)', whiteSpace: 'nowrap' }}>
-                    {r.profiles?.username ?? <em style={{ color: 'var(--text-3)' }}>anon</em>}
+                  <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                    {r.profiles?.username
+                      ? <Link href={`/profile/${r.profiles.username}`} style={{ color: 'var(--text-1)' }}>{r.profiles.username}</Link>
+                      : <em style={{ color: 'var(--text-3)' }}>anon</em>}
                   </td>
                   <td style={{ fontSize: '12px', color: 'var(--text-2)', maxWidth: '300px' }}>
                     <span style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
