@@ -25,7 +25,7 @@ export default function AdminCommentsPage() {
   useEffect(() => {
     checkAccess();
     fetchComments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -111,8 +111,10 @@ export default function AdminCommentsPage() {
             <tbody>
               {filtered.map(c => (
                 <tr key={c.id}>
-                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text-1)', fontSize: '12px' }}>
-                    {c.profiles?.username ?? <em style={{ color: 'var(--text-3)' }}>deleted</em>}
+                  <td style={{ whiteSpace: 'nowrap', fontSize: '12px' }}>
+                    {c.profiles?.username
+                      ? <Link href={`/profile/${c.profiles.username}`} style={{ color: 'var(--text-1)' }}>{c.profiles.username}</Link>
+                      : <em style={{ color: 'var(--text-3)' }}>deleted</em>}
                   </td>
                   <td style={{ fontSize: '12px', color: 'var(--text-1)', maxWidth: '340px' }}>
                     <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
