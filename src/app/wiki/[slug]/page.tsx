@@ -70,32 +70,36 @@ export default async function ArticlePage({ params }: PageProps) {
   // Increment view count atomically via RPC (fire and forget)
   supabase.rpc('increment_article_views', { p_article_id: a.id }).then();
 
-  // Fetch revision count + unique editors
-  const { count: revisionCount } = await supabase
-    .from('article_revisions')
-    .select('*', { count: 'exact', head: true })
-    .eq('article_id', a.id);
+  // Fetch revision count, unique editors, and related articles in parallel
+  const [
+    { count: revisionCount },
+    { data: editorsData },
+    { data: relData },
+  ] = await Promise.all([
+    supabase
+      .from('article_revisions')
+      .select('*', { count: 'exact', head: true })
+      .eq('article_id', a.id),
+    supabase
+      .from('article_revisions')
+      .select('edited_by')
+      .eq('article_id', a.id)
+      .not('edited_by', 'is', null),
+    a.category_id
+      ? supabase
+        .from('articles')
+        .select('id, slug, title, excerpt')
+        .eq('category_id', a.category_id)
+        .eq('is_published', true)
+        .neq('id', a.id)
+        .order('view_count', { ascending: false })
+        .limit(4)
+      : Promise.resolve({ data: null }),
+  ]);
 
-  const { data: editorsData } = await supabase
-    .from('article_revisions')
-    .select('edited_by')
-    .eq('article_id', a.id)
-    .not('edited_by', 'is', null);
   const uniqueEditorCount = new Set((editorsData ?? []).map(r => r.edited_by)).size || 1;
-
-  // Fetch related articles (same category, excluding current)
-  let relatedArticles: { id: string; slug: string; title: string; excerpt: string | null }[] = [];
-  if (a.category_id) {
-    const { data: relData } = await supabase
-      .from('articles')
-      .select('id, slug, title, excerpt')
-      .eq('category_id', a.category_id)
-      .eq('is_published', true)
-      .neq('id', a.id)
-      .order('view_count', { ascending: false })
-      .limit(4);
-    if (relData) relatedArticles = relData as typeof relatedArticles;
-  }
+  const relatedArticles: { id: string; slug: string; title: string; excerpt: string | null }[] =
+    (relData as typeof relatedArticles | null) ?? [];
 
   // JSON-LD Article structured data
   const jsonLd = {
