@@ -55,30 +55,35 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
     discord_username: string | null;
   };
 
-  const { data: articlesData } = await supabase
-    .from('articles')
-    .select('*, categories(*), profiles!articles_created_by_fkey(*)')
-    .eq('created_by', profile.id)
-    .eq('is_published', true)
-    .order('updated_at', { ascending: false });
+  const [
+    { data: articlesData },
+    { count: editCount },
+    { count: commentCount },
+    { data: recentEditsData },
+  ] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('*, categories(*), profiles!articles_created_by_fkey(*)')
+      .eq('created_by', profile.id)
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false }),
+    supabase
+      .from('article_revisions')
+      .select('*', { count: 'exact', head: true })
+      .eq('edited_by', profile.id),
+    supabase
+      .from('comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', profile.id),
+    supabase
+      .from('article_revisions')
+      .select('*, articles!article_revisions_article_id_fkey(slug, title)')
+      .eq('edited_by', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ]);
+
   const articles = (articlesData || []) as unknown as ArticleWithCategory[];
-
-  const { count: editCount } = await supabase
-    .from('article_revisions')
-    .select('*', { count: 'exact', head: true })
-    .eq('edited_by', profile.id);
-
-  const { count: commentCount } = await supabase
-    .from('comments')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', profile.id);
-
-  const { data: recentEditsData } = await supabase
-    .from('article_revisions')
-    .select('*, articles!article_revisions_article_id_fkey(slug, title)')
-    .eq('edited_by', profile.id)
-    .order('created_at', { ascending: false })
-    .limit(10);
   const recentEdits = (recentEditsData || []) as {
     id: string;
     created_at: string;
