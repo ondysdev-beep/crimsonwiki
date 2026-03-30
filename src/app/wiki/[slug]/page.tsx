@@ -189,6 +189,11 @@ export default async function ArticlePage({ params }: PageProps) {
           <div className="page-hd-sub">
             <span className={`tag tag-${a.categories?.slug}`}>{a.categories?.name}</span>
             &nbsp;· Last edited by <Link href={`/profile/${a.profiles?.username}`}>{a.profiles?.username}</Link> · {formatDate(a.updated_at)} · <Link href={`/wiki/${a.slug}/history`}>{revisionCount || 0} revisions</Link>
+            {a.content_text && (() => {
+              const wc = a.content_text.trim().split(/\s+/).filter(Boolean).length;
+              const mins = Math.max(1, Math.round(wc / 200));
+              return <>&nbsp;· {mins} min read</>;
+            })()}
           </div>
         </div>
         <Link href={`/wiki/${a.slug}/edit`} className="page-hd-edit">[ edit page ]</Link>
