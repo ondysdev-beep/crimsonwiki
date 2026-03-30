@@ -8,6 +8,7 @@ import { formatDate, SITE_NAME, SITE_URL } from '@/lib/utils';
 import { getSettings } from '@/lib/settings';
 import { CommentSection } from '@/components/articles/CommentSection';
 import { ArticleViewTracker } from '@/components/wiki/ArticleViewTracker';
+import { RecentlyViewed } from '@/components/wiki/RecentlyViewed';
 import { ArticleContentRenderer } from '@/components/articles/ArticleContentRenderer';
 import { TableOfContents } from '@/components/articles/TableOfContents';
 import type { ArticleWithCategory } from '@/lib/types/database';
@@ -290,6 +291,9 @@ export default async function ArticlePage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* RECENTLY VIEWED */}
+          <RecentlyViewed />
         </div>
       </div>
 
