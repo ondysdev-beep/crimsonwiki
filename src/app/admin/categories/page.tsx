@@ -13,7 +13,7 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ name: '', slug: '', icon: '', description: '', color: '#dc2626' });
+  const [form, setForm] = useState({ name: '', slug: '', icon: '', description: '', color: '#dc2626', parent_id: '' });
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,6 +50,7 @@ export default function AdminCategoriesPage() {
       icon: cat.icon || '',
       description: cat.description || '',
       color: cat.color || '#dc2626',
+      parent_id: cat.parent_id ? String(cat.parent_id) : '',
     });
     setShowNew(false);
   };
@@ -60,6 +61,7 @@ export default function AdminCategoriesPage() {
       return;
     }
 
+    const parentId = form.parent_id ? parseInt(form.parent_id) : null;
     if (editId) {
       await supabase.from('categories').update({
         name: form.name.trim(),
@@ -67,6 +69,7 @@ export default function AdminCategoriesPage() {
         icon: form.icon || null,
         description: form.description || null,
         color: form.color || null,
+        parent_id: parentId,
       }).eq('id', editId);
     } else {
       await supabase.from('categories').insert({
@@ -75,6 +78,7 @@ export default function AdminCategoriesPage() {
         icon: form.icon || null,
         description: form.description || null,
         color: form.color || null,
+        parent_id: parentId,
       });
     }
     resetForm();
@@ -180,6 +184,22 @@ export default function AdminCategoriesPage() {
                   />
                 </div>
               </div>
+              <div className="settings-field" style={{ margin: 0 }}>
+                <label className="settings-label">Parent Category (optional)</label>
+                <select
+                  value={form.parent_id}
+                  onChange={(e) => setForm((f) => ({ ...f, parent_id: e.target.value }))}
+                  style={{ ...inputStyle, height: '28px' }}
+                  className="settings-input"
+                >
+                  <option value="">— None (top-level) —</option>
+                  {categories
+                    .filter(c => !editId || c.id !== editId)
+                    .map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
+              </div>
               <div className="settings-field" style={{ margin: 0, gridColumn: '1 / -1' }}>
                 <label className="settings-label">Description</label>
                 <input
@@ -219,7 +239,10 @@ export default function AdminCategoriesPage() {
             >
               <span style={{ fontSize: '16px', flexShrink: 0, minWidth: '20px', textAlign: 'center' }}>{cat.icon}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-0)' }}>{cat.name}</div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-0)' }}>
+                  {cat.parent_id && <span style={{ color: 'var(--text-3)', fontWeight: 400 }}>{categories.find(p => p.id === cat.parent_id)?.name} › </span>}
+                  {cat.name}
+                </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>/category/{cat.slug}</div>
               </div>
               <div style={{ width: 12, height: 12, borderRadius: '50%', background: cat.color || '#dc2626', flexShrink: 0 }} />
