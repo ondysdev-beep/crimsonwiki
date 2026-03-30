@@ -54,14 +54,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const supabase = await createClient();
-  const { stub_threshold: stubThreshold } = await getSettings();
 
-  const { data: articleData } = await supabase
-    .from('articles')
-    .select('*, categories(*), profiles!articles_created_by_fkey(*)')
-    .eq('slug', params.slug)
-    .eq('is_published', true)
-    .single();
+  const [{ stub_threshold: stubThreshold }, { data: articleData }] = await Promise.all([
+    getSettings(),
+    supabase
+      .from('articles')
+      .select('*, categories(*), profiles!articles_created_by_fkey(*)')
+      .eq('slug', params.slug)
+      .eq('is_published', true)
+      .single(),
+  ]);
 
   if (!articleData) notFound();
 
