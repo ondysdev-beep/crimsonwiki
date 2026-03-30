@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q')?.trim();
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)));
 
   if (!query) {
     return NextResponse.json({ results: [] });
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase.rpc('search_articles', {
     search_query: query,
-    result_limit: 20,
+    result_limit: limit,
   });
 
   if (error) {
