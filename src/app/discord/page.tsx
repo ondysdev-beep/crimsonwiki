@@ -1,13 +1,18 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/utils';
+import { getSettings } from '@/lib/settings';
 
 export const metadata: Metadata = {
   title: 'Discord Server',
   description: `Join the ${SITE_NAME} Discord server for community discussion.`,
 };
 
-export default function DiscordPage() {
+const DEFAULT_DISCORD = 'https://discord.gg/crimsondesert';
+
+export default async function DiscordPage() {
+  const { discord_url } = await getSettings();
+  const isConfigured = discord_url && discord_url !== DEFAULT_DISCORD;
   return (
     <>
       {/* PAGE HEADER */}
@@ -22,24 +27,42 @@ export default function DiscordPage() {
       <div className="content-grid">
         <div>
           <div className="wiki-box">
-            <div className="wiki-box-hd">Community Discussion Coming Soon</div>
+            <div className="wiki-box-hd">{isConfigured ? 'Join Our Discord' : 'Community Discussion Coming Soon'}</div>
             <div className="wiki-box-body" style={{ fontSize: '14px', lineHeight: '1.8', textAlign: 'center', padding: '40px 20px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚧</div>
-              <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-0)', marginBottom: '16px' }}>
-                Our Discord server is currently under construction
-              </p>
-              <p style={{ marginBottom: '24px' }}>
-                We're working hard to create an amazing community space for Crimson Desert players and wiki contributors. 
-                In the meantime, you can still participate in building the wiki!
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <Link href="/contribute" className="btn-login" style={{ display: 'inline-block', padding: '12px 24px' }}>
-                  Contribute to Wiki
-                </Link>
-                <Link href="/community" className="btn-login" style={{ display: 'inline-block', padding: '12px 24px' }}>
-                  Community Portal
-                </Link>
-              </div>
+              {isConfigured ? (
+                <>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
+                  <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-0)', marginBottom: '16px' }}>
+                    Join the CrimsonWiki community on Discord
+                  </p>
+                  <p style={{ marginBottom: '24px', color: 'var(--text-1)' }}>
+                    Connect with other players and wiki contributors, discuss strategies, share discoveries, and get help editing.
+                  </p>
+                  <a
+                    href={discord_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-login"
+                    style={{ display: 'inline-block', padding: '12px 32px', fontSize: '15px' }}
+                  >
+                    Join Discord Server →
+                  </a>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚧</div>
+                  <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-0)', marginBottom: '16px' }}>
+                    Our Discord server is currently under construction
+                  </p>
+                  <p style={{ marginBottom: '24px' }}>
+                    We're working hard to create an amazing community space. In the meantime, you can still participate in building the wiki!
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <Link href="/contribute" className="btn-login" style={{ display: 'inline-block', padding: '12px 24px' }}>Contribute to Wiki</Link>
+                    <Link href="/community" className="btn-login" style={{ display: 'inline-block', padding: '12px 24px' }}>Community Portal</Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -51,28 +74,28 @@ export default function DiscordPage() {
               </p>
               <ul style={{ marginLeft: '20px', marginBottom: '16px' }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Chat with Contributors</strong> - Connect with other wiki editors 
+                  <strong style={{ color: 'var(--text-0)' }}>Chat with Contributors</strong> - Connect with other wiki editors
                   and Crimson Desert fans
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Get Help</strong> - Ask questions about editing, 
+                  <strong style={{ color: 'var(--text-0)' }}>Get Help</strong> - Ask questions about editing,
                   game mechanics, or wiki policies
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Share Discoveries</strong> - Discuss new findings, 
+                  <strong style={{ color: 'var(--text-0)' }}>Share Discoveries</strong> - Discuss new findings,
                   strategies, and game updates
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Collaborate</strong> - Coordinate with other editors 
+                  <strong style={{ color: 'var(--text-0)' }}>Collaborate</strong> - Coordinate with other editors
                   on large projects and article improvements
                 </li>
                 <li>
-                  <strong style={{ color: 'var(--text-0)' }}>Stay Updated</strong> - Get notifications about 
+                  <strong style={{ color: 'var(--text-0)' }}>Stay Updated</strong> - Get notifications about
                   important wiki changes and events
                 </li>
               </ul>
               <p>
-                The Discord server will be the perfect complement to the wiki, enabling real-time discussion 
+                The Discord server will be the perfect complement to the wiki, enabling real-time discussion
                 and collaboration that enhances our collective knowledge base.
               </p>
             </div>
@@ -86,20 +109,20 @@ export default function DiscordPage() {
               </p>
               <div style={{ marginLeft: '20px' }}>
                 <p style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Wiki Talk Pages:</strong> Each article has a discussion 
+                  <strong style={{ color: 'var(--text-0)' }}>Wiki Talk Pages:</strong> Each article has a discussion
                   tab where you can talk with other editors about that specific content.
                 </p>
                 <p style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>Community Portal:</strong> Visit our 
-                  <Link href="/community" style={{ color: 'var(--link)' }}> community portal</Link> for 
+                  <strong style={{ color: 'var(--text-0)' }}>Community Portal:</strong> Visit our
+                  <Link href="/community" style={{ color: 'var(--link)' }}> community portal</Link> for
                   announcements and coordination.
                 </p>
                 <p style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--text-0)' }}>GitHub:</strong> For technical issues and 
+                  <strong style={{ color: 'var(--text-0)' }}>GitHub:</strong> For technical issues and
                   feature requests, use our GitHub repository.
                 </p>
                 <p>
-                  <strong style={{ color: 'var(--text-0)' }}>Email:</strong> For administrative matters, 
+                  <strong style={{ color: 'var(--text-0)' }}>Email:</strong> For administrative matters,
                   contact admin@crimsonwiki.org
                 </p>
               </div>
