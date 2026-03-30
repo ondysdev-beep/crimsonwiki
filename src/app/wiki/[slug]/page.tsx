@@ -11,6 +11,7 @@ import { ArticleViewTracker } from '@/components/wiki/ArticleViewTracker';
 import { RecentlyViewed } from '@/components/wiki/RecentlyViewed';
 import { ArticleContentRenderer } from '@/components/articles/ArticleContentRenderer';
 import { TableOfContents } from '@/components/articles/TableOfContents';
+import { BackToTop } from '@/components/wiki/BackToTop';
 import type { ArticleWithCategory } from '@/lib/types/database';
 
 interface PageProps {
@@ -310,6 +311,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </div>
 
       <ArticleViewTracker slug={a.slug} title={a.title} categoryName={a.categories?.name ?? undefined} />
+      <BackToTop />
 
       {/* COMMENTS SECTION */}
       <CommentSection articleId={a.id} />
