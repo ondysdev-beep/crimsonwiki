@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { Clock, Eye, Edit, History, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, SITE_NAME, SITE_URL } from '@/lib/utils';
 import { getSettings } from '@/lib/settings';
