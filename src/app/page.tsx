@@ -31,8 +31,10 @@ function getBadgeClass(slug: string): string {
     quests: 'badge-quest', bosses: 'badge-boss', items: 'badge-item',
     locations: 'badge-location', classes: 'badge-class', crafting: 'badge-crafting',
     tips: 'badge-tip', lore: 'badge-lore',
+    characters: 'badge-boss', mounts: 'badge-class', collectibles: 'badge-item',
+    walkthrough: 'badge-quest', factions: 'badge-lore', activities: 'badge-tip', camp: 'badge-crafting',
   };
-  return map[slug] || 'badge-quest';
+  return map[slug] || 'badge-lore';
 }
 
 export default async function HomePage() {

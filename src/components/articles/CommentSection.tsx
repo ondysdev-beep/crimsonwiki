@@ -53,7 +53,7 @@ export function CommentSection({ articleId }: { articleId: string }) {
       article_id: articleId,
       user_id: userId,
       content: newComment.trim(),
-    } as never);
+    });
 
     if (!error) {
       setNewComment('');
@@ -66,7 +66,7 @@ export function CommentSection({ articleId }: { articleId: string }) {
     const { error } = await supabase
       .from('comments')
       .delete()
-      .eq('id', commentId as never);
+      .eq('id', commentId);
     if (!error) fetchComments();
   };
 

@@ -1013,6 +1013,48 @@ select option {
   background: rgba(149, 165, 166, 0.08);
 }
 
+.tag-characters {
+  color: #e74c3c;
+  border-color: rgba(231, 76, 60, 0.35);
+  background: rgba(231, 76, 60, 0.08);
+}
+
+.tag-mounts {
+  color: #8e44ad;
+  border-color: rgba(142, 68, 173, 0.35);
+  background: rgba(142, 68, 173, 0.08);
+}
+
+.tag-collectibles {
+  color: #f39c12;
+  border-color: rgba(243, 156, 18, 0.35);
+  background: rgba(243, 156, 18, 0.08);
+}
+
+.tag-walkthrough {
+  color: #27ae60;
+  border-color: rgba(39, 174, 96, 0.35);
+  background: rgba(39, 174, 96, 0.08);
+}
+
+.tag-factions {
+  color: #7f8c8d;
+  border-color: rgba(127, 140, 141, 0.35);
+  background: rgba(127, 140, 141, 0.08);
+}
+
+.tag-activities {
+  color: #16a085;
+  border-color: rgba(22, 160, 133, 0.35);
+  background: rgba(22, 160, 133, 0.08);
+}
+
+.tag-camp {
+  color: #d35400;
+  border-color: rgba(211, 84, 0, 0.35);
+  background: rgba(211, 84, 0, 0.08);
+}
+
 /* Legacy badge aliases */
 .badge,
 .badge-boss,

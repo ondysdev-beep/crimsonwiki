@@ -51,7 +51,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     const { data } = await supabase.rpc('search_articles', {
       search_query: query,
       result_limit: 50,
-    } as never);
+    });
     if (data) results = data as typeof results;
 
     if (categoryFilter) {
