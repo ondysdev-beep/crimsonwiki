@@ -226,6 +226,18 @@ export interface Database {
           },
         ];
       };
+      site_settings: {
+        Row: { key: string; value: string; updated_at: string };
+        Insert: { key: string; value: string; updated_at?: string };
+        Update: { value?: string; updated_at?: string };
+        Relationships: [];
+      };
+      redirects: {
+        Row: { id: number; from_slug: string; to_slug: string; created_at: string };
+        Insert: { from_slug: string; to_slug: string; created_at?: string };
+        Update: { from_slug?: string; to_slug?: string };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

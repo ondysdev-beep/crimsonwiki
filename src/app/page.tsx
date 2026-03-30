@@ -4,6 +4,7 @@ import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
 import { HeroSearch } from '@/components/wiki/HeroSearch';
 import { getSettings } from '@/lib/settings';
+import { RecentlyViewed } from '@/components/wiki/RecentlyViewed';
 
 export const revalidate = 60;
 
@@ -285,6 +286,9 @@ export default async function HomePage() {
               </div>
             </div>
           )}
+
+          {/* RECENTLY VIEWED */}
+          <RecentlyViewed />
 
           {/* CONTRIBUTE BOX */}
           <div className="wiki-box">

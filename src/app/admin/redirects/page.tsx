@@ -27,7 +27,7 @@ export default function AdminRedirectsPage() {
   useEffect(() => {
     checkAccess();
     fetchRedirects();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -40,21 +40,21 @@ export default function AdminRedirectsPage() {
 
   const fetchRedirects = async () => {
     const { data } = await supabase
-      .from('redirects' as never)
+      .from('redirects')
       .select('id, from_slug, to_slug, created_at')
       .order('created_at', { ascending: false });
-    if (data) setRedirects(data as RedirectRow[]);
+    if (data) setRedirects(data);
     setLoading(false);
   };
 
   const addRedirect = async () => {
     setError('');
     const from = fromSlug.trim().replace(/^\/wiki\//, '');
-    const to   = toSlug.trim().replace(/^\/wiki\//, '');
+    const to = toSlug.trim().replace(/^\/wiki\//, '');
     if (!from || !to) { setError('Both fields are required.'); return; }
-    if (from === to)  { setError('Source and destination cannot be the same.'); return; }
+    if (from === to) { setError('Source and destination cannot be the same.'); return; }
     setAdding(true);
-    const { error: err } = await supabase.from('redirects' as never).insert({ from_slug: from, to_slug: to } as never);
+    const { error: err } = await supabase.from('redirects').insert({ from_slug: from, to_slug: to });
     if (err) {
       setError(err.message.includes('unique') ? 'A redirect for that slug already exists.' : err.message);
     } else {
@@ -67,7 +67,7 @@ export default function AdminRedirectsPage() {
 
   const deleteRedirect = async (id: number) => {
     if (!confirm('Delete this redirect?')) return;
-    await supabase.from('redirects' as never).delete().eq('id', id as never);
+    await supabase.from('redirects').delete().eq('id', id);
     setRedirects(prev => prev.filter(r => r.id !== id));
   };
 

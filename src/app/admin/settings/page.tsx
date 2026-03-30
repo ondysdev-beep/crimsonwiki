@@ -15,11 +15,11 @@ interface SettingDef {
 
 const SETTING_DEFS: SettingDef[] = [
   { key: 'site_notice_enabled', label: 'Show notice banner', description: 'Toggle the yellow announcement banner on the homepage.', type: 'toggle' },
-  { key: 'site_notice_text',    label: 'Notice banner text', description: 'Text shown in the yellow banner at the top of the homepage.', type: 'textarea' },
-  { key: 'discord_url',         label: 'Discord invite URL', description: 'Full Discord invite link used in the footer and About page.', type: 'text' },
-  { key: 'stats_min_articles',  label: 'Stats strip minimum articles', description: 'Minimum number of published articles required to show the stats strip on the homepage.', type: 'number' },
-  { key: 'stub_threshold',      label: 'Stub word threshold', description: 'Articles with fewer words than this will show the stub banner.', type: 'number' },
-  { key: 'footer_tagline',      label: 'Footer tagline', description: 'Short tagline shown in the site footer.', type: 'text' },
+  { key: 'site_notice_text', label: 'Notice banner text', description: 'Text shown in the yellow banner at the top of the homepage.', type: 'textarea' },
+  { key: 'discord_url', label: 'Discord invite URL', description: 'Full Discord invite link used in the footer and About page.', type: 'text' },
+  { key: 'stats_min_articles', label: 'Stats strip minimum articles', description: 'Minimum number of published articles required to show the stats strip on the homepage.', type: 'number' },
+  { key: 'stub_threshold', label: 'Stub word threshold', description: 'Articles with fewer words than this will show the stub banner.', type: 'number' },
+  { key: 'footer_tagline', label: 'Footer tagline', description: 'Short tagline shown in the site footer.', type: 'text' },
 ];
 
 export default function AdminSettingsPage() {
@@ -33,7 +33,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     checkAccess();
     fetchSettings();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -45,10 +45,10 @@ export default function AdminSettingsPage() {
   };
 
   const fetchSettings = async () => {
-    const { data } = await supabase.from('site_settings' as never).select('key, value');
+    const { data } = await supabase.from('site_settings').select('key, value');
     if (data) {
       const map: Record<string, string> = {};
-      (data as { key: string; value: string }[]).forEach(r => { map[r.key] = r.value; });
+      data.forEach(r => { map[r.key] = r.value; });
       setValues(map);
     }
     setLoading(false);
@@ -56,7 +56,7 @@ export default function AdminSettingsPage() {
 
   const saveSetting = async (key: string, value: string) => {
     setSaving(true);
-    await supabase.from('site_settings' as never).upsert({ key, value, updated_at: new Date().toISOString() } as never);
+    await supabase.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
     setSaving(false);
     setSavedKey(key);
     setTimeout(() => setSavedKey(null), 2000);
