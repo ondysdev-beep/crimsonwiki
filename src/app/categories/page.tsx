@@ -14,6 +14,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   quests: '#c9a227', bosses: '#cc3333', items: '#4a9eff',
   locations: '#33cc77', classes: '#9b59b6', crafting: '#e67e22',
   tips: '#1abc9c', lore: '#95a5a6',
+  characters: '#e74c3c', mounts: '#8e44ad', collectibles: '#f39c12',
+  walkthrough: '#27ae60', factions: '#2c3e50', activities: '#16a085', camp: '#d35400',
 };
 
 export default async function CategoriesPage() {

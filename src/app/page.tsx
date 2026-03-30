@@ -17,6 +17,13 @@ const CATEGORY_COLORS: Record<string, { color: string; glow: string }> = {
   crafting: { color: '#e67e22', glow: 'rgba(230,126,34,0.12)' },
   tips: { color: '#1abc9c', glow: 'rgba(26,188,156,0.12)' },
   lore: { color: '#95a5a6', glow: 'rgba(149,165,166,0.12)' },
+  characters: { color: '#e74c3c', glow: 'rgba(231,76,60,0.12)' },
+  mounts: { color: '#8e44ad', glow: 'rgba(142,68,173,0.12)' },
+  collectibles: { color: '#f39c12', glow: 'rgba(243,156,18,0.12)' },
+  walkthrough: { color: '#27ae60', glow: 'rgba(39,174,96,0.12)' },
+  factions: { color: '#2c3e50', glow: 'rgba(44,62,80,0.12)' },
+  activities: { color: '#16a085', glow: 'rgba(22,160,133,0.12)' },
+  camp: { color: '#d35400', glow: 'rgba(211,84,0,0.12)' },
 };
 
 function getBadgeClass(slug: string): string {
