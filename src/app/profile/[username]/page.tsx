@@ -37,7 +37,7 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
 
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
-    .select('id, username, avatar_url, role, is_founder, created_at')
+    .select('id, username, avatar_url, role, is_founder, created_at, bio, website_url, twitter_handle, discord_username')
     .eq('username', params.username)
     .single();
 
@@ -49,6 +49,10 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
     role: string;
     is_founder: boolean;
     created_at: string;
+    bio: string | null;
+    website_url: string | null;
+    twitter_handle: string | null;
+    discord_username: string | null;
   };
 
   const { data: articlesData } = await supabase
@@ -135,11 +139,31 @@ export default async function ProfilePage({ params, searchParams }: PageProps) {
                   <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-0)', marginBottom: '4px' }}>
                     {profile.username}
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-1)' }}>
+                  <div style={{ fontSize: '13px', color: 'var(--text-1)', marginBottom: profile.bio ? '8px' : 0 }}>
                     {profile.is_founder && <span style={{ color: 'var(--amber)', marginRight: '8px' }}>Founder</span>}
                     <span style={{ textTransform: 'capitalize' }}>{profile.role}</span>
                     {' · Joined '}{joinDate}
                   </div>
+                  {profile.bio && (
+                    <p style={{ fontSize: '13px', color: 'var(--text-1)', lineHeight: '1.6', margin: '0 0 8px' }}>{profile.bio}</p>
+                  )}
+                  {(profile.website_url || profile.twitter_handle || profile.discord_username) && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px' }}>
+                      {profile.website_url && (
+                        <a href={profile.website_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--link)' }}>
+                          🌐 {profile.website_url.replace(/^https?:\/\/(www\.)?/, '')}
+                        </a>
+                      )}
+                      {profile.twitter_handle && (
+                        <a href={`https://twitter.com/${profile.twitter_handle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--link)' }}>
+                          𝕏 @{profile.twitter_handle.replace('@', '')}
+                        </a>
+                      )}
+                      {profile.discord_username && (
+                        <span style={{ color: 'var(--text-2)' }}>💬 {profile.discord_username}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
