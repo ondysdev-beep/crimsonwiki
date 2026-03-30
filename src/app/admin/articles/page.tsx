@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Search, Eye, EyeOff, Trash2, ExternalLink, Pencil } from 'lucide-react';
+import { Search, Eye, EyeOff, Trash2, ExternalLink, Pencil } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 import type { Article } from '@/lib/types/database';
