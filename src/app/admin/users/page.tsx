@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Shield, Search } from 'lucide-react';
+import { Shield, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types/database';
 
@@ -135,7 +135,7 @@ export default function AdminUsersPage() {
                           {user.username.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span style={{ color: 'var(--text-0)', fontWeight: '600', fontSize: '12px' }}>{user.username}</span>
+                      <Link href={`/profile/${user.username}`} style={{ color: 'var(--text-0)', fontWeight: '600', fontSize: '12px' }}>{user.username}</Link>
                       {user.is_founder && <span style={{ color: 'var(--amber)', fontSize: '11px' }}>★</span>}
                     </div>
                   </td>

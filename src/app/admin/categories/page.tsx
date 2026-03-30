@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Save, Trash2, X } from 'lucide-react';
+import { Plus, Save, Trash2, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { slugify } from '@/lib/utils';
 import type { Category } from '@/lib/types/database';
@@ -37,7 +37,7 @@ export default function AdminCategoriesPage() {
   };
 
   const resetForm = () => {
-    setForm({ name: '', slug: '', icon: '', description: '', color: '#dc2626' });
+    setForm({ name: '', slug: '', icon: '', description: '', color: '#dc2626', parent_id: '' });
     setShowNew(false);
     setEditId(null);
   };
