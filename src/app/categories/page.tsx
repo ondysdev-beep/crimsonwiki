@@ -21,21 +21,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default async function CategoriesPage() {
   const supabase = await createClient();
 
-  const { data: catData } = await supabase
-    .from('categories')
-    .select('*, articles(count)')
-    .is('parent_id', null)
-    .eq('articles.is_published', true)
-    .order('name');
+  const [{ data: catData }, { data: subData }] = await Promise.all([
+    supabase.from('categories').select('*, articles(count)').is('parent_id', null).eq('articles.is_published', true).order('name'),
+    supabase.from('categories').select('*').not('parent_id', 'is', null).order('name'),
+  ]);
 
   const topLevel = ((catData || []) as (Category & { articles: { count: number }[] })[]);
-
-  // Fetch all subcategories
-  const { data: subData } = await supabase
-    .from('categories')
-    .select('*')
-    .not('parent_id', 'is', null)
-    .order('name');
   const subCategories = ((subData || []) as Category[]);
 
   const breadcrumbLd = {

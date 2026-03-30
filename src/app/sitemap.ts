@@ -5,16 +5,11 @@ import { SITE_URL } from '@/lib/utils';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
-  const { data: artData } = await supabase
-    .from('articles')
-    .select('slug, updated_at')
-    .eq('is_published', true)
-    .order('updated_at', { ascending: false });
+  const [{ data: artData }, { data: catData }] = await Promise.all([
+    supabase.from('articles').select('slug, updated_at').eq('is_published', true).order('updated_at', { ascending: false }),
+    supabase.from('categories').select('slug'),
+  ]);
   const articles = (artData || []) as { slug: string; updated_at: string }[];
-
-  const { data: catData } = await supabase
-    .from('categories')
-    .select('slug');
   const categories = (catData || []) as { slug: string }[];
 
   const articleEntries: MetadataRoute.Sitemap = articles.map((article) => ({
