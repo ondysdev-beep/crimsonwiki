@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
 import { HeroSearch } from '@/components/wiki/HeroSearch';
+import { getSettings } from '@/lib/settings';
 
 export const revalidate = 60;
 
@@ -28,6 +29,7 @@ function getBadgeClass(slug: string): string {
 
 export default async function HomePage() {
   const supabase = await createClient();
+  const settings = await getSettings();
 
   const { data: recentData } = await supabase
     .from('articles')
@@ -132,15 +134,17 @@ export default async function HomePage() {
       </div>
 
       {/* WELCOME NOTICE */}
-      <div className="notice">
-        <strong>Welcome to CrimsonWiki.</strong> This wiki is a community project. Anyone can contribute — <Link href="/auth/login">create an account</Link> to start editing. The game launched March 19, 2026. Many articles are stubs — help us expand them.
-      </div>
+      {settings.site_notice_enabled && (
+        <div className="notice">
+          {settings.site_notice_text}
+        </div>
+      )}
 
       {/* HERO SEARCH */}
       <HeroSearch />
 
       {/* STATS STRIP — only shown once we have meaningful data */}
-      {(articleCount ?? 0) >= 50 && <div className="stats-strip">
+      {(articleCount ?? 0) >= settings.stats_min_articles && <div className="stats-strip">
         <div className="stat-cell">
           <span className="stat-num">{articleCount?.toLocaleString() || '0'}</span>
           <div className="stat-label">Articles</div>

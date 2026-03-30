@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { Clock, Eye, Edit, History, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, SITE_NAME, SITE_URL } from '@/lib/utils';
+import { getSettings } from '@/lib/settings';
 import { CommentSection } from '@/components/articles/CommentSection';
 import { ArticleContentRenderer } from '@/components/articles/ArticleContentRenderer';
 import { TableOfContents } from '@/components/articles/TableOfContents';
@@ -51,6 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const supabase = await createClient();
+  const { stub_threshold: stubThreshold } = await getSettings();
 
   const { data: articleData } = await supabase
     .from('articles')
@@ -215,15 +217,8 @@ export default async function ArticlePage({ params }: PageProps) {
 
           {/* STUB BANNER */}
           {(() => {
-            const extractText = (node: unknown): string => {
-              if (!node || typeof node !== 'object') return '';
-              const n = node as Record<string, unknown>;
-              if (n.type === 'text' && typeof n.text === 'string') return n.text + ' ';
-              if (Array.isArray(n.content)) return (n.content as unknown[]).map(extractText).join('');
-              return '';
-            };
-            const wordCount = extractText(a.content).trim().split(/\s+/).filter(Boolean).length;
-            return wordCount < 300 ? (
+            const wc = (a.content_text ?? '').trim().split(/\s+/).filter(Boolean).length;
+            return wc < stubThreshold ? (
               <div className="stub-banner">
                 <span>⚠</span>
                 <span>

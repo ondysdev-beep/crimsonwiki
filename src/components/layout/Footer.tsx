@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { getSettings } from '@/lib/settings';
 
-export function Footer() {
+export async function Footer() {
+  const { discord_url, footer_tagline } = await getSettings();
+
   return (
     <footer>
       <div className="footer-inner">
@@ -8,7 +11,7 @@ export function Footer() {
         <div>
           <div className="footer-col-title">⚔ CrimsonWiki</div>
           <p style={{ fontSize: '11px', color: 'var(--text-2)', maxWidth: '260px', lineHeight: '1.6' }}>
-            Community-driven encyclopedia for Crimson Desert. Not affiliated with Pearl Abyss Corp.
+            {footer_tagline} Not affiliated with Pearl Abyss Corp.
           </p>
         </div>
 
@@ -27,7 +30,7 @@ export function Footer() {
           <Link href="/auth/login" className="footer-link">Create Account</Link>
           <Link href="/help/editing" className="footer-link">Editing Guide</Link>
           <Link href="/help/style" className="footer-link">Style Guide</Link>
-          <Link href="/discord" className="footer-link">Discord Server</Link>
+          <a href={discord_url} target="_blank" rel="noopener noreferrer" className="footer-link">Discord Server</a>
         </div>
 
         {/* Legal Column */}
