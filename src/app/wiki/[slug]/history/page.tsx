@@ -74,9 +74,9 @@ export default async function HistoryPage({ params }: PageProps) {
                   <tr key={String(rev.id)}>
                     <td style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <User style={{ width: 12, height: 12, color: 'var(--text-2)', flexShrink: 0 }} />
-                      <span style={{ fontSize: '12px', color: 'var(--text-1)' }}>
-                        {String(profile?.username ?? 'Unknown')}
-                      </span>
+                      {profile?.username
+                        ? <Link href={`/profile/${String(profile.username)}`} style={{ fontSize: '12px', color: 'var(--text-1)' }}>{String(profile.username)}</Link>
+                        : <span style={{ fontSize: '12px', color: 'var(--text-2)' }}>Unknown</span>}
                     </td>
                     <td className="td-meta">
                       <Clock style={{ width: 11, height: 11, display: 'inline', verticalAlign: 'middle', marginRight: 4, color: 'var(--text-2)' }} />
