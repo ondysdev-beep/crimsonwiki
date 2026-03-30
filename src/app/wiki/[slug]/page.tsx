@@ -70,11 +70,18 @@ export default async function ArticlePage({ params }: PageProps) {
   // Increment view count atomically via RPC (fire and forget)
   supabase.rpc('increment_article_views', { p_article_id: a.id }).then();
 
-  // Fetch revision count
+  // Fetch revision count + unique editors
   const { count: revisionCount } = await supabase
     .from('article_revisions')
     .select('*', { count: 'exact', head: true })
     .eq('article_id', a.id);
+
+  const { data: editorsData } = await supabase
+    .from('article_revisions')
+    .select('edited_by')
+    .eq('article_id', a.id)
+    .not('edited_by', 'is', null);
+  const uniqueEditorCount = new Set((editorsData ?? []).map(r => r.edited_by)).size || 1;
 
   // Fetch related articles (same category, excluding current)
   let relatedArticles: { id: string; slug: string; title: string; excerpt: string | null }[] = [];
@@ -249,7 +256,7 @@ export default async function ArticlePage({ params }: PageProps) {
               {[
                 ['Views', a.view_count.toLocaleString()],
                 ['Revisions', String(revisionCount || 0)],
-                ['Authors', '1'],
+                ['Authors', String(uniqueEditorCount)],
               ].map(([label, value]) => (
                 <div key={label} className="contrib-row" style={{ justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--text-1)' }}>{label}</span>
