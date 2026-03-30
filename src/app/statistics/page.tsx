@@ -12,31 +12,31 @@ export const metadata: Metadata = {
 export default async function StatisticsPage() {
   const supabase = await createClient();
 
-  // Get basic stats
-  const [{ count: articleCount }, { count: userCount }, { count: editCount }, { count: commentCount }] = await Promise.all([
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  const [
+    { count: articleCount },
+    { count: userCount },
+    { count: editCount },
+    { count: commentCount },
+    { data: topArticles },
+    { count: articlesThisMonth },
+    { count: editsThisWeek },
+  ] = await Promise.all([
     supabase.from('articles').select('*', { count: 'exact', head: true }).eq('is_published', true),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('article_revisions').select('*', { count: 'exact', head: true }),
     supabase.from('comments').select('*', { count: 'exact', head: true }),
-  ]);
-
-  // Get top 10 most viewed articles
-  const { data: topArticles } = await supabase
-    .from('articles')
-    .select('title, slug, view_count, updated_at, category:categories(name, slug)')
-    .eq('is_published', true)
-    .order('view_count', { ascending: false })
-    .limit(10);
-
-  // Get recent activity stats
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - 7);
-
-  const [{ count: articlesThisMonth }, { count: editsThisWeek }] = await Promise.all([
+    supabase
+      .from('articles')
+      .select('title, slug, view_count, updated_at, category:categories(name, slug)')
+      .eq('is_published', true)
+      .order('view_count', { ascending: false })
+      .limit(10),
     supabase
       .from('articles')
       .select('*', { count: 'exact', head: true })
