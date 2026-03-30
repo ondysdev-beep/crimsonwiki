@@ -19,7 +19,8 @@ export default async function RecentChangesPage() {
       created_at,
       edit_summary,
       edited_by,
-      article:articles(title, slug)
+      article:articles(title, slug),
+      editor:profiles!article_revisions_edited_by_fkey(username)
     `)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -51,6 +52,7 @@ export default async function RecentChangesPage() {
                   <thead>
                     <tr>
                       <th style={{ width: '120px' }}>Date</th>
+                      <th style={{ width: '120px' }}>Editor</th>
                       <th>Article</th>
                       <th>Summary</th>
                     </tr>
@@ -60,6 +62,14 @@ export default async function RecentChangesPage() {
                       <tr key={revision.id}>
                         <td className="td-meta" style={{ fontSize: '12px' }}>
                           {formatDateRelative(revision.created_at)}
+                        </td>
+                        <td style={{ fontSize: '12px' }}>
+                          {(() => {
+                            const ed = revision.editor as { username: string } | null;
+                            return ed?.username
+                              ? <Link href={`/profile/${ed.username}`} style={{ color: 'var(--link)' }}>{ed.username}</Link>
+                              : <span style={{ color: 'var(--text-2)' }}>—</span>;
+                          })()}
                         </td>
                         <td className="td-title">
                           {revision.article ? (
@@ -132,18 +142,6 @@ export default async function RecentChangesPage() {
             </div>
           )}
 
-          {/* Note about Editor Data */}
-          <div className="wiki-box">
-            <div className="wiki-box-hd">About Editor Attribution</div>
-            <div className="wiki-box-body" style={{ fontSize: '14px', lineHeight: '1.8' }}>
-              <p style={{ marginBottom: '16px' }}>
-                Editor attribution is currently being improved. Individual editor information will be available in a future update.
-              </p>
-              <p>
-                For now, you can see which articles have been recently edited and when changes were made.
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* RIGHT SIDEBAR */}
