@@ -7,23 +7,23 @@ import { ArrowLeft, TrendingUp, Eye, FileText, Users } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface TopArticle { slug: string; title: string; view_count: number; categories: { name: string } | null; }
-interface TopEditor  { username: string; edits: number; }
-interface CatStat    { name: string; count: number; color: string | null; }
+interface TopEditor { username: string; edits: number; }
+interface CatStat { name: string; count: number; color: string | null; }
 
 export default function AdminAnalyticsPage() {
-  const [topArticles, setTopArticles]   = useState<TopArticle[]>([]);
-  const [topEditors,  setTopEditors]    = useState<TopEditor[]>([]);
-  const [catStats,    setCatStats]      = useState<CatStat[]>([]);
-  const [totalViews,  setTotalViews]    = useState(0);
-  const [totalEdits,  setTotalEdits]    = useState(0);
-  const [loading,     setLoading]       = useState(true);
+  const [topArticles, setTopArticles] = useState<TopArticle[]>([]);
+  const [topEditors, setTopEditors] = useState<TopEditor[]>([]);
+  const [catStats, setCatStats] = useState<CatStat[]>([]);
+  const [totalViews, setTotalViews] = useState(0);
+  const [totalEdits, setTotalEdits] = useState(0);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     checkAccess();
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
@@ -84,7 +84,7 @@ export default function AdminAnalyticsPage() {
 
   const maxViews = topArticles[0]?.view_count || 1;
   const maxEdits = topEditors[0]?.edits || 1;
-  const maxCat   = catStats[0]?.count || 1;
+  const maxCat = catStats[0]?.count || 1;
 
   return (
     <>
@@ -103,9 +103,9 @@ export default function AdminAnalyticsPage() {
       {/* STAT CARDS */}
       <div className="stats-strip" style={{ marginBottom: '16px' }}>
         {[
-          { icon: Eye,      label: 'Total Views',  value: totalViews.toLocaleString() },
-          { icon: FileText, label: 'Published',    value: topArticles.length + '+' },
-          { icon: Users,    label: 'Total Edits',  value: totalEdits.toLocaleString() },
+          { icon: Eye, label: 'Total Views', value: totalViews.toLocaleString() },
+          { icon: FileText, label: 'Published', value: topArticles.length + '+' },
+          { icon: Users, label: 'Total Edits', value: totalEdits.toLocaleString() },
           { icon: TrendingUp, label: 'Categories', value: catStats.length },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="stat-cell">
@@ -145,7 +145,7 @@ export default function AdminAnalyticsPage() {
             {topEditors.map((e, i) => (
               <div key={e.username}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-0)' }}>#{i + 1} {e.username}</span>
+                  <Link href={`/profile/${e.username}`} style={{ fontSize: '12px', color: 'var(--text-0)' }}>#{i + 1} {e.username}</Link>
                   <span style={{ fontSize: '11px', color: 'var(--text-2)' }}>{e.edits} edits</span>
                 </div>
                 <div style={{ height: '3px', background: 'var(--bg-3)', borderRadius: '2px', overflow: 'hidden' }}>
