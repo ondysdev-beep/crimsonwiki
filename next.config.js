@@ -36,6 +36,14 @@ const nextConfig = {
       { source: '/items', destination: '/category/items', permanent: false },
       { source: '/builds', destination: '/category/classes', permanent: false },
       { source: '/maps', destination: '/category/locations', permanent: false },
+      { source: '/lore', destination: '/category/lore', permanent: false },
+      { source: '/crafting', destination: '/category/crafting', permanent: false },
+      { source: '/tips', destination: '/category/tips', permanent: false },
+      { source: '/mounts', destination: '/category/mounts', permanent: false },
+      { source: '/factions', destination: '/category/factions', permanent: false },
+      { source: '/activities', destination: '/category/activities', permanent: false },
+      { source: '/camp', destination: '/category/camp', permanent: false },
+      { source: '/collectibles', destination: '/category/collectibles', permanent: false },
 
       // Character redirects for consistency
       { source: '/wiki/kliff', destination: '/characters/kliff', permanent: true },
