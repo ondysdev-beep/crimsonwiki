@@ -20,22 +20,27 @@ export function Navbar() {
 
   const mainLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Walkthrough', href: '/walkthrough' },
-    { name: 'Bosses', href: '/category/bosses' },
-    { name: 'Items', href: '/category/items' },
+    { name: 'Walkthrough', href: '/category/walkthrough' },
     { name: 'Quests', href: '/category/quests' },
-    { name: 'Builds', href: '/systems/builds' },
-    { name: 'Characters', href: '/characters' }
+    { name: 'Bosses', href: '/category/bosses' },
+    { name: 'Classes', href: '/category/classes' },
+    { name: 'Items', href: '/category/items' },
+    { name: 'Lore', href: '/category/lore' },
   ];
 
   const subLinks = [
-    { name: 'All Pages', href: '/special/allpages' },
-    { name: 'Recent Changes', href: '/special/recentchanges' },
-    { name: 'New Articles', href: '/special/newpages' },
+    { name: 'Characters', href: '/category/characters' },
+    { name: 'Factions', href: '/category/factions' },
+    { name: 'Locations', href: '/category/locations' },
+    { name: 'Crafting', href: '/category/crafting' },
+    { name: 'Mounts', href: '/category/mounts' },
+    { name: 'Activities', href: '/category/activities' },
+    { name: 'Camp', href: '/category/camp' },
+    { name: 'Collectibles', href: '/category/collectibles' },
+    { name: 'Tips & Tricks', href: '/category/tips' },
     { name: 'Random Page', href: '/special/random' },
-    { name: 'Community Portal', href: '/community' },
+    { name: 'Contribute', href: '/contribute' },
     { name: 'Discord', href: '/discord' },
-    { name: 'Contribute', href: '/contribute' }
   ];
 
   const isActive = (href: string) => {

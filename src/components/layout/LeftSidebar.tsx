@@ -13,14 +13,39 @@ const sidebarSections = {
     { name: "About CrimsonWiki", href: "/about" },
     { name: "Editing Guide", href: "/help/editing" },
     { name: "Style Guide", href: "/help/style" },
-    { name: "Recent Changes", href: "/special/recentchanges" }
+    { name: "Contribute", href: "/contribute" },
   ],
-  "Quests": [
-    { name: "Main Quests", href: "/quests/main" },
-    { name: "Side Quests", href: "/quests/side" },
-    { name: "Faction Quests", href: "/quests/faction" },
-    { name: "Hidden Quests", href: "/quests/hidden" },
-    { name: "All Quests", href: "/category/quests" }
+  "Story & Quests": [
+    { name: "Quests", href: "/category/quests" },
+    { name: "Walkthrough", href: "/category/walkthrough" },
+    { name: "Lore", href: "/category/lore" },
+    { name: "Factions", href: "/category/factions" },
+    { name: "Characters", href: "/category/characters" },
+  ],
+  "Combat": [
+    { name: "Bosses", href: "/category/bosses" },
+    { name: "Classes", href: "/category/classes" },
+    { name: "Locations", href: "/category/locations" },
+  ],
+  "Items & Economy": [
+    { name: "Items", href: "/category/items" },
+    { name: "Crafting", href: "/category/crafting" },
+    { name: "Camp", href: "/category/camp" },
+    { name: "Mounts", href: "/category/mounts" },
+    { name: "Collectibles", href: "/category/collectibles" },
+  ],
+  "Community": [
+    { name: "Activities", href: "/category/activities" },
+    { name: "Tips & Tricks", href: "/category/tips" },
+    { name: "Discord Server", href: "/discord" },
+    { name: "Community Portal", href: "/community" },
+  ],
+  "Wiki Tools": [
+    { name: "All Pages", href: "/special/allpages" },
+    { name: "Recent Changes", href: "/special/recentchanges" },
+    { name: "New Pages", href: "/special/newpages" },
+    { name: "Statistics", href: "/statistics" },
+    { name: "Categories", href: "/categories" },
   ],
 };
 
