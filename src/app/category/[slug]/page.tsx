@@ -59,36 +59,35 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   if (!category) notFound();
 
-  // Fetch subcategories (children) of this category
-  const { data: subCatsData } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('parent_id', category.id)
-    .order('name', { ascending: true });
-  const subCategories = (subCatsData || []) as Category[];
-
-  // Fetch parent category if this is a subcategory
-  const { data: parentCatData } = category.parent_id
-    ? await supabase.from('categories').select('*').eq('id', category.parent_id).single()
-    : { data: null };
-  const parentCategory = parentCatData as Category | null;
-
-  let query = supabase
+  // Build articles query (sort determined upfront)
+  let articlesQuery = supabase
     .from('articles')
     .select('*, categories(*), profiles!articles_created_by_fkey(*)', { count: 'exact' })
     .eq('category_id', category.id)
     .eq('is_published', true);
-
   if (sort === 'views') {
-    query = query.order('view_count', { ascending: false });
+    articlesQuery = articlesQuery.order('view_count', { ascending: false });
   } else if (sort === 'alpha') {
-    query = query.order('title', { ascending: true });
+    articlesQuery = articlesQuery.order('title', { ascending: true });
   } else {
-    query = query.order('updated_at', { ascending: false });
+    articlesQuery = articlesQuery.order('updated_at', { ascending: false });
   }
 
-  const { data: articles, count: totalCount } = await query
-    .range(offset, offset + PAGE_SIZE - 1);
+  // Run subcategories, parent category, and articles in parallel
+  const [
+    { data: subCatsData },
+    { data: parentCatData },
+    { data: articles, count: totalCount },
+  ] = await Promise.all([
+    supabase.from('categories').select('*').eq('parent_id', category.id).order('name', { ascending: true }),
+    category.parent_id
+      ? supabase.from('categories').select('*').eq('id', category.parent_id).single()
+      : Promise.resolve({ data: null }),
+    articlesQuery.range(offset, offset + PAGE_SIZE - 1),
+  ]);
+
+  const subCategories = (subCatsData || []) as Category[];
+  const parentCategory = parentCatData as Category | null;
 
   const total = totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
