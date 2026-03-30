@@ -30,6 +30,18 @@ export default function NewArticlePage() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const handleSaveRef = useRef<((publish: boolean) => void) | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveRef.current?.(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   useEffect(() => {
     let resolved = false;
@@ -165,6 +177,8 @@ export default function NewArticlePage() {
     setSaving(false);
     setSavingDraft(false);
   };
+
+  handleSaveRef.current = handleSave;
 
   if (!authChecked) {
     return (

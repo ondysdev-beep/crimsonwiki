@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Save } from 'lucide-react';
 import Link from 'next/link';
@@ -23,6 +23,7 @@ export default function EditArticlePage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const handleSaveRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -62,6 +63,17 @@ export default function EditArticlePage() {
     };
     fetchArticle();
   }, [slug]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSaveRef.current?.();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleSave = async () => {
     if (!article) return;
@@ -109,6 +121,8 @@ export default function EditArticlePage() {
     }
     setSaving(false);
   };
+
+  handleSaveRef.current = handleSave;
 
   if (loading) {
     return (
