@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Users, FileText, FolderOpen, Shield } from 'lucide-react';
+import { Users, FileText, FolderOpen, MessageSquare, AlertTriangle, GitBranch, Settings, ArrowRight, BarChart2, Image } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import type { Profile } from '@/lib/types/database';
 
@@ -84,37 +84,60 @@ export default async function AdminPage() {
         ))}
       </div>
 
-      {/* SECTIONS */}
-      <div className="wiki-box" style={{ marginTop: '20px' }}>
-        <div className="wiki-box-hd">Manage Content</div>
-        <div className="wiki-box-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {[
-            { href: '/admin/users', Icon: Users, title: 'Manage Users', desc: 'Roles, bans, profiles' },
-            { href: '/admin/articles', Icon: FileText, title: 'Manage Articles', desc: 'Publish, unpublish, delete' },
-            { href: '/admin/categories', Icon: FolderOpen, title: 'Manage Categories', desc: 'Add, edit, reorder' },
-          ].map(({ href, Icon, title, desc }) => (
-            <Link
-              key={href}
-              href={href}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '16px',
-                padding: '12px 16px',
-                border: '1px solid var(--border)',
-                background: 'var(--bg-2)',
-                textDecoration: 'none',
-                transition: 'border-color 0.15s, background 0.15s',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--amber-border)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; }}
-            >
-              <Icon style={{ width: 20, height: 20, color: 'var(--crimson-bright)', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-0)' }}>{title}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>{desc}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* SECTIONS GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '20px' }}>
+        {([
+          {
+            heading: 'Content',
+            items: [
+              { href: '/admin/articles', Icon: FileText, title: 'Articles', desc: 'Publish, unpublish, delete' },
+              { href: '/admin/categories', Icon: FolderOpen, title: 'Categories', desc: 'Add, edit, reorder, set parent' },
+              { href: '/admin/stubs', Icon: AlertTriangle, title: 'Stub Articles', desc: 'Articles under word threshold' },
+              { href: '/admin/media', Icon: Image, title: 'Media Library', desc: 'Browse & delete uploaded images' },
+            ],
+          },
+          {
+            heading: 'Moderation',
+            items: [
+              { href: '/admin/users', Icon: Users, title: 'Users', desc: 'Roles, profiles, bans' },
+              { href: '/admin/comments', Icon: MessageSquare, title: 'Comments', desc: 'Review and delete comments' },
+              { href: '/admin/revisions', Icon: GitBranch, title: 'Revisions', desc: 'Recent edits across all articles' },
+            ],
+          },
+          {
+            heading: 'System',
+            items: [
+              { href: '/admin/settings', Icon: Settings, title: 'Site Settings', desc: 'Banner, Discord link, thresholds' },
+              { href: '/admin/redirects', Icon: ArrowRight, title: 'Redirects', desc: 'Manage 301 slug redirects' },
+              { href: '/admin/analytics', Icon: BarChart2, title: 'Analytics', desc: 'Views, editors, category stats' },
+            ],
+          },
+        ] as const).map(section => (
+          <div key={section.heading} className="wiki-box">
+            <div className="wiki-box-hd">{section.heading}</div>
+            <div className="wiki-box-body" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {section.items.map(({ href, Icon, title, desc }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-3)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Icon style={{ width: 16, height: 16, color: 'var(--crimson-bright)', flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-0)' }}>{title}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-2)' }}>{desc}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </>
   );
