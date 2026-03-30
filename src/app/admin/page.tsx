@@ -29,26 +29,19 @@ export default async function AdminPage() {
     redirect('/');
   }
 
-  const { count: userCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: articleCount } = await supabase
-    .from('articles')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: publishedCount } = await supabase
-    .from('articles')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_published', true);
-
-  const { count: categoryCount } = await supabase
-    .from('categories')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: commentCount } = await supabase
-    .from('comments')
-    .select('*', { count: 'exact', head: true });
+  const [
+    { count: userCount },
+    { count: articleCount },
+    { count: publishedCount },
+    { count: categoryCount },
+    { count: commentCount },
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('articles').select('*', { count: 'exact', head: true }),
+    supabase.from('articles').select('*', { count: 'exact', head: true }).eq('is_published', true),
+    supabase.from('categories').select('*', { count: 'exact', head: true }),
+    supabase.from('comments').select('*', { count: 'exact', head: true }),
+  ]);
 
   return (
     <>
