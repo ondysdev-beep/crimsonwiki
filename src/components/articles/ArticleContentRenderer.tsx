@@ -18,11 +18,42 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import { Extension } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/react';
+
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return { types: ['textStyle'] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: {
+        fontSize: {
+          default: null,
+          parseHTML: (element: HTMLElement) => element.style.fontSize || null,
+          renderHTML: (attributes: Record<string, string | null>) => {
+            if (!attributes.fontSize) return {};
+            return { style: `font-size: ${attributes.fontSize}` };
+          },
+        },
+      },
+    }];
+  },
+});
+
+function sanitizeContent(raw: unknown): JSONContent {
+  if (!raw || typeof raw !== 'object') return { type: 'doc', content: [{ type: 'paragraph' }] };
+  const c = raw as JSONContent;
+  if (c.type !== 'doc') return { type: 'doc', content: [{ type: 'paragraph' }] };
+  return c;
+}
 
 const lowlight = createLowlight(common);
 
 export function ArticleContentRenderer({ content }: { content: unknown }) {
+  const safeContent = sanitizeContent(content);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: false, codeBlock: false }),
@@ -53,8 +84,9 @@ export function ArticleContentRenderer({ content }: { content: unknown }) {
       TaskList,
       TaskItem.configure({ nested: true }),
       CodeBlockLowlight.configure({ lowlight }),
+      FontSize,
     ],
-    content: content as JSONContent,
+    content: safeContent,
     editable: false,
     editorProps: {
       attributes: {

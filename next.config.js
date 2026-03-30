@@ -3,6 +3,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.com' },
+      { protocol: 'https', hostname: '*.supabase.in' },
       { protocol: 'https', hostname: 'cdn.discordapp.com' },
       { protocol: 'https', hostname: 'media.discordapp.net' },
       { protocol: 'https', hostname: 'cdn.crimsonwiki.org' },

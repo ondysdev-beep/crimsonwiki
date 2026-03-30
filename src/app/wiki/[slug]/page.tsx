@@ -217,8 +217,10 @@ export default async function ArticlePage({ params }: PageProps) {
                   src={a.cover_image_url}
                   alt={a.title}
                   fill
+                  unoptimized
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                   priority
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
               </div>
             )}
