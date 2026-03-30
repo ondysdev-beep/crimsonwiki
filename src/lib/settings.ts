@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 
 export interface SiteSettings {
@@ -18,7 +19,7 @@ const DEFAULTS: SiteSettings = {
   footer_tagline: 'The community-driven encyclopedia for Crimson Desert.',
 };
 
-export async function getSettings(): Promise<SiteSettings> {
+export const getSettings = cache(async function getSettingsImpl(): Promise<SiteSettings> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -41,4 +42,4 @@ export async function getSettings(): Promise<SiteSettings> {
   } catch {
     return DEFAULTS;
   }
-}
+});

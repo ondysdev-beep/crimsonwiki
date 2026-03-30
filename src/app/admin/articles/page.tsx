@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Search, Eye, EyeOff, Trash2, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Search, Eye, EyeOff, Trash2, ExternalLink, Pencil } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 import type { Article } from '@/lib/types/database';
@@ -151,6 +151,9 @@ export default function AdminArticlesPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Link href={`/wiki/${article.slug}`} title="View" style={{ color: 'var(--text-2)', lineHeight: 0 }}>
                       <ExternalLink style={{ width: 14, height: 14 }} />
+                    </Link>
+                    <Link href={`/wiki/${article.slug}/edit`} title="Edit" style={{ color: 'var(--text-2)', lineHeight: 0 }}>
+                      <Pencil style={{ width: 14, height: 14 }} />
                     </Link>
                     <button
                       type="button"
