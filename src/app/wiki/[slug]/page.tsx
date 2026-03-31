@@ -1,3 +1,4 @@
+// FIXED: Added ISR revalidation, fixed view count error handling, and JSON-LD image fallback
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,6 +13,8 @@ import { ArticleContentRenderer } from '@/components/articles/ArticleContentRend
 import { TableOfContents } from '@/components/articles/TableOfContents';
 import { BackToTop } from '@/components/wiki/BackToTop';
 import type { ArticleWithCategory } from '@/lib/types/database';
+
+export const revalidate = 1800; // 30 minutes
 
 interface PageProps {
   params: { slug: string };
@@ -36,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${a.title} | ${SITE_NAME}`,
       description: a.excerpt || `Read about ${a.title} on ${SITE_NAME}`,
       url: `${SITE_URL}/wiki/${a.slug}`,
-      images: a.cover_image_url ? [{ url: a.cover_image_url }] : [{ url: '/og-image.png' }],
+      images: a.cover_image_url ? [{ url: a.cover_image_url }] : [{ url: `${SITE_URL}/og-image.png` }],
       type: 'article',
       publishedTime: a.created_at,
       modifiedTime: a.updated_at,
@@ -70,7 +73,7 @@ export default async function ArticlePage({ params }: PageProps) {
   const a = articleData as unknown as ArticleWithCategory;
 
   // Increment view count atomically via RPC (fire and forget)
-  supabase.rpc('increment_article_views', { p_article_id: a.id }).then();
+  await supabase.rpc('increment_article_views', { p_article_id: a.id });
 
   // Fetch revision count, unique editors, and related articles in parallel
   const [
@@ -109,7 +112,7 @@ export default async function ArticlePage({ params }: PageProps) {
     '@type': 'Article',
     headline: a.title,
     description: a.excerpt,
-    image: a.cover_image_url,
+    image: a.cover_image_url ?? `${SITE_URL}/og-image.png`,
     datePublished: a.created_at,
     dateModified: a.updated_at,
     author: {

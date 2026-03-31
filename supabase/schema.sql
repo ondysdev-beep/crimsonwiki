@@ -1,3 +1,5 @@
+CREATE INDEX IF NOT EXISTS profiles_role_idx ON public.profiles (role);
+
 -- ============================================================
 -- CrimsonWiki — Complete Database Schema
 -- All tables, RLS policies, triggers, functions, and admin tables
@@ -154,7 +156,7 @@ CREATE POLICY "Authors and mods can update articles"
       created_by = auth.uid()
       OR EXISTS (
         SELECT 1 FROM public.profiles
-        WHERE id = auth.uid() AND role IN ('editor', 'moderator', 'admin')
+        WHERE id = auth.uid() AND role IN ('moderator', 'admin')
       )
     )
   );
@@ -348,7 +350,7 @@ BEGIN
   ORDER BY rank DESC
   LIMIT result_limit;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -372,7 +374,11 @@ CREATE POLICY "Authenticated users can upload article images"
 
 CREATE POLICY "Users can delete own uploads"
   ON storage.objects FOR DELETE
-  USING (bucket_id = 'article-images' AND auth.uid() IS NOT NULL);
+  USING (
+    bucket_id = 'article-images'
+    AND auth.uid() IS NOT NULL
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
 
 -- ─────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+// FIXED: Removed unused ref and useRef, added guard to return null if slotId is empty
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -12,7 +13,9 @@ interface AdSlotProps {
 const ADSENSE_CLIENT = 'ca-pub-9218255749368917';
 
 export function AdSlot({ slotId, format = 'auto', style, className }: AdSlotProps) {
-  const ref = useRef<HTMLModElement>(null);
+  // Return null if no slot ID is provided
+  if (!slotId) return null;
+
   const pushed = useRef(false);
 
   useEffect(() => {
@@ -21,13 +24,12 @@ export function AdSlot({ slotId, format = 'auto', style, className }: AdSlotProp
       // @ts-expect-error adsbygoogle global
       (window.adsbygoogle = window.adsbygoogle || []).push({});
       pushed.current = true;
-    } catch {}
+    } catch { }
   }, []);
 
   return (
     <div className={className} style={style}>
       <ins
-        ref={ref}
         className="adsbygoogle"
         style={{ display: 'block', ...style }}
         data-ad-client={ADSENSE_CLIENT}

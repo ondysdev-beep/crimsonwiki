@@ -58,8 +58,8 @@ export default function NewArticlePage() {
     );
 
     // Fallback: direct check
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => done(!!session))
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => done(!!user))
       .catch(() => done(false));
 
     // Timeout fallback
@@ -93,8 +93,8 @@ export default function NewArticlePage() {
   };
 
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return null;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
     const formData = new FormData();
     formData.append('file', file);
     try {
@@ -123,8 +123,8 @@ export default function NewArticlePage() {
     if (publish) setSaving(true);
     else setSavingDraft(true);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       setErrors({ form: 'You must be signed in to create articles.' });
       setSaving(false);
       setSavingDraft(false);
@@ -144,8 +144,8 @@ export default function NewArticlePage() {
         content_text: plainText,
         excerpt: finalExcerpt,
         cover_image_url: coverImageUrl || null,
-        created_by: session.user.id,
-        updated_by: session.user.id,
+        created_by: user.id,
+        updated_by: user.id,
         is_published: publish,
       })
       .select()
@@ -163,7 +163,7 @@ export default function NewArticlePage() {
           article_id: data.id,
           content: content as unknown as Json,
           content_text: plainText,
-          edited_by: session.user.id,
+          edited_by: user.id,
           edit_summary: editSummary.trim() || 'Initial version',
         });
       } catch { /* revision insert failed, article still created */ }

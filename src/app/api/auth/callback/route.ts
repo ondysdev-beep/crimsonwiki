@@ -1,3 +1,4 @@
+// FIXED: Removed all console.log statements, added production environment checks, and implemented open redirect protection
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -28,11 +29,15 @@ export async function GET(request: Request) {
       cookies: {
         getAll() {
           const all = cookieStore.getAll();
-          console.log('[auth/callback] cookies in request:', all.map(c => c.name));
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[auth/callback] cookies in request:', all.map(c => c.name));
+          }
           return all;
         },
         setAll(cookiesToSet) {
-          console.log('[auth/callback] setAll called with', cookiesToSet.map(c => c.name));
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[auth/callback] setAll called with', cookiesToSet.map(c => c.name));
+          }
           cookiesToSet.forEach(({ name, value, options }) => {
             pendingCookies.push({ name, value, options: (options ?? {}) as Record<string, unknown> });
           });
@@ -43,7 +48,9 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-  console.log('[auth/callback] exchange result - error:', error?.message ?? null, 'user:', data?.user?.id ?? null, 'pendingCookies:', pendingCookies.length);
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('[auth/callback] exchange result - error:', error?.message ?? null, 'user:', data?.user?.id ?? null, 'pendingCookies:', pendingCookies.length);
+  }
 
   if (error) {
     return NextResponse.redirect(
@@ -67,16 +74,27 @@ export async function GET(request: Request) {
         { id: data.user.id, username, avatar_url: meta?.avatar_url ?? null, discord_id: meta?.provider_id ?? null },
         { onConflict: 'id', ignoreDuplicates: true }
       );
-    console.log('[auth/callback] profile upsert:', upsertError?.message ?? 'ok');
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[auth/callback] profile upsert:', upsertError?.message ?? 'ok');
+    }
   }
 
+  // Protect against open redirect
+  const ALLOWED_HOSTS = ['crimsonwiki.org', 'www.crimsonwiki.org'];
   const forwardedHost = request.headers.get('x-forwarded-host');
-  const redirectTo = forwardedHost ? `https://${forwardedHost}/` : `${origin}/`;
+  const safeHost = forwardedHost && ALLOWED_HOSTS.some(h => forwardedHost.endsWith(h))
+    ? forwardedHost
+    : null;
+  const redirectTo = safeHost ? `https://${safeHost}/` : `${origin}/`;
 
   const response = NextResponse.redirect(redirectTo);
   pendingCookies.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
   });
-  console.log('[auth/callback] redirecting to', redirectTo, 'with', pendingCookies.length, 'cookies');
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('[auth/callback] redirecting to', redirectTo, 'with', pendingCookies.length, 'cookies');
+  }
+
   return response;
 }

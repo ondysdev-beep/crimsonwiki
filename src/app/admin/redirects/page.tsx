@@ -31,9 +31,9 @@ export default function AdminRedirectsPage() {
   }, []);
 
   const checkAccess = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push('/auth/login'); return; }
-    const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (!user || error) { router.push('/auth/login'); return; }
+    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const role = (data as { role: string } | null)?.role;
     if (role !== 'admin' && role !== 'moderator') router.push('/');
   };

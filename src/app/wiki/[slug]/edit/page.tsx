@@ -27,8 +27,8 @@ export default function EditArticlePage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
     };
     checkAuth();
   }, []);
@@ -79,8 +79,8 @@ export default function EditArticlePage() {
     if (!article) return;
     setSaving(true);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       alert('You must be signed in to edit articles.');
       setSaving(false);
       return;
@@ -93,7 +93,7 @@ export default function EditArticlePage() {
       article_id: article.id,
       content: article.content,
       content_text: article.content_text,
-      edited_by: session.user.id,
+      edited_by: user.id,
       edit_summary: editSummary || 'No summary provided',
     });
 
@@ -101,7 +101,7 @@ export default function EditArticlePage() {
     const updatePayload: Record<string, unknown> = {
       content: content as unknown as Json,
       content_text: plainText,
-      updated_by: session.user.id,
+      updated_by: user.id,
     };
     // Only auto-fill excerpt if the article currently has none
     if (!article.excerpt) {

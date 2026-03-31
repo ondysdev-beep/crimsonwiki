@@ -1,6 +1,5 @@
-'use client';
-
-import { useEditor, EditorContent } from '@tiptap/react';
+// FIXED: Replaced useEditor with generateHTML for server-side rendering, removed 'use client' directive
+import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
 import Heading from '@tiptap/extension-heading';
 import ImageExt from '@tiptap/extension-image';
@@ -19,7 +18,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Extension } from '@tiptap/core';
-import type { JSONContent } from '@tiptap/react';
+import type { JSONContent } from '@tiptap/core';
 
 const FontSize = Extension.create({
   name: 'fontSize',
@@ -54,8 +53,8 @@ const lowlight = createLowlight(common);
 
 export function ArticleContentRenderer({ content }: { content: unknown }) {
   const safeContent = sanitizeContent(content);
-  const editor = useEditor({
-    extensions: [
+  try {
+    const html = generateHTML(safeContent, [
       StarterKit.configure({ heading: false, codeBlock: false }),
       Heading.configure({ levels: [1, 2, 3, 4] }).extend({
         renderHTML({ node, HTMLAttributes }) {
@@ -85,17 +84,14 @@ export function ArticleContentRenderer({ content }: { content: unknown }) {
       TaskItem.configure({ nested: true }),
       CodeBlockLowlight.configure({ lowlight }),
       FontSize,
-    ],
-    content: safeContent,
-    editable: false,
-    editorProps: {
-      attributes: {
-        class: 'wiki-content focus:outline-none',
-      },
-    },
-  });
-
-  if (!editor) return null;
-
-  return <EditorContent editor={editor} />;
+    ]);
+    return (
+      <div
+        className="wiki-content"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  } catch {
+    return <div className="wiki-content" />;
+  }
 }

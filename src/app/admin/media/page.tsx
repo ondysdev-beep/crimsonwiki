@@ -23,23 +23,23 @@ function formatBytes(bytes: number): string {
 }
 
 export default function AdminMediaPage() {
-  const [files,    setFiles]    = useState<MediaFile[]>([]);
-  const [loading,  setLoading]  = useState(true);
+  const [files, setFiles] = useState<MediaFile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [error,    setError]    = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     checkAccess();
     fetchFiles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAccess = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push('/auth/login'); return; }
-    const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (!user || error) { router.push('/auth/login'); return; }
+    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const role = (data as { role: string } | null)?.role;
     if (role !== 'admin' && role !== 'moderator') router.push('/');
   };

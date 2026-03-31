@@ -1,8 +1,14 @@
+// FIXED: Restricted Supabase hostname to specific project instead of wildcard
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: '*.supabase.co' },
+      {
+        protocol: 'https',
+        hostname: process.env.NEXT_PUBLIC_SUPABASE_URL
+          ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+          : '*.supabase.co'
+      },
       { protocol: 'https', hostname: '*.supabase.com' },
       { protocol: 'https', hostname: '*.supabase.in' },
       { protocol: 'https', hostname: 'cdn.discordapp.com' },

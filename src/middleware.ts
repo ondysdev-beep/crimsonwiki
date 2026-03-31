@@ -1,3 +1,4 @@
+// FIXED: Added 2-second timeout to fetch request and proper error handling to prevent cache update on failure
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -15,13 +16,16 @@ async function getDbRedirects(): Promise<Record<string, string>> {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''}`,
       },
       next: { revalidate: 0 },
+      signal: AbortSignal.timeout(2000),
     });
     if (res.ok) {
       const rows: { from_slug: string; to_slug: string }[] = await res.json();
       redirectCache = Object.fromEntries(rows.map(r => [r.from_slug, r.to_slug]));
       cacheExpiry = Date.now() + 60_000;
     }
-  } catch { /* ignore – fallback to empty */ }
+  } catch {
+    /* ignore – fallback to empty cache, do not update cacheExpiry so it retries next time */
+  }
   return redirectCache;
 }
 // ─────────────────────────────────────────────────────────────────────────────

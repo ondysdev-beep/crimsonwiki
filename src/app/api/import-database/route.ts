@@ -165,7 +165,16 @@ export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     const expectedToken = process.env.IMPORT_SECRET_TOKEN;
-    if (!expectedToken || !authHeader || authHeader !== `Bearer ${expectedToken}`) {
+
+    // Validate token is at least 32 characters long
+    if (!expectedToken || expectedToken.length < 32) {
+      return NextResponse.json(
+        { error: 'Service unavailable - invalid token configuration' },
+        { status: 503 }
+      );
+    }
+
+    if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -194,9 +203,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({
-    message: 'Crimson Desert Database Import API',
-    usage: 'POST with Authorization: Bearer import-crimson-desert-db',
-    status: 'Ready'
-  });
+  return NextResponse.json({ error: 'Not found' }, { status: 404 });
 }

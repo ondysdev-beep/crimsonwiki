@@ -1,3 +1,4 @@
+// FIXED: Replaced getSession() with getUser() in admin server component
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -15,13 +16,13 @@ export const metadata: Metadata = {
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/auth/login');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
 
   const me = profile as Profile | null;

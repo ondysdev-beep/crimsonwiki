@@ -1,3 +1,8 @@
+// FIXED: Replaced manual Tiptap JSON walker with generateText function
+import { generateText } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import type { JSONContent } from '@tiptap/core';
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -33,19 +38,11 @@ export function formatDateRelative(date: string): string {
 
 export function extractTextFromJson(json: unknown): string {
   if (!json || typeof json !== 'object') return '';
-  const content = json as { content?: unknown[] };
-  if (!content.content) return '';
-
-  function walkNodes(nodes: unknown[]): string {
-    let text = '';
-    for (const node of nodes) {
-      const n = node as { type?: string; text?: string; content?: unknown[] };
-      if (n.text) text += n.text + ' ';
-      if (n.content) text += walkNodes(n.content);
-    }
-    return text;
+  try {
+    return generateText(json as JSONContent, [StarterKit as any]);
+  } catch {
+    return '';
   }
-  return walkNodes(content.content).trim();
 }
 
 export function truncate(str: string, length: number): string {

@@ -1,6 +1,7 @@
+// FIXED: Replaced getSession() with getUser(), added maxLength, character counter, submit guard, and delete confirmation
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -15,6 +16,7 @@ export function CommentSection({ articleId }: { articleId: string }) {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const submittingRef = useRef(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -23,13 +25,13 @@ export function CommentSection({ articleId }: { articleId: string }) {
   }, [articleId]);
 
   const getUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      setUserId(session.user.id);
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (user && !error) {
+      setUserId(user.id);
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
       if (profile) setUserRole((profile as { role: string }).role);
     }
@@ -46,8 +48,9 @@ export function CommentSection({ articleId }: { articleId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !userId) return;
+    if (!newComment.trim() || !userId || submittingRef.current) return;
 
+    submittingRef.current = true;
     setLoading(true);
     const { error } = await supabase.from('comments').insert({
       article_id: articleId,
@@ -60,9 +63,11 @@ export function CommentSection({ articleId }: { articleId: string }) {
       fetchComments();
     }
     setLoading(false);
+    submittingRef.current = false;
   };
 
   const handleDelete = async (commentId: string) => {
+    if (!window.confirm('Delete this comment?')) return;
     const { error } = await supabase
       .from('comments')
       .delete()
@@ -91,12 +96,16 @@ export function CommentSection({ articleId }: { articleId: string }) {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Share your thoughts..."
             rows={3}
+            maxLength={2000}
             className="comment-textarea"
           />
           <div className="comment-form-actions">
+            <span className="comment-counter">
+              {newComment.length}/2000
+            </span>
             <button
               type="submit"
-              disabled={loading || !newComment.trim()}
+              disabled={loading || !newComment.trim() || submittingRef.current}
               className="comment-submit-btn"
             >
               {loading ? 'Posting...' : 'Post Comment'}

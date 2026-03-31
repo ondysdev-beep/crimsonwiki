@@ -1,3 +1,4 @@
+// FIXED: Removed thin content pages /statistics, /community, and /discord from sitemap
 import type { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { SITE_URL } from '@/lib/utils';
@@ -32,14 +33,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/contribute`, changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: `${SITE_URL}/about`, changeFrequency: 'yearly' as const, priority: 0.3 },
     { url: `${SITE_URL}/categories`, changeFrequency: 'weekly' as const, priority: 0.7 },
-    { url: `${SITE_URL}/community`, changeFrequency: 'weekly' as const, priority: 0.4 },
     { url: `${SITE_URL}/contact`, changeFrequency: 'yearly' as const, priority: 0.2 },
-    { url: `${SITE_URL}/discord`, changeFrequency: 'monthly' as const, priority: 0.3 },
     { url: `${SITE_URL}/help/editing`, changeFrequency: 'yearly' as const, priority: 0.3 },
     { url: `${SITE_URL}/help/style`, changeFrequency: 'yearly' as const, priority: 0.3 },
     { url: `${SITE_URL}/walkthrough`, changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: `${SITE_URL}/characters`, changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: `${SITE_URL}/statistics`, changeFrequency: 'weekly' as const, priority: 0.4 },
     { url: `${SITE_URL}/special/allpages`, changeFrequency: 'daily' as const, priority: 0.5 },
     { url: `${SITE_URL}/special/recentchanges`, changeFrequency: 'hourly' as const, priority: 0.6 },
     { url: `${SITE_URL}/special/newpages`, changeFrequency: 'daily' as const, priority: 0.5 },

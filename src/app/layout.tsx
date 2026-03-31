@@ -1,3 +1,4 @@
+// FIXED: Replaced placeholder AdSense slot IDs with environment variables and added fallback to empty string
 import type { Metadata } from 'next';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/utils';
 import { Navbar } from '@/components/layout/Navbar';
@@ -102,7 +103,7 @@ export default function RootLayout({
             {/* LEFT AD COLUMN */}
             <div className="ad-col ad-col-left">
               <AdSlot
-                slotId="LEFT_AD_SLOT_ID"
+                slotId={process.env.NEXT_PUBLIC_ADSENSE_LEFT_SLOT || ''}
                 format="vertical"
                 style={{ width: 160, height: 600 }}
               />
@@ -118,7 +119,7 @@ export default function RootLayout({
             {/* RIGHT AD COLUMN */}
             <div className="ad-col ad-col-right">
               <AdSlot
-                slotId="RIGHT_AD_SLOT_ID"
+                slotId={process.env.NEXT_PUBLIC_ADSENSE_RIGHT_SLOT || ''}
                 format="vertical"
                 style={{ width: 160, height: 600 }}
               />
