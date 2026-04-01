@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS public.articles (
   id               uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   slug             text        UNIQUE NOT NULL,
   title            text        NOT NULL,
-  category_id      integer     REFERENCES public.categories(id),
+  category_id      integer     REFERENCES public.categories(id) ON DELETE SET NULL,
   content          jsonb       NOT NULL DEFAULT '{}',
   content_text     text,
   excerpt          text,

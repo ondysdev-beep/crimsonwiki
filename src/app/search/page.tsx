@@ -206,7 +206,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <table className="wiki-table">
             <thead>
               <tr>
-                <th className="td-icon"></th>
                 <th>Category</th>
                 <th>Description</th>
               </tr>
@@ -214,7 +213,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
             <tbody>
               {categories.map((cat) => (
                 <tr key={cat.id}>
-                  <td className="td-icon">{cat.icon}</td>
                   <td>
                     <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
                   </td>

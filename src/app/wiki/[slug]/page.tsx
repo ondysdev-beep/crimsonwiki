@@ -1,7 +1,7 @@
 // FIXED: Added ISR revalidation, fixed view count error handling, and JSON-LD image fallback
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate, SITE_NAME, SITE_URL } from '@/lib/utils';
@@ -216,13 +216,11 @@ export default async function ArticlePage({ params }: PageProps) {
             <div className="infobox-title">{a.title}</div>
             {a.cover_image_url && (
               <div className="infobox-img">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={a.cover_image_url}
                   alt={a.title}
-                  fill
-                  unoptimized
-                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                  priority
+                  style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block' }}
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
               </div>

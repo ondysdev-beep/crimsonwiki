@@ -10,13 +10,6 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/categories` },
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  quests: '#c9a227', bosses: '#cc3333', items: '#4a9eff',
-  locations: '#33cc77', classes: '#9b59b6', crafting: '#e67e22',
-  tips: '#1abc9c', lore: '#95a5a6',
-  characters: '#e74c3c', mounts: '#8e44ad', collectibles: '#f39c12',
-  walkthrough: '#27ae60', factions: '#2c3e50', activities: '#16a085', camp: '#d35400',
-};
 
 export default async function CategoriesPage() {
   const supabase = await createClient();
@@ -59,7 +52,6 @@ export default async function CategoriesPage() {
       </div>
 
       {topLevel.map((cat) => {
-        const color = CATEGORY_COLORS[cat.slug] || cat.color || '#9b2020';
         const subs = subCategories.filter(s => s.parent_id === cat.id);
         const articleCount = cat.articles?.[0]?.count ?? 0;
 
@@ -67,13 +59,6 @@ export default async function CategoriesPage() {
           <div key={cat.id} className="wiki-box" style={{ marginBottom: '12px' }}>
             {/* Category header */}
             <div className="wiki-box-hd" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{
-                width: 24, height: 24, background: color, display: 'inline-flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontSize: '12px', fontWeight: '700', color: '#fff', flexShrink: 0,
-              }}>
-                {cat.icon || cat.name.charAt(0)}
-              </span>
               <Link href={`/category/${cat.slug}`} style={{ color: 'var(--text-0)', textDecoration: 'none' }}>
                 {cat.name}
               </Link>
@@ -104,12 +89,6 @@ export default async function CategoriesPage() {
                       href={`/category/${sub.slug}`}
                       className="subcat-item"
                     >
-                      <span
-                        className="subcat-icon"
-                        style={{ background: sub.color || color }}
-                      >
-                        {sub.icon || sub.name.charAt(0)}
-                      </span>
                       <span className="subcat-name">{sub.name}</span>
                     </Link>
                   ))}

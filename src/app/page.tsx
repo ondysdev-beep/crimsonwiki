@@ -170,7 +170,6 @@ export default async function HomePage() {
             <table className="wiki-table">
               <thead>
                 <tr>
-                  <th className="td-icon"></th>
                   <th>Category</th>
                   <th>Description</th>
                   <th className="td-count">Articles</th>
@@ -179,7 +178,6 @@ export default async function HomePage() {
               <tbody>
                 {categoriesWithCounts.map((cat) => (
                   <tr key={cat.id}>
-                    <td className="td-icon">{cat.icon}</td>
                     <td>
                       <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
                     </td>

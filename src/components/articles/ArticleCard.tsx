@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { formatDateRelative, truncate } from '@/lib/utils';
 import type { ArticleWithCategory } from '@/lib/types/database';
 
@@ -21,11 +20,12 @@ export function ArticleCard({ article }: { article: ArticleWithCategory }) {
     >
       {article.cover_image_url && (
         <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden' }}>
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={article.cover_image_url}
             alt={article.title}
-            fill
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block' }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
           />
         </div>
       )}

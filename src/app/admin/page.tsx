@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Users, FileText, FolderOpen, MessageSquare, AlertTriangle, GitBranch, Settings, ArrowRight, BarChart2, Image } from 'lucide-react';
+import { Users, FileText, FolderOpen, FolderTree, MessageSquare, AlertTriangle, GitBranch, Settings, ArrowRight, BarChart2, Image, Zap, Wrench, ClipboardList } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import type { Profile } from '@/lib/types/database';
 
@@ -84,8 +84,10 @@ export default async function AdminPage() {
           {
             heading: 'Content',
             items: [
-              { href: '/admin/articles', Icon: FileText, title: 'Articles', desc: 'Publish, unpublish, delete' },
-              { href: '/admin/categories', Icon: FolderOpen, title: 'Categories', desc: 'Add, edit, reorder, set parent' },
+              { href: '/admin/articles', Icon: FileText, title: 'Articles', desc: 'Publish, unpublish, bulk ops, clone, move' },
+              { href: '/admin/categories', Icon: FolderOpen, title: 'Categories', desc: 'Add, edit, export/import JSON, tree view' },
+              { href: '/admin/subcategories', Icon: FolderTree, title: 'Subcategories', desc: 'Manage, bulk move, merge subcategories' },
+              { href: '/admin/content', Icon: ClipboardList, title: 'Content Audit', desc: 'No category, duplicates, orphaned' },
               { href: '/admin/stubs', Icon: AlertTriangle, title: 'Stub Articles', desc: 'Articles under word threshold' },
               { href: '/admin/media', Icon: Image, title: 'Media Library', desc: 'Browse & delete uploaded images' },
             ],
@@ -101,6 +103,8 @@ export default async function AdminPage() {
           {
             heading: 'System',
             items: [
+              { href: '/admin/quick', Icon: Zap, title: 'Quick Actions', desc: 'Recent activity, drafts, fast edits' },
+              { href: '/admin/tools', Icon: Wrench, title: 'System Tools', desc: 'DB health, backup, SEO audit' },
               { href: '/admin/settings', Icon: Settings, title: 'Site Settings', desc: 'Banner, Discord link, thresholds' },
               { href: '/admin/redirects', Icon: ArrowRight, title: 'Redirects', desc: 'Manage 301 slug redirects' },
               { href: '/admin/analytics', Icon: BarChart2, title: 'Analytics', desc: 'Views, editors, category stats' },
