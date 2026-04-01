@@ -1,5 +1,24 @@
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
+import { DEFAULT_NAV } from '@/lib/nav-config';
+import type { NavSection } from '@/lib/nav-config';
+export type { NavSection } from '@/lib/nav-config';
+
+export const getNavConfig = cache(async function getNavConfigImpl(): Promise<NavSection[]> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'nav_config')
+      .single();
+    if (data?.value) {
+      const parsed = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+      if (Array.isArray(parsed)) return parsed as NavSection[];
+    }
+  } catch { /* fall through */ }
+  return DEFAULT_NAV;
+});
 
 export interface SiteSettings {
   site_notice_enabled: boolean;

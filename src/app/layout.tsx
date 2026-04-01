@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { AdSlot } from '@/components/layout/AdSlot';
 import { ClientProviders } from '@/components/layout/ClientProviders';
+import { getNavConfig } from '@/lib/settings';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -79,11 +80,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const navSections = await getNavConfig();
   return (
     <html lang="en">
       <head>
@@ -110,7 +112,7 @@ export default function RootLayout({
             </div>
 
             <div className="page">
-              <LeftSidebar />
+              <LeftSidebar navSections={navSections} />
               <main className="main-content">
                 {children}
               </main>

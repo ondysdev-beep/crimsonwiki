@@ -4,53 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/lib/context/SidebarContext';
+import type { NavSection } from '@/lib/nav-config';
 
 const STORAGE_KEY = 'sidebar-open-sections';
 
-const sidebarSections = {
-  "Getting Started": [
-    { name: "Main Page", href: "/" },
-    { name: "About CrimsonWiki", href: "/about" },
-    { name: "Editing Guide", href: "/help/editing" },
-    { name: "Style Guide", href: "/help/style" },
-    { name: "Contribute", href: "/contribute" },
-  ],
-  "Story & Quests": [
-    { name: "Quests", href: "/category/quests" },
-    { name: "Walkthrough", href: "/category/walkthrough" },
-    { name: "Lore", href: "/category/lore" },
-    { name: "Factions", href: "/category/factions" },
-    { name: "Characters", href: "/category/characters" },
-  ],
-  "Combat": [
-    { name: "Bosses", href: "/category/bosses" },
-    { name: "Classes", href: "/category/classes" },
-    { name: "Locations", href: "/category/locations" },
-  ],
-  "Items & Economy": [
-    { name: "Items", href: "/category/items" },
-    { name: "Crafting", href: "/category/crafting" },
-    { name: "Camp", href: "/category/camp" },
-    { name: "Mounts", href: "/category/mounts" },
-    { name: "Collectibles", href: "/category/collectibles" },
-  ],
-  "Community": [
-    { name: "Activities", href: "/category/activities" },
-    { name: "Tips & Tricks", href: "/category/tips" },
-    { name: "Discord Server", href: "/discord" },
-    { name: "Community Portal", href: "/community" },
-  ],
-  "Wiki Tools": [
-    { name: "All Pages", href: "/special/allpages" },
-    { name: "Recent Changes", href: "/special/recentchanges" },
-    { name: "New Pages", href: "/special/newpages" },
-    { name: "Statistics", href: "/statistics" },
-    { name: "Categories", href: "/categories" },
-  ],
-};
-
-export function LeftSidebar() {
-  const defaultOpen = Object.fromEntries(Object.keys(sidebarSections).map(key => [key, true]));
+export function LeftSidebar({ navSections }: { navSections: NavSection[] }) {
+  const defaultOpen = Object.fromEntries(navSections.map(s => [s.name, true]));
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(defaultOpen);
   const { mobileOpen, closeMobile } = useSidebar();
 
@@ -82,7 +41,7 @@ export function LeftSidebar() {
 
   const inner = (
     <aside className={`left-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
-      {Object.entries(sidebarSections).map(([section, links]) => (
+      {navSections.map(({ name: section, links }) => (
         <div key={section} className="sidebar-section">
           <button
             className="sidebar-section-hd"
@@ -95,7 +54,7 @@ export function LeftSidebar() {
           </button>
           {openSections[section] && links.map(link => (
             <Link
-              key={link.name}
+              key={link.href}
               href={link.href}
               className={`sidebar-link ${isActive(link.href) ? 'active' : ''}`}
             >

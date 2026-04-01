@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Users, FileText, FolderOpen, FolderTree, MessageSquare, AlertTriangle, GitBranch, Settings, ArrowRight, BarChart2, Image, Zap, Wrench, ClipboardList } from 'lucide-react';
+import { Users, FileText, FolderOpen, FolderTree, MessageSquare, AlertTriangle, GitBranch, Settings, ArrowRight, BarChart2, Image, Zap, Wrench, ClipboardList, Navigation } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import type { Profile } from '@/lib/types/database';
 
@@ -103,6 +103,7 @@ export default async function AdminPage() {
           {
             heading: 'System',
             items: [
+              { href: '/admin/navigation', Icon: Navigation, title: 'Navigation', desc: 'Edit sidebar sections and links' },
               { href: '/admin/quick', Icon: Zap, title: 'Quick Actions', desc: 'Recent activity, drafts, fast edits' },
               { href: '/admin/tools', Icon: Wrench, title: 'System Tools', desc: 'DB health, backup, SEO audit' },
               { href: '/admin/settings', Icon: Settings, title: 'Site Settings', desc: 'Banner, Discord link, thresholds' },
