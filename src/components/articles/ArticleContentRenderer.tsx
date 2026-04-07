@@ -1,4 +1,5 @@
 // FIXED: Replaced useEditor with generateHTML for server-side rendering, removed 'use client' directive
+import { RawHtmlRenderer } from './RawHtmlRenderer';
 import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';
 import { Heading } from '@tiptap/extension-heading';
@@ -52,6 +53,11 @@ function sanitizeContent(raw: unknown): JSONContent {
 const lowlight = createLowlight(common);
 
 export function ArticleContentRenderer({ content }: { content: unknown }) {
+  if (content && typeof content === 'object' && (content as Record<string, unknown>).type === 'rawHtml') {
+    const html = (content as { type: string; html: string }).html ?? '';
+    return <RawHtmlRenderer html={html} />;
+  }
+
   const safeContent = sanitizeContent(content);
   try {
     const html = generateHTML(safeContent, [

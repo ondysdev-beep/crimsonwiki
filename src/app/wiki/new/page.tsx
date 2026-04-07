@@ -4,10 +4,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, FileText, Upload, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { TiptapEditor } from '@/components/editor/TiptapEditor';
+import { TiptapEditor, type AnyContent } from '@/components/editor/TiptapEditor';
 import { slugify, extractTextFromJson } from '@/lib/utils';
 import type { Category, Json } from '@/lib/types/database';
-import type { JSONContent } from '@tiptap/react';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -21,7 +20,7 @@ export default function NewArticlePage() {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [coverUploading, setCoverUploading] = useState(false);
-  const [content, setContent] = useState<JSONContent>({});
+  const [content, setContent] = useState<AnyContent>({});
   const [contentText, setContentText] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
@@ -363,8 +362,8 @@ export default function NewArticlePage() {
 
       {/* Editor */}
       <TiptapEditor
-        onChange={(json, text) => {
-          setContent(json);
+        onChange={(anyContent, text) => {
+          setContent(anyContent);
           setContentText(text);
         }}
         autosaveKey="autosave-new-article"

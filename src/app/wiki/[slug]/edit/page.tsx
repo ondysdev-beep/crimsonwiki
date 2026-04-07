@@ -5,10 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { Save, Upload, X, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { TiptapEditor } from '@/components/editor/TiptapEditor';
+import { TiptapEditor, type AnyContent } from '@/components/editor/TiptapEditor';
 import { extractTextFromJson, slugify } from '@/lib/utils';
 import type { Article, Category, Json } from '@/lib/types/database';
-import type { JSONContent } from '@tiptap/react';
 
 export default function EditArticlePage() {
   const router = useRouter();
@@ -32,7 +31,7 @@ export default function EditArticlePage() {
   const [excerpt, setExcerpt] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [coverUploading, setCoverUploading] = useState(false);
-  const [content, setContent] = useState<JSONContent>({});
+  const [content, setContent] = useState<AnyContent>({});
   const [editSummary, setEditSummary] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -58,7 +57,7 @@ export default function EditArticlePage() {
         setCategoryId(a.category_id ?? null);
         setExcerpt(a.excerpt ?? '');
         setCoverImageUrl(a.cover_image_url ?? '');
-        setContent(a.content as JSONContent);
+        setContent(a.content as unknown as AnyContent);
       }
       if (catData) setCategories(catData as Category[]);
       setLoading(false);
@@ -333,7 +332,7 @@ export default function EditArticlePage() {
       {/* Editor */}
       <TiptapEditor
         content={content}
-        onChange={(json, text) => { setContent(json); void text; }}
+        onChange={(anyContent, text) => { setContent(anyContent); void text; }}
         autosaveKey={`autosave-edit-${currentSlug}`}
         onImageUpload={uploadImage}
       />

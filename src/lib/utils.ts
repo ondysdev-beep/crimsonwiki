@@ -38,6 +38,10 @@ export function formatDateRelative(date: string): string {
 
 export function extractTextFromJson(json: unknown): string {
   if (!json || typeof json !== 'object') return '';
+  const j = json as Record<string, unknown>;
+  if (j.type === 'rawHtml' && typeof j.html === 'string') {
+    return j.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
   try {
     return generateText(json as JSONContent, [StarterKit as any]);
   } catch {
