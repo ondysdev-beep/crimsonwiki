@@ -1,4 +1,3 @@
-// FIXED: Replaced useEditor with generateHTML for server-side rendering, removed 'use client' directive
 import { RawHtmlRenderer } from './RawHtmlRenderer';
 import { generateHTML } from '@tiptap/html';
 import StarterKit from '@tiptap/starter-kit';

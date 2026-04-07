@@ -33,6 +33,14 @@ export async function Footer() {
           <a href={discord_url} target="_blank" rel="noopener noreferrer" className="footer-link">Discord Server</a>
         </div>
 
+        {/* Community Column */}
+        <div>
+          <div className="footer-col-title">Community</div>
+          <a href={discord_url} target="_blank" rel="noopener noreferrer" className="footer-link">Discord</a>
+          <a href="https://reddit.com/r/CrimsonDesert" target="_blank" rel="noopener noreferrer" className="footer-link">Reddit</a>
+          <a href="https://x.com/CrimsonDesert" target="_blank" rel="noopener noreferrer" className="footer-link">X (Twitter)</a>
+        </div>
+
         {/* Legal Column */}
         <div>
           <div className="footer-col-title">Legal</div>

@@ -1,4 +1,3 @@
-// FIXED: Added 2-second timeout to fetch request and proper error handling to prevent cache update on failure
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 

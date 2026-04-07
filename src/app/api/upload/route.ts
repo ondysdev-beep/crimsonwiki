@@ -1,4 +1,3 @@
-// FIXED: Replaced getSession() with getUser(), added magic bytes verification for images, implemented in-memory rate limiting, and added Cache-Control header
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';

@@ -1,4 +1,3 @@
-// FIXED: Replaced placeholder AdSense slot IDs with environment variables and added fallback to empty string
 import type { Metadata } from 'next';
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/utils';
 import { Navbar } from '@/components/layout/Navbar';

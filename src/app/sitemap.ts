@@ -1,4 +1,3 @@
-// FIXED: Removed thin content pages /statistics, /community, and /discord from sitemap
 import type { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { SITE_URL } from '@/lib/utils';
@@ -45,8 +44,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/terms`, changeFrequency: 'yearly' as const, priority: 0.2 },
   ];
 
+  const latestArticleDate = articles.length > 0 ? new Date(articles[0].updated_at) : new Date('2026-03-01');
   return [
-    ...staticPages.map(page => ({ ...page, lastModified: new Date() })),
+    ...staticPages.map(page => ({ ...page, lastModified: latestArticleDate })),
     ...categoryEntries,
     ...articleEntries,
   ];

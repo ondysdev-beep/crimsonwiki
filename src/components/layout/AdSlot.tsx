@@ -1,4 +1,3 @@
-// FIXED: Removed unused ref and useRef, added guard to return null if slotId is empty
 'use client';
 
 import { useEffect, useRef } from 'react';

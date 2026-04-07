@@ -141,52 +141,22 @@ export default async function ContributePage() {
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        <div className="right-sidebar">
-          <div className="wiki-box">
-            <div className="wiki-box-hd">Quick Stats</div>
-            <div className="wiki-box-body">
-              <div className="contrib-row">
-                <span>Total Contributors</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalUsers || 0}</span>
+        {/* QUICK STATS */}
+        <div className="wiki-box">
+          <div className="wiki-box-hd">Community Stats</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1px', background: 'var(--border)' }}>
+            {[
+              ['Contributors', totalUsers || 0],
+              ['Articles', totalArticles || 0],
+              ['Total Edits', totalEdits || 0],
+              ['New This Month', articlesThisMonth || 0],
+              ['Edits This Week', editsThisWeek || 0],
+            ].map(([label, value]) => (
+              <div key={String(label)} style={{ background: 'var(--bg-1)', padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--ff-mono)', fontSize: '16px', color: 'var(--amber-bright)', fontWeight: 500 }}>{Number(value).toLocaleString()}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-2)', marginTop: '2px' }}>{label}</div>
               </div>
-              <div className="contrib-row">
-                <span>Articles This Month</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{articlesThisMonth || 0}</span>
-              </div>
-              <div className="contrib-row">
-                <span>Edits This Week</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{editsThisWeek || 0}</span>
-              </div>
-              <div className="contrib-row">
-                <span>Total Articles</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalArticles || 0}</span>
-              </div>
-              <div className="contrib-row">
-                <span>Total Edits</span>
-                <span style={{ fontFamily: 'var(--ff-mono)', color: 'var(--amber)' }}>{totalEdits || 0}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="wiki-box">
-            <div className="wiki-box-hd">Top Contributors</div>
-            <div className="wiki-box-body">
-              {topContributorsList.length > 0 ? (
-                topContributorsList.map((contributor, index) => (
-                  <div key={index} className="contrib-row">
-                    <span className="contrib-name">{contributor.name}</span>
-                    <span className="contrib-edits">{contributor.edits} edits</span>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-2)' }}>
-                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
-                  <p style={{ fontSize: '12px' }}>No contributors yet</p>
-                  <p style={{ fontSize: '11px', marginTop: '8px' }}>Be the first to contribute!</p>
-                </div>
-              )}
-            </div>
+            ))}
           </div>
         </div>
       </div>

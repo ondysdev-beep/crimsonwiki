@@ -1,4 +1,3 @@
-// FIXED: Replaced getSession() with getUser() in admin server component
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';

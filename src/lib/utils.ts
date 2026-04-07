@@ -1,4 +1,3 @@
-// FIXED: Replaced manual Tiptap JSON walker with generateText function
 import { generateText } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import type { JSONContent } from '@tiptap/core';

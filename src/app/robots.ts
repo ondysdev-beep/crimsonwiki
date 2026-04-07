@@ -1,4 +1,3 @@
-// FIXED: Removed redundant Googlebot and Bingbot rules, added /profile/ to disallow list
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/utils';
 

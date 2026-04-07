@@ -31,7 +31,7 @@ export interface SiteSettings {
 
 const DEFAULTS: SiteSettings = {
   site_notice_enabled: true,
-  site_notice_text: 'CrimsonWiki is currently in early development. Many pages are stubs — help us expand them!',
+  site_notice_text: 'Welcome to CrimsonWiki! Help us build the most complete Crimson Desert resource — create an account and start contributing today.',
   discord_url: 'https://discord.gg/crimsondesert',
   stats_min_articles: 50,
   stub_threshold: 300,

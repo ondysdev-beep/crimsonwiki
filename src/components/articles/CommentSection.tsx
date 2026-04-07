@@ -1,4 +1,3 @@
-// FIXED: Replaced getSession() with getUser(), added maxLength, character counter, submit guard, and delete confirmation
 'use client';
 
 import { useState, useEffect, useRef } from 'react';

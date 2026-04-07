@@ -1,4 +1,3 @@
-// FIXED: Added ISR revalidation, fixed view count error handling, and JSON-LD image fallback
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -31,12 +30,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!metaData) return { title: 'Article Not Found' };
 
   const a = metaData as unknown as ArticleWithCategory;
+  const catLabel = a.categories?.name ? ` - ${a.categories.name}` : '';
+  const autoExcerpt = a.content_text
+    ? a.content_text.replace(/\s+/g, ' ').trim().slice(0, 155).trimEnd() + '...'
+    : `Everything you need to know about ${a.title} in Crimson Desert.`;
+  const description = a.excerpt || autoExcerpt;
   return {
-    title: a.title,
-    description: a.excerpt || `Read about ${a.title} on ${SITE_NAME}`,
+    title: `${a.title}${catLabel}`,
+    description,
     openGraph: {
-      title: `${a.title} | ${SITE_NAME}`,
-      description: a.excerpt || `Read about ${a.title} on ${SITE_NAME}`,
+      title: `${a.title}${catLabel} | ${SITE_NAME}`,
+      description,
       url: `${SITE_URL}/wiki/${a.slug}`,
       images: a.cover_image_url ? [{ url: a.cover_image_url }] : [{ url: `${SITE_URL}/og-image.png` }],
       type: 'article',

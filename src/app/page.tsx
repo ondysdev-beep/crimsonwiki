@@ -4,7 +4,6 @@ import { formatDateRelative } from '@/lib/utils';
 import type { ArticleWithCategory, Category } from '@/lib/types/database';
 import { HeroSearch } from '@/components/wiki/HeroSearch';
 import { getSettings } from '@/lib/settings';
-import { RecentlyViewed } from '@/components/wiki/RecentlyViewed';
 
 export const revalidate = 60;
 
@@ -82,12 +81,19 @@ export default async function HomePage() {
   const categories = ((catData ?? []) as Category[]).filter(c => !c.parent_id);
   const totalViews = viewData?.reduce((sum, article) => sum + (article.view_count || 0), 0) || 0;
 
-  const categoriesWithCounts = categories.map(cat => {
-    return {
-      ...cat,
-      article_count: 0 // TODO: Fix with proper count query later
-    };
+  // Count articles per category
+  const { data: countData } = await supabase
+    .from('articles')
+    .select('category_id')
+    .eq('is_published', true);
+  const countMap: Record<number, number> = {};
+  (countData ?? []).forEach(a => {
+    if (a.category_id) countMap[a.category_id] = (countMap[a.category_id] || 0) + 1;
   });
+  const categoriesWithCounts = categories.map(cat => ({
+    ...cat,
+    article_count: countMap[cat.id] || 0,
+  }));
 
   // Count revisions per user and get top 5
   const contributorCounts = revisionData?.reduce((acc, rev) => {
@@ -157,84 +163,78 @@ export default async function HomePage() {
         </div>
       </div>}
 
-      {/* CONTENT GRID */}
-      <div className="content-grid">
-        {/* MAIN COLUMN */}
-        <div>
-          {/* CATEGORIES TABLE */}
-          <div className="wiki-box">
-            <div className="wiki-box-hd">
-              Browse by Category
-              <Link href="/categories" className="wiki-box-hd-link">[all categories]</Link>
-            </div>
-            <table className="wiki-table">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th className="td-count">Articles</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categoriesWithCounts.map((cat) => (
-                  <tr key={cat.id}>
-                    <td>
-                      <Link href={`/category/${cat.slug}`}>{cat.name}</Link>
-                    </td>
-                    <td style={{ color: 'var(--text-2)', fontSize: '11px' }}>
-                      {cat.description || 'No description available'}
-                    </td>
-                    <td className="td-count">{cat.article_count.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* CATEGORY CARDS */}
+      <div className="wiki-box">
+        <div className="wiki-box-hd">
+          Browse by Category
+          <Link href="/categories" className="wiki-box-hd-link">[all categories]</Link>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1px', background: 'var(--border)' }}>
+          {categoriesWithCounts.map((cat) => {
+            const colors = CATEGORY_COLORS[cat.slug] || { color: '#95a5a6', glow: 'rgba(149,165,166,0.12)' };
+            return (
+              <Link
+                key={cat.id}
+                href={`/category/${cat.slug}`}
+                className="cat-card"
+                style={{ borderLeft: `3px solid ${colors.color}` }}
+              >
+                <div className="cat-card-name" style={{ color: colors.color }}>{cat.name}</div>
+                <div className="cat-card-count">{cat.article_count} articles</div>
+                {cat.description && (
+                  <div className="cat-card-desc">{cat.description}</div>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
-          {/* RECENT ARTICLES TABLE */}
-          <div className="wiki-box">
-            <div className="wiki-box-hd">
-              Recently Edited Articles
-              <Link href="/search" className="wiki-box-hd-link">[full list]</Link>
-            </div>
-            <table className="article-table">
-              <thead>
-                <tr>
-                  <th>Article</th>
-                  <th>Type</th>
-                  <th>Editor</th>
-                  <th>Edited</th>
-                  <th>Views</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentArticles.map((article) => {
-                  const catSlug = (article.categories as unknown as Category)?.slug || '';
-                  const catName = (article.categories as unknown as Category)?.name || '';
-                  const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
-                  return (
-                    <tr key={article.id}>
-                      <td className="td-title">
-                        <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
-                      </td>
-                      <td>
-                        <span className={`tag tag-${catSlug}`}>{catName}</span>
-                      </td>
-                      <td className="td-meta">
-                        <Link href={`/profile/${authorName}`}>{authorName}</Link>
-                      </td>
-                      <td className="td-meta">{formatDateRelative(article.updated_at)}</td>
-                      <td className="td-views">{(article.view_count || 0).toLocaleString()}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* TWO-COLUMN: RECENT ARTICLES + SIDEBAR */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '10px' }}>
+        {/* RECENT ARTICLES TABLE */}
+        <div className="wiki-box">
+          <div className="wiki-box-hd">
+            Recently Edited Articles
+            <Link href="/search" className="wiki-box-hd-link">[full list]</Link>
           </div>
+          <table className="article-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Type</th>
+                <th>Editor</th>
+                <th>Edited</th>
+                <th>Views</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentArticles.map((article) => {
+                const catSlug = (article.categories as unknown as Category)?.slug || '';
+                const catName = (article.categories as unknown as Category)?.name || '';
+                const authorName = (article.profiles as { username: string } | null)?.username || 'Unknown';
+                return (
+                  <tr key={article.id}>
+                    <td className="td-title">
+                      <Link href={`/wiki/${article.slug}`}>{article.title}</Link>
+                    </td>
+                    <td>
+                      <span className={`tag tag-${catSlug}`}>{catName}</span>
+                    </td>
+                    <td className="td-meta">
+                      <Link href={`/profile/${authorName}`}>{authorName}</Link>
+                    </td>
+                    <td className="td-meta">{formatDateRelative(article.updated_at)}</td>
+                    <td className="td-views">{(article.view_count || 0).toLocaleString()}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        <div className="right-sidebar">
+        {/* SIDEBAR */}
+        <div>
           {/* TOP CONTRIBUTORS */}
           <div className="wiki-box">
             <div className="wiki-box-hd">Top Contributors</div>
@@ -251,10 +251,8 @@ export default async function HomePage() {
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-2)' }}>
-                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
-                  <p style={{ fontSize: '12px' }}>No contributors yet</p>
-                  <p style={{ fontSize: '11px', marginTop: '8px' }}>Be the first to contribute!</p>
+                <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-2)', fontSize: '12px' }}>
+                  No contributors yet — be the first!
                 </div>
               )}
             </div>
@@ -278,15 +276,12 @@ export default async function HomePage() {
             </div>
           )}
 
-          {/* RECENTLY VIEWED */}
-          <RecentlyViewed />
-
           {/* CONTRIBUTE BOX */}
           <div className="wiki-box">
             <div className="wiki-box-hd">Contribute</div>
-            <div className="wiki-box-body" style={{ fontSize: '12px', color: 'var(--text-1)', lineHeight: '1.6' }}>
-              <p style={{ marginBottom: '8px' }}>This wiki is written by the community. Create an account to add and edit articles.</p>
-              <Link href="/auth/login" className="btn-login" style={{ width: '100%', height: '26px' }}>
+            <div className="wiki-box-body" style={{ fontSize: '13px', color: 'var(--text-1)', lineHeight: '1.6' }}>
+              <p style={{ marginBottom: '8px' }}>Help build the wiki. Create an account to add and edit articles.</p>
+              <Link href="/auth/login" className="btn-login" style={{ width: '100%', height: '28px', justifyContent: 'center' }}>
                 Create Account
               </Link>
             </div>

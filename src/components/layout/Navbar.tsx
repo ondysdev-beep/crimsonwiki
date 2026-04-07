@@ -1,20 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { NavbarAuth } from './NavbarAuth';
 import { useSidebar } from '@/lib/context/SidebarContext';
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const { toggleMobile } = useSidebar();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -34,13 +35,11 @@ export function Navbar() {
     { name: 'Locations', href: '/category/locations' },
     { name: 'Crafting', href: '/category/crafting' },
     { name: 'Mounts', href: '/category/mounts' },
-    { name: 'Activities', href: '/category/activities' },
     { name: 'Camp', href: '/category/camp' },
     { name: 'Collectibles', href: '/category/collectibles' },
-    { name: 'Tips & Tricks', href: '/category/tips' },
+    { name: 'All Categories', href: '/categories' },
     { name: 'Random Page', href: '/special/random' },
     { name: 'Contribute', href: '/contribute' },
-    { name: 'Discord', href: '/discord' },
   ];
 
   const isActive = (href: string) => {

@@ -1,4 +1,3 @@
-// FIXED: Removed all console.log statements, added production environment checks, and implemented open redirect protection
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
