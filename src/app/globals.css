@@ -601,12 +601,8 @@ select option {
 /* ===== CONTENT GRID ===== */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 10px;
-}
-
-.content-grid.full {
   grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 /* ===== WIKI BOX ===== */

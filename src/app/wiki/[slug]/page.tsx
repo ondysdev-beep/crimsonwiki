@@ -258,13 +258,10 @@ export default async function ArticlePage({ params }: PageProps) {
           <div className="article-body">
             <ArticleContentRenderer content={a.content} />
           </div>
-        </div>
 
-        {/* RIGHT SIDEBAR */}
-        <div className="right-sidebar">
           {/* RELATED ARTICLES */}
           {relatedArticles.length > 0 && (
-            <div className="wiki-box">
+            <div className="wiki-box" style={{ marginTop: '16px' }}>
               <div className="wiki-box-hd">Related Articles</div>
               <div>
                 {relatedArticles.map((ra) => (
@@ -279,7 +276,8 @@ export default async function ArticlePage({ params }: PageProps) {
                 ))}
               </div>
             </div>
-          )}        </div>
+          )}
+        </div>
       </div>
 
       <ArticleViewTracker slug={a.slug} title={a.title} categoryName={a.categories?.name ?? undefined} />
