@@ -8,7 +8,6 @@ import { formatDate, SITE_NAME, SITE_URL } from '@/lib/utils';
 import { getSettings } from '@/lib/settings';
 import { CommentSection } from '@/components/articles/CommentSection';
 import { ArticleViewTracker } from '@/components/wiki/ArticleViewTracker';
-import { RecentlyViewed } from '@/components/wiki/RecentlyViewed';
 import { ArticleContentRenderer } from '@/components/articles/ArticleContentRenderer';
 import { TableOfContents } from '@/components/articles/TableOfContents';
 import { BackToTop } from '@/components/wiki/BackToTop';
@@ -263,25 +262,6 @@ export default async function ArticlePage({ params }: PageProps) {
 
         {/* RIGHT SIDEBAR */}
         <div className="right-sidebar">
-          {/* ARTICLE STATS */}
-          <div className="wiki-box">
-            <div className="wiki-box-hd">Article Stats</div>
-            <div>
-              {[
-                ['Views', a.view_count.toLocaleString()],
-                ['Revisions', String(revisionCount || 0)],
-                ['Authors', String(uniqueEditorCount)],
-              ].map(([label, value]) => (
-                <div key={label} className="contrib-row" style={{ justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-1)' }}>{label}</span>
-                  <span style={{ fontFamily: 'var(--ff-mono)', fontSize: '12px', color: 'var(--amber)' }}>
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* RELATED ARTICLES */}
           {relatedArticles.length > 0 && (
             <div className="wiki-box">
@@ -299,23 +279,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* CATEGORIES */}
-          {a.categories && (
-            <div className="wiki-box">
-              <div className="wiki-box-hd">Categories</div>
-              <div className="wiki-box-body" style={{ fontSize: '12px' }}>
-                <Link href={`/category/${a.categories.slug}`} style={{ marginRight: '8px' }}>
-                  {a.categories.name}
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* RECENTLY VIEWED */}
-          <RecentlyViewed />
-        </div>
+          )}        </div>
       </div>
 
       <ArticleViewTracker slug={a.slug} title={a.title} categoryName={a.categories?.name ?? undefined} />

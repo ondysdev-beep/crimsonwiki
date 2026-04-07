@@ -4,7 +4,6 @@ import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/utils';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
-import { AdSlot } from '@/components/layout/AdSlot';
 import { ClientProviders } from '@/components/layout/ClientProviders';
 import { getNavConfig } from '@/lib/settings';
 import './globals.css';
@@ -102,29 +101,11 @@ export default async function RootLayout({
         <ClientProviders>
           <Navbar />
           <div className="page-outer">
-            {/* LEFT AD COLUMN */}
-            <div className="ad-col ad-col-left">
-              <AdSlot
-                slotId={process.env.NEXT_PUBLIC_ADSENSE_LEFT_SLOT || ''}
-                format="vertical"
-                style={{ width: 160, height: 600 }}
-              />
-            </div>
-
             <div className="page">
               <LeftSidebar navSections={navSections} />
               <main className="main-content">
                 {children}
               </main>
-            </div>
-
-            {/* RIGHT AD COLUMN */}
-            <div className="ad-col ad-col-right">
-              <AdSlot
-                slotId={process.env.NEXT_PUBLIC_ADSENSE_RIGHT_SLOT || ''}
-                format="vertical"
-                style={{ width: 160, height: 600 }}
-              />
             </div>
           </div>
           <Footer />
